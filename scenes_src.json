@@ -41,7 +41,7 @@
   {
    "type": "list",
    "start": 20.9,
-   "end": 27.3,
+   "end": 27.6,
    "heading": "오늘 설명 순서",
    "items": [
     {
@@ -66,7 +66,7 @@
   },
   {
    "type": "section",
-   "start": 27.3,
+   "start": 27.6,
    "end": 33.6,
    "index": "01",
    "title": "문제풀이",
@@ -725,7 +725,7 @@
  "chapters": [
   {
    "title": "01 문제풀이",
-   "start": 27.3
+   "start": 27.6
   },
   {
    "title": "02 해석",

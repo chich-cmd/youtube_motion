@@ -79,9 +79,21 @@ for r, (ra, rb) in zip(reps, spans):
     newaud[r['id']] = np.concatenate([pre, clip])
     out.append({'kind': 'new', 'id': r['id'], 'a': ra, 'b': rb, 'text': r['text']})
     pieces = sorted(out, key=lambda p: p['a'])
+# 2b. scenes removed on request (source ranges, edges inside real silences)
+DELETES = [(335.40, 337.90),   # "이런 걸 이해하기 위해서 뉴턴의 반응이 필요하다"
+           (473.60, 475.70)]   # "이거는 뭐 너무 자주 설명하긴 했는데"
+for da, db in DELETES:
+    out = []
+    for p in pieces:
+        if p['kind'] != 'src' or p['b'] <= da or p['a'] >= db: out.append(p); continue
+        if p['a'] < da: out.append({**p, 'b': snap(da)})
+        if p['b'] > db: out.append({**p, 'a': snap(db)})
+    pieces = out
+
 # 3. breathing room on chapter title cards (source time → seconds of silence)
-HOLDS = {27.3: 1.2, 376.7: 1.8, 471.8: 1.8}
+HOLDS = {27.6: 1.2, 376.7: 1.8, 471.8: 1.8}
 for x, d in HOLDS.items():
+    assert any(a <= x <= b for a, b in sil), f'hold at {x}s is not inside a silence'
     out = []
     for p in pieces:
         if p['kind'] == 'src' and p['a'] < x < p['b']: out += [{**p, 'b': x}, {**p, 'a': x}]
@@ -128,6 +140,8 @@ def prop_words(text, s, e):
         a = s + (e - s) * acc / tot; acc += len(tk); ws.append({'s': round(a, 3), 'e': round(s + (e - s) * acc / tot, 3), 'w': tk})
     return ws
 for seg in tr:
+    mid = (seg['start'] + seg['end']) / 2
+    if any(da <= mid <= db for da, db in DELETES): continue   # line was cut out of the video
     r = next((r for r in allreps if r['start'] - 0.05 <= seg['start'] < r['end'] - 0.05), None)
     if r:
         if any(o.get('rid') == r['id'] for o in out): continue

@@ -6,7 +6,7 @@ import {Segment} from '../types';
 type Line = {s: number; e: number; text: string};
 
 /** Split transcript into short caption lines (≤ maxChars), using word timings. */
-export const buildLines = (segs: Segment[], maxChars = 24): Line[] => {
+export const buildLines = (segs: Segment[], maxChars = 30): Line[] => {
   const out: Line[] = [];
   for (const seg of segs) {
     const words = seg.words.length ? seg.words : [{s: seg.start, e: seg.end, w: seg.text}];
