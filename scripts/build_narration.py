@@ -273,8 +273,11 @@ for sc in kept:                                    # re-sync at every spoken lin
 json.dump(fp, open('motion/src/data/pieces.json', 'w'))
 
 # ── 6. audio
-raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', NAR, '-af', ','.join([
-    'highpass=f=80', 'afftdn=nf=-30', 'agate=threshold=0.02:ratio=3:attack=5:release=120:range=0.25',
+import os
+NAR_AUDIO = 'rec2/narration_df.wav' if os.path.exists('rec2/narration_df.wav') else NAR   # DeepFilterNet-cleaned voice
+CLEAN = [] if NAR_AUDIO != NAR else ['afftdn=nf=-30', 'agate=threshold=0.02:ratio=3:attack=5:release=120:range=0.25']
+raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', NAR_AUDIO, '-af', ','.join([
+    'highpass=f=80', *CLEAN,
     'equalizer=f=300:t=q:w=1.2:g=-4', 'equalizer=f=3200:t=q:w=1.5:g=2',
     'acompressor=threshold=-22dB:ratio=3:attack=8:release=150:makeup=2']),
     '-ac', '2', '-ar', str(SR), '-f', 'f32le', '-'], capture_output=True, check=True).stdout
