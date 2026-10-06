@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {useCurrentFrame} from 'remotion';
-import {C, FPS} from '../theme';
+import {FONT, FPS} from '../theme';
 import {Segment} from '../types';
 
 type Line = {s: number; e: number; text: string};
@@ -30,7 +30,7 @@ export const Captions: React.FC<{segments: Segment[]}> = ({segments}) => {
   const line = lines.find((l) => t >= l.s && t < l.e);
   if (!line) return null;
   return (
-    <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center'}}>
+    <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center', fontFamily: FONT}}>
       <div style={{background: 'rgba(21,24,30,0.88)', color: '#fff', fontSize: 44, fontWeight: 600, letterSpacing: -0.5,
         padding: '14px 34px', borderRadius: 16, maxWidth: 1500, textAlign: 'center'}}>{line.text}</div>
     </div>
