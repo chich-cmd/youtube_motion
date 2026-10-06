@@ -36,7 +36,7 @@ for a, b in cuts:
 keeps.append([t, snap(min(dur, END_KEEP + 1.5))])
 
 # 2. splice re-recorded lines: remove [ra, rb] from keeps, insert a 'new' piece
-reps = [r for r in json.load(open('replacements.json')) if r.get('file')]
+reps = sorted([r for r in json.load(open('replacements.json')) if r.get('file')], key=lambda r: r['start'])
 def widen(ra, rb):
     # extend to neighbouring silence so we never cut mid-word
     pre = [e for s, e in sil if ra - 0.6 <= e <= ra + 0.2]
@@ -45,16 +45,36 @@ def widen(ra, rb):
 pieces = [{'kind': 'src', 'a': a, 'b': b} for a, b in keeps]
 newaud = {}
 ref_rms = None
-for r in reps:
-    ra, rb = widen(r['start'], r['end'])
+spans = [list(widen(r['start'], r['end'])) for r in reps]
+for i in range(len(spans) - 1):                 # adjacent lines (e.g. r4/r5) must not overlap
+    if spans[i][1] > spans[i + 1][0]:
+        spans[i][1] = spans[i + 1][0] = snap(reps[i + 1]['start'])
+for r, (ra, rb) in zip(reps, spans):
     out = []
     for p in pieces:
         if p['kind'] != 'src' or p['b'] <= ra or p['a'] >= rb: out.append(p); continue
         if p['a'] < ra: out.append({**p, 'b': ra})
         if p['b'] > rb: out.append({**p, 'a': rb})
-    clip = ffaudio(r['file'], ['-af', 'afftdn=nf=-25,silenceremove=start_periods=1:start_threshold=-40dB:'
-                                      'stop_periods=1:stop_threshold=-40dB:stop_duration=0.3,areverse,'
-                                      'silenceremove=start_periods=1:start_threshold=-40dB,areverse'])
+    # trim only leading/trailing silence, then tame room reverb and match the original's tone
+    clip = ffaudio(r['file'], ['-af', ','.join([
+        'highpass=f=80', 'afftdn=nf=-30',
+        'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05',
+        'areverse', 'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.12', 'areverse',
+        'agate=threshold=0.02:ratio=3:attack=5:release=120:range=0.25',   # shorten reverb tails between words
+        'equalizer=f=300:t=q:w=1.2:g=-4', 'equalizer=f=3200:t=q:w=1.5:g=2',
+        'acompressor=threshold=-22dB:ratio=3:attack=8:release=150:makeup=2'])])
+    # shrink long pauses inside the recording the same way as the main edit
+    w = int(0.02 * SR); lv = np.sqrt(np.convolve(clip[:, 0] ** 2, np.ones(w) / w, 'same'))
+    quiet = lv < 10 ** (-40 / 20)
+    keep = np.ones(len(clip), bool); i = 0
+    while i < len(clip):
+        if quiet[i]:
+            j = i
+            while j < len(clip) and quiet[j]: j += 1
+            if (j - i) / SR > MIN_SIL: keep[i + int(PAD_OUT * SR):j - int(PAD_IN * SR)] = False
+            i = j
+        else: i += 1
+    clip = clip[keep]
     newaud[r['id']] = clip
     out.append({'kind': 'new', 'id': r['id'], 'a': ra, 'b': rb, 'text': r['text']})
     pieces = sorted(out, key=lambda p: p['a'])
@@ -83,6 +103,10 @@ chapters = [{**c, 'start': remap(c['start'])} for c in src['chapters']]
 json.dump({'scenes': scenes, 'chapters': chapters, 'total': total}, open('motion/src/data/scenes_cut.json', 'w'), ensure_ascii=False, indent=1)
 
 allreps = json.load(open('replacements.json'))
+newspan, t = {}, 0.0
+for p in pieces:
+    if p['kind'] == 'new': newspan[p['id']] = (round(t + 0.05, 3), round(t + p['dur'] - 0.05, 3))
+    t += p['dur']
 tr = json.load(open('transcript_clean.json'))
 out, acc = [], 0.0
 def prop_words(text, s, e):
@@ -94,7 +118,7 @@ for seg in tr:
     r = next((r for r in allreps if r['start'] - 0.05 <= seg['start'] < r['end'] - 0.05), None)
     if r:
         if any(o.get('rid') == r['id'] for o in out): continue
-        s, e = remap(r['start']), remap(r['end'])
+        s, e = newspan.get(r['id'], (remap(r['start']), remap(r['end'])))
         out.append({'rid': r['id'], 'start': s, 'end': e, 'text': r['text'], 'words': prop_words(r['text'], s, e)})
         continue
     out.append({'start': remap(seg['start']), 'end': remap(seg['end']), 'text': seg['text'],
@@ -134,9 +158,15 @@ def lp(x, cut):
     for i in range(len(x)):
         prev = (1 - a[i]) * x[i] + a[i] * prev; y[i] = prev
     return y
-def pop():
-    n = int(0.09 * SR); t = np.arange(n) / SR
-    return 0.32 * np.sin(2 * np.pi * np.cumsum(950 * np.exp(-t * 9) + 420) / SR) * env(n, 0.002, 0.03)
+def paper():  # short paper-flick "삭"
+    n = int(0.16 * SR); t = np.arange(n) / SR
+    noise = rng.standard_normal(n)
+    sweep = 2200 + 4800 * np.minimum(t / 0.07, 1)
+    y = lp(noise, np.minimum(sweep * 1.8, 11000)) - lp(noise, sweep * 0.55)
+    grain = 0.75 + 0.25 * np.sign(np.sin(2 * np.pi * 70 * t + rng.uniform(0, 6)))  # fibrous texture
+    e = np.minimum(t / 0.012, 1) * np.exp(-np.maximum(t - 0.03, 0) / 0.035)
+    y = y * e * grain
+    return 0.30 * y / (np.abs(y).max() + 1e-9)
 def tick():
     n = int(0.05 * SR); t = np.arange(n) / SR
     return 0.16 * np.sin(2 * np.pi * 2100 * t) * env(n, 0.001, 0.012)
@@ -157,7 +187,7 @@ def swipe():
 def boom():
     n = int(0.7 * SR); t = np.arange(n) / SR
     return 0.5 * np.sin(2 * np.pi * np.cumsum(95 * np.exp(-t * 3) + 45) / SR) * env(n, 0.004, 0.22)
-S = {k: fn() for k, fn in dict(pop=pop, tick=tick, ding=ding, whoosh=whoosh, swipe=swipe, boom=boom).items()}
+S = {k: fn() for k, fn in dict(pop=paper, tick=tick, ding=ding, whoosh=whoosh, swipe=swipe, boom=boom).items()}
 OFF = {'whoosh': -0.22}
 events = []
 for i, s in enumerate(scenes):
