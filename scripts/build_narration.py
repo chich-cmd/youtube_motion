@@ -267,7 +267,7 @@ for sc in kept:                                    # re-sync at every spoken lin
         if o0 is None: continue
         need = None if o1 is None or o1 <= o0 else (o1 - o0) / (t1 - t0)
         if need is None: rate = 1.0
-        elif 0.4 <= need <= 2.5: rate = need
+        elif 0.4 <= need <= 4.0: rate = need
         else: rate, o0 = 1.0, o1 - (t1 - t0)       # too far apart (a cut in the source): jump, then play normally
         fp.append({'at': round(t0, 4), 'from': round(o0 + FOOTAGE_LEAD, 4), 'dur': round(t1 - t0, 4), 'rate': round(rate, 3)})
 json.dump(fp, open('motion/src/data/pieces.json', 'w'))
