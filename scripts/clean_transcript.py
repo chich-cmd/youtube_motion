@@ -10,6 +10,8 @@ fix = {
   73.7: '다 맞기',
   81.0: '다 맞기',
   94.9: '예를 들면 마더텅 검정을 사셔서',
+  107.3: '요구,',
+  108.3: '안내,',
   118.1: '동사에 동그라미를 치며 체크해 보시면',
   119.8: 'is는 목적동사가 아니고',
   133.3: '3번에 전시 장소 대여를 문의하려고가 있습니다.',
@@ -19,8 +21,11 @@ fix = {
   147.9: '사실 뒷 심경만 찾아도',
   154.0: '여기 worries 얘만 보면',
   156.7: '불안함 될 수 있고',
+  157.8: '놀라는 거,',
+  158.5: '감사, 무관심 다 안되죠.',
   171.9: '대의파악 문제도 단어 잘 모르고',
-  176.4: '결과접속사',
+  175.2: '역접속사,',
+  176.4: '결과접속사,',
   177.5: '예시의 전 문장',
   183.5: '이번 9모로 한 번 보여드릴게요.',
   188.4: '여기 But 문장부터 한 번 살펴보면',
@@ -45,6 +50,8 @@ fix = {
   531.5: '제끼고 외우기',
   552.9: '분류 작업을 한번 거치시고',
   566.9: '하루 세 번씩',
+  568.0: '글자 생김새,',
+  571.7: '발음,',
 }
 out = []
 for s in segs:
@@ -62,7 +69,10 @@ for s in segs:
             a = t0 + dur * acc / total; acc += len(t)
             words.append({'s': round(a, 2), 'e': round(t0 + dur * acc / total, 2), 'w': t})
     out.append({'start': s['start'], 'end': s['end'], 'text': text, 'words': words})
-out.append({'start': 621.5, 'end': 622.6, 'text': '감사합니다.', 'words': [{'s': 621.5, 'e': 622.6, 'w': '감사합니다.'}]})
+if not out[-1]['text'].startswith('감사합니다'):
+    out.append({'start': 621.5, 'end': 622.6, 'text': '감사합니다.', 'words': [{'s': 621.5, 'e': 622.6, 'w': '감사합니다.'}]})
+else:
+    out[-1]['end'] = max(out[-1]['end'], 622.6)
 json.dump(out, open('transcript_clean.json', 'w'), ensure_ascii=False, indent=1)
 open('script.txt', 'w').write('\n'.join(f"[{s['start']:6.1f}] {s['text']}" for s in out))
 print(len(out))
