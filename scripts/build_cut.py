@@ -75,11 +75,22 @@ for r, (ra, rb) in zip(reps, spans):
             i = j
         else: i += 1
     clip = clip[keep]
-    newaud[r['id']] = clip
+    pre = np.zeros((int(r.get('pre', 0.12) * SR), 2), np.float32)   # natural breath before the spliced line
+    newaud[r['id']] = np.concatenate([pre, clip])
     out.append({'kind': 'new', 'id': r['id'], 'a': ra, 'b': rb, 'text': r['text']})
     pieces = sorted(out, key=lambda p: p['a'])
+# 3. breathing room on chapter title cards (source time → seconds of silence)
+HOLDS = {27.3: 1.2, 376.7: 1.8, 471.8: 1.8}
+for x, d in HOLDS.items():
+    out = []
+    for p in pieces:
+        if p['kind'] == 'src' and p['a'] < x < p['b']: out += [{**p, 'b': x}, {**p, 'a': x}]
+        else: out.append(p)
+    out.append({'kind': 'gap', 'a': x, 'b': x, 'gap': d})
+    pieces = sorted(out, key=lambda p: (p['a'], p['kind'] != 'gap'))
 for p in pieces:
-    p['dur'] = round(p['b'] - p['a'], 4) if p['kind'] == 'src' else len(newaud[p['id']]) / SR
+    p['dur'] = {'src': lambda: round(p['b'] - p['a'], 4), 'gap': lambda: p['gap'],
+                'new': lambda: len(newaud[p['id']]) / SR}[p['kind']]()
 
 def remap(x):
     acc = 0.0
@@ -91,7 +102,7 @@ def remap(x):
 total = round(sum(p['dur'] for p in pieces), 3)
 print(f'pieces={len(pieces)} replaced={len(reps)} total={total:.2f}s (src {dur:.1f}s)')
 
-# 3. remap scenes, transcript; pieces for footage sync
+# 4. remap scenes, transcript; pieces for footage sync
 src = json.load(open('scenes_src.json'))
 TKEYS = {'start', 'end', 't', 'from', 'subAt', 'markAt'}
 def walk(o):
@@ -105,7 +116,9 @@ json.dump({'scenes': scenes, 'chapters': chapters, 'total': total}, open('motion
 allreps = json.load(open('replacements.json'))
 newspan, t = {}, 0.0
 for p in pieces:
-    if p['kind'] == 'new': newspan[p['id']] = (round(t + 0.05, 3), round(t + p['dur'] - 0.05, 3))
+    if p['kind'] == 'new':
+        pre = next((r.get('pre', 0.12) for r in reps if r['id'] == p['id']), 0)
+        newspan[p['id']] = (round(t + pre, 3), round(t + p['dur'] - 0.05, 3))
     t += p['dur']
 tr = json.load(open('transcript_clean.json'))
 out, acc = [], 0.0
@@ -130,7 +143,7 @@ for p in pieces:
     t += p['dur']
 json.dump(fp, open('motion/src/data/pieces.json', 'w'))
 
-# 4. voice track
+# 5. voice track
 audio = ffaudio(SRC, ['-af', 'afftdn=nf=-25'])
 rms = lambda x: float(np.sqrt((x ** 2).mean()) + 1e-9)
 F = int(0.012 * SR); ramp = np.linspace(0, 1, F, dtype=np.float32)[:, None]
@@ -138,6 +151,8 @@ parts = []
 for p in pieces:
     if p['kind'] == 'src':
         seg = audio[int(round(p['a'] * SR)):int(round(p['b'] * SR))].copy()
+    elif p['kind'] == 'gap':
+        seg = np.zeros((int(round(p['dur'] * SR)), 2), np.float32)
     else:
         seg = newaud[p['id']].copy()
         ref = audio[int(max(0, p['a'] - 8) * SR):int((p['b'] + 8) * SR)]
@@ -147,7 +162,7 @@ for p in pieces:
 voice = np.concatenate(parts).astype(np.float32)
 voice.tofile('voice_cut.f32')
 
-# 5. SFX (synthesised, no external assets)
+# 6. SFX (synthesised, no external assets)
 rng = np.random.default_rng(7)
 def env(n, attack, decay):
     t = np.arange(n) / SR
