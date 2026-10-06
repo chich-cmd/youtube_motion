@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {useCurrentFrame} from 'remotion';
 import {FONT, FPS} from '../theme';
 import {Segment} from '../types';
+import edited from '../data/captions.json';
 
 type Line = {s: number; e: number; text: string};
 type W = {s: number; e: number; w: string; segEnd: boolean};
@@ -90,13 +91,18 @@ export const buildLines = (segs: Segment[]): Line[] => {
   // Drop exact repeats (e.g. a doubled closing line).
   const uniq = out.filter((l, i) => i === 0 || l.text !== out[i - 1].text);
   out.length = 0; out.push(...uniq);
-  // Hold each line until the next one starts (max +0.6s) to avoid flicker.
+  return holdLines(out);
+};
+
+/** Hold each line until the next one starts (max +0.6s) to avoid flicker. */
+const holdLines = (out: Line[]): Line[] => {
   return out.map((l, i) => ({...l, e: Math.min(Math.max(l.e, (out[i + 1]?.s ?? l.e + 0.6) - 0.02), l.e + 0.6)}));
 };
 
 export const Captions: React.FC<{segments: Segment[]}> = ({segments}) => {
   const f = useCurrentFrame();
-  const lines = useMemo(() => buildLines(segments), [segments]);
+  // Hand-edited caption lines (rec2/captions_user.txt, timed by scripts/time_captions.py) win when present.
+  const lines = useMemo(() => (edited.length ? holdLines(edited as Line[]) : buildLines(segments)), [segments]);
   const t = f / FPS;
   const line = lines.find((l) => t >= l.s && t < l.e);
   if (!line) return null;

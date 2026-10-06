@@ -242,15 +242,34 @@ def f2o(ft):
     for at, na, d in fin2nar:
         if at <= ft <= at + d: return ref2orig(nar2ref(na + ft - at))
     return None
+FOOTAGE_LEAD = 0.4                                 # show the handwriting slightly before it is mentioned
 fp = []
-for sc in kept:                                    # one steady playback rate per footage scene
+for sc in kept:                                    # re-sync at every spoken line, steady rate within it
     if sc['type'] != 'footage': continue
     st, en = sc['start'], sc['end']
-    o1 = next((f2o(st + k * 0.1) for k in range(30) if f2o(st + k * 0.1) is not None), None)
-    o2 = next((f2o(en - k * 0.1) for k in range(30) if f2o(en - k * 0.1) is not None), None)
-    if o1 is None: continue
-    rate = 1.0 if o2 is None or o2 <= o1 else min(max((o2 - o1) / (en - st), 0.5), 2.0)
-    fp.append({'at': round(st, 4), 'from': round(o1, 4), 'dur': round(en - st, 4), 'rate': round(rate, 3)})
+    starts = {sg['start'] for sg in segs_out}
+    cands = sorted({w['s'] for sg in segs_out for w in sg['words'] if st + 0.3 < w['s'] < en - 0.5})
+    merged_a = [st]
+    for t_ in cands:                               # every line start, plus a word start every ~1.2 s
+        if t_ in starts and t_ - merged_a[-1] >= 0.6 or t_ - merged_a[-1] >= 1.2: merged_a.append(t_)
+    merged_a.append(en)
+    # cut points in the source (deleted lines etc.): f2o jumps → put a chunk boundary right there
+    prev = None
+    for k in range(int((en - st) / 0.05)):
+        t_ = st + k * 0.05; o = f2o(t_)
+        if o is not None and prev is not None and abs(o - prev[1] - (t_ - prev[0])) > 0.6: merged_a.append(t_)
+        if o is not None: prev = (t_, o)
+    merged_a = sorted(set(merged_a))
+    merged_a = [x for i, x in enumerate(merged_a) if i == 0 or x - merged_a[i - 1] >= 0.25 or x == en]
+    for t0, t1 in zip(merged_a, merged_a[1:]):
+        o0 = next((f2o(t0 + k * 0.05) for k in range(20) if f2o(t0 + k * 0.05) is not None), None)
+        o1 = next((f2o(t1 - k * 0.05) for k in range(20) if f2o(t1 - k * 0.05) is not None), None)
+        if o0 is None: continue
+        need = None if o1 is None or o1 <= o0 else (o1 - o0) / (t1 - t0)
+        if need is None: rate = 1.0
+        elif 0.4 <= need <= 2.5: rate = need
+        else: rate, o0 = 1.0, o1 - (t1 - t0)       # too far apart (a cut in the source): jump, then play normally
+        fp.append({'at': round(t0, 4), 'from': round(o0 + FOOTAGE_LEAD, 4), 'dur': round(t1 - t0, 4), 'rate': round(rate, 3)})
 json.dump(fp, open('motion/src/data/pieces.json', 'w'))
 
 # ── 6. audio
