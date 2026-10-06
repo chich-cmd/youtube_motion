@@ -1,0 +1,17 @@
+# media & generated
+src/
+*.mp4
+*.wav
+*.f32
+*.jpg
+*.png
+frames/
+hi/
+subs/
+stills/
+motion/public/original*.mp4
+motion/public/fonts/
+# envs
+.venv/
+node_modules/
+transcript.json
