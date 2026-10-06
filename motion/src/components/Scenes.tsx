@@ -161,7 +161,8 @@ export const FootageScene: React.FC<P<'footage'>> = ({s, len}) => {
           const d = sec(Math.min(p.at + p.dur, s.end) - s.start) - from;
           return d > 0 ? (
             <Sequence key={i} from={from} durationInFrames={d}>
-              <OffthreadVideo src={staticFile('original.mp4')} startFrom={sec(p.from + skip)} muted
+              <OffthreadVideo src={staticFile('original.mp4')} startFrom={sec(p.from + skip * ((p as {rate?: number}).rate ?? 1))}
+                playbackRate={(p as {rate?: number}).rate ?? 1} muted
                 style={{position: 'absolute', width: 1920 * k, height: 1080 * k, left: -crop.x * k, top: -crop.y * k}} />
             </Sequence>
           ) : null;
