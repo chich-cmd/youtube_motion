@@ -3,29 +3,10 @@ import json, re, sys, wave
 from pathlib import Path
 import numpy as np
 sys.path.insert(0, str(Path(__file__).parent))
-from sfx import SR, ding, lp, swipe, tick, whoosh
+from sfx import SR, boing, bubble, click, ding, marker, swipe, whoosh
 
 ROOT = Path(__file__).resolve().parent.parent
 FPS = 30
-rng = np.random.default_rng(3)
-
-def bubble():  # emoji pop-in: quick downward blip
-    n = int(0.12 * SR); t = np.arange(n) / SR
-    f = 1100 * np.exp(-t * 28) + 260
-    return 0.5 * np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.045) * np.minimum(t / 0.002, 1)
-def boing():  # expression change: springy pitch wobble
-    n = int(0.42 * SR); t = np.arange(n) / SR
-    f = 330 + 260 * (1 - np.exp(-t * 18)) + 70 * np.sin(2 * np.pi * 15 * t) * np.exp(-t * 7)
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    return 0.42 * (np.sin(ph) + 0.25 * np.sin(2 * ph)) * np.exp(-t / 0.13) * np.minimum(t / 0.004, 1)
-def marker():  # highlighter stroke
-    n = int(0.24 * SR); t = np.arange(n) / SR
-    y = lp(rng.standard_normal(n), 5200) - lp(rng.standard_normal(n), 1800)
-    flutter = 0.7 + 0.3 * np.sin(2 * np.pi * 38 * t)
-    return 0.22 * y * flutter * np.sin(np.pi * t / t[-1]) ** 0.7 / (np.abs(y).max() + 1e-9)
-def click():  # text line in
-    return 1.3 * tick()
-
 t = json.load(open(ROOT / 'motion/src/reel/timing.json'))
 cuts = json.load(open(ROOT / 'motion/src/reel/script.json'))
 n = int((t['total'] + 1) * SR)
