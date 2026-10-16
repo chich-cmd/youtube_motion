@@ -60,3 +60,25 @@ def make_sfx(scenes, n):
         i0 = max(0, int((at + OFF.get(k, 0)) * SR)); x = S[k]
         sfx[i0:i0 + len(x)] += x[:len(sfx) - i0]
     return np.repeat(sfx[:n, None], 2, axis=1).astype(np.float32)
+
+# --- cute UI sounds (reel / captioned videos) ---
+def bubble():  # emoji pop-in: quick downward blip
+    n = int(0.12 * SR); t = np.arange(n) / SR
+    f = 1100 * np.exp(-t * 28) + 260
+    return 0.5 * np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.045) * np.minimum(t / 0.002, 1)
+def boing():  # expression change: springy pitch wobble
+    n = int(0.42 * SR); t = np.arange(n) / SR
+    f = 330 + 260 * (1 - np.exp(-t * 18)) + 70 * np.sin(2 * np.pi * 15 * t) * np.exp(-t * 7)
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    return 0.42 * (np.sin(ph) + 0.25 * np.sin(2 * ph)) * np.exp(-t / 0.13) * np.minimum(t / 0.004, 1)
+def marker():  # highlighter stroke
+    n = int(0.24 * SR); t = np.arange(n) / SR
+    y = lp(np.random.default_rng(3).standard_normal(n), 5200) - lp(np.random.default_rng(3).standard_normal(n), 1800)
+    flutter = 0.7 + 0.3 * np.sin(2 * np.pi * 38 * t)
+    return 0.22 * y * flutter * np.sin(np.pi * t / t[-1]) ** 0.7 / (np.abs(y).max() + 1e-9)
+def click():  # text line in
+    return 1.3 * tick()
+
+def plink():  # keyword box pop
+    n = int(0.18 * SR); t = np.arange(n) / SR
+    return 0.3 * (np.sin(2 * np.pi * 1568 * t) + 0.4 * np.sin(2 * np.pi * 2349 * t)) * np.exp(-t / 0.05) * np.minimum(t / 0.002, 1)
