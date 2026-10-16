@@ -1,8 +1,8 @@
 import React from 'react';
-import {Emoji, ease, Hl, R, springy, Strike} from './ui';
+import {Emoji, ease, Hl, Motion, R, springy, Strike} from './ui';
 
 export type Line = {t: string; size: 'm' | 'l' | 'xl' | 'xxl'; at?: number};
-export type Cut = {emoji: string; tag?: string; color?: keyof typeof R; lines: Line[]; vo: string[]};
+export type Cut = {emoji: string; from: string; motion: Motion; tag?: string; color?: keyof typeof R; lines: Line[]; vo: string[]};
 
 const SIZE = {m: 66, l: 92, xl: 124, xxl: 190};
 
@@ -16,7 +16,7 @@ const rich = (s: string, f: number, at: number) =>
   });
 
 /** f: frame relative to the cut's first narration line; c[i]: frame narration chunk i starts. */
-export const Sheet: React.FC<{cut: Cut; f: number; c: number[]}> = ({cut, f, c}) => {
+export const Sheet: React.FC<{cut: Cut; f: number; c: number[]; swap: number}> = ({cut, f, c, swap}) => {
   const seen: Record<number, number> = {};
   const tagP = springy(f, -2, 13);
   return (
@@ -27,7 +27,7 @@ export const Sheet: React.FC<{cut: Cut; f: number; c: number[]}> = ({cut, f, c})
           padding: '8px 34px 12px', borderRadius: 26, marginBottom: 40, transform: `scale(${0.7 + 0.3 * tagP})`, opacity: Math.min(1, tagP * 1.5),
         }}>{cut.tag}</div>
       )}
-      <Emoji name={cut.emoji} f={f} at={0} size={300} />
+      <Emoji from={cut.from} to={cut.emoji} swapAt={swap} motion={cut.motion} f={f} size={300} />
       <div style={{height: 56}} />
       {cut.lines.map((ln, i) => {
         const k = ln.at ?? 0;
