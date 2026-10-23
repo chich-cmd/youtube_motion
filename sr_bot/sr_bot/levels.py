@@ -2,6 +2,7 @@
 
 - 기준봉: 거래대금 급증봉의 종가 (완전판 3-1: 거래량보다 거래대금으로 의미 있는 가격을 찾는다)
 - 조정봉: 급증봉 직후 처음 나온 조정(음봉·눌림) 봉의 종가
+- 박스: 거래대금 급증 장대봉의 고점·저점 (봉의 고점~저점을 박스권으로 삼는다)
 - 도지 전장: 고거래량 장대봉 이후 조정 도지 / 추세 강화 도지의 상단·하단·종가
 - 종가 클러스터: 종가가 반복적으로 머문 가격대 (대표값은 실제 종가 하나)
 - 격: 기능선이 지지·저항·전환을 수행한 횟수
@@ -20,10 +21,13 @@ from .config import TFParams
 
 TF_RANK = {"D": 1, "W": 2, "M": 3}
 # 같은 가격대에 여러 근거가 겹칠 때 대표 가격으로 쓸 우선순위
-KIND_RANK = {"doji_close": 5, "base": 4, "adjust": 3, "cluster": 3, "doji_low": 2, "doji_high": 2}
+KIND_RANK = {"doji_close": 5, "base": 4, "adjust": 3, "cluster": 3, "box_high": 2, "box_low": 2,
+             "doji_low": 2, "doji_high": 2}
 KIND_LABEL = {
     "base": "거래대금 급증봉 종가",
     "adjust": "급증 후 조정봉 종가",
+    "box_high": "급증봉 고점(박스 상단)",
+    "box_low": "급증봉 저점(박스 하단)",
     "doji_close": "도지 종가",
     "doji_high": "도지 상단",
     "doji_low": "도지 하단",
@@ -153,6 +157,9 @@ def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> list[Level]:
         is_long = rng[i] >= p.long_range_mult * np.nan_to_num(ar[i], nan=np.inf) and body_ratio[i] >= p.long_body_ratio
         if not is_long:
             continue
+        # 박스: 급증 장대봉의 고점~저점
+        for kind, price in (("box_high", h[i]), ("box_low", l[i])):
+            out.append(Level(price, kind, tf, idx[i], idx[i], float(vr[i]), mega, box=(l[i], h[i])))
         for j in range(i + 1, min(i + 1 + p.doji_lookahead, n)):
             if is_doji[j]:
                 doji_used.add(j)

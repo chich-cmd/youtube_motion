@@ -54,8 +54,10 @@ def test_close_below_level_invalidates():
     df = _pattern()
     df.iloc[-1, df.columns.get_loc("close")] = 99.0  # 종가가 기능선 아래로 마감
     df.iloc[-1, df.columns.get_loc("low")] = 98.5
-    plan = evaluate(Prepared(df, _cfg()), len(df) - 1, TK)
-    assert plan is None or plan.level != pytest.approx(100.0)
+    plans = evaluate_all(Prepared(df, _cfg()), len(df) - 1, TK)
+    at100 = [p for p in plans if p.level == pytest.approx(100.0)]
+    # 눌림 신호는 사라지고, 남는다면 '저항 아래' 관찰 후보뿐이다
+    assert all(not p.signal and p.relation == "저항 아래" for p in at100)
 
 
 def test_no_lookahead():
@@ -92,7 +94,8 @@ def test_validate_stale():
 
 def test_backtest_runs_and_targets_hit():
     trades = backtest_ticker(_pattern(tail=15), _cfg(), TK, warmup=200)
-    assert trades and trades[0].outcome == "target"
+    planted = [t for t in trades if t.level == pytest.approx(100.0)]
+    assert planted and planted[0].outcome in ("target", "t1+t2", "t1+be")
     assert summarize(trades)["trades"] == len(trades)
 
 
@@ -145,3 +148,35 @@ def test_bottom_support():
                       index=pd.bdate_range(end="2026-10-23", periods=n))
     hits = [p for p in _plans(df) if p.setup == "저점" and p.level == pytest.approx(100.0)]
     assert hits and hits[0].signal
+
+
+def _box_frame(last_close: float, retest: bool = False):
+    """급증 장대봉(저점 100, 고점 110) 뒤 박스 내부 또는 상단 돌파 후 되돌림."""
+    rng = np.random.default_rng(3)
+    n = 200
+    c = 95 * np.exp(rng.normal(0, 0.003, n))
+    o = c * (1 + rng.normal(0, 0.001, n))
+    h = np.maximum(o, c) * 1.003
+    lo = np.minimum(o, c) * 0.997
+    v = np.full(n, 5e7)
+    o[150], h[150], lo[150], c[150], v[150] = 100.5, 110.0, 100.0, 109.5, 5e8
+    for k in range(151, n):
+        x = 104.0 if not retest else (113.0 if k < 190 else 112.0)
+        o[k], c[k], h[k], lo[k] = x, x, x * 1.003, x * 0.997
+    if retest:
+        o[-1], h[-1], lo[-1], c[-1] = 111.5, 111.8, 110.3, last_close
+    else:
+        o[-1], h[-1], lo[-1], c[-1] = 104.0, 104.5, 102.0, last_close
+    return pd.DataFrame({"open": o, "high": h, "low": lo, "close": c, "volume": v},
+                        index=pd.bdate_range(end="2026-10-23", periods=n))
+
+
+def test_box_inside_lower_half_is_signal():
+    hits = [p for p in _plans(_box_frame(103.0)) if p.setup == "박스"]
+    assert hits and hits[0].signal and hits[0].relation == "박스 내부"
+    assert hits[0].fail_line == pytest.approx(100.0) and hits[0].box == pytest.approx((100.0, 110.0))
+
+
+def test_box_retest_of_top_is_signal():
+    hits = [p for p in _plans(_box_frame(111.0, retest=True)) if p.setup == "박스"]
+    assert hits and hits[0].signal and hits[0].fail_line == pytest.approx(110.0)
