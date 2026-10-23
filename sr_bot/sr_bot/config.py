@@ -85,8 +85,10 @@ class MarketParams:
     slippage_tiers: tuple = ()
     tz: str = "UTC"
     close_hour: int = 16
-    # 사건봉 절대 거래대금 하한 (일봉). 국내 300억 원 [확정]. 미국은 미확정이라 기본 0(상대 배수만).
+    # 사건봉 절대 거래대금 하한 (일봉, 현지 통화). 국내 300억 원 [확정].
     event_min_value: float = 0.0
+    # 원화로 정한 하한 (미국: 1,000억 원 — 사용자 지정). 실행 시 원/달러 환율로 현지 통화로 바꾼다.
+    event_min_value_krw: float = 0.0
 
 
 DEFAULT_MARKETS = {
@@ -98,7 +100,7 @@ DEFAULT_MARKETS = {
     "us": MarketParams(
         currency="$", base_cost=0.001, min_turnover=20_000_000,
         slippage_tiers=((5e7, 0.002), (2e8, 0.001)),
-        tz="America/New_York", close_hour=17,
+        tz="America/New_York", close_hour=17, event_min_value_krw=100_000_000_000,
     ),
 }
 
@@ -118,6 +120,8 @@ class Config:
     box_fail: str = "low"
     # 도지 박스: 기본은 사건봉 바로 다음 봉이 도지일 때만. True면 평균 이상 길이의 모든 도지 (이론 8-5: 위치 제한 없음)
     doji_any: bool = False
+    # 원/달러 환율. 실행 시 야후(KRW=X)에서 받아 덮어쓰고, 실패하면 이 값을 쓴다.
+    fx_usd_krw: float = 1350.0
     # 계좌·리스크 (공부법 1장: 단일 트레이드 손실은 계좌의 일정 비율 이하)
     account: float = 0.0          # 0이면 수량 계산 생략
     risk_per_trade: float = 0.01
@@ -136,6 +140,14 @@ class Config:
     @property
     def m(self) -> MarketParams:
         return self.markets[self.market]
+
+    @property
+    def event_min_local(self) -> float:
+        """사건봉 절대 거래대금 하한 (현지 통화)."""
+        m = self.m
+        if m.event_min_value_krw and self.market != "kr":
+            return m.event_min_value_krw / self.fx_usd_krw
+        return m.event_min_value
 
 
 def _apply(obj, overrides: dict):

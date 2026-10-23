@@ -26,8 +26,20 @@ from .ticks import round_tick
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def _with_fx(cfg):
+    """원화로 정한 사건봉 하한(미국 1,000억 원)을 쓰는 시장이면 실시간 환율을 받아 넣는다."""
+    if cfg.market != "kr" and cfg.m.event_min_value_krw:
+        from dataclasses import replace
+
+        cfg = replace(cfg, fx_usd_krw=D.usd_krw(cfg.fx_usd_krw))
+        print(f"사건봉 하한: {cfg.m.event_min_value_krw / 1e8:,.0f}억 원 ≈ ${cfg.event_min_local / 1e6:,.1f}M "
+              f"(환율 {cfg.fx_usd_krw:,.1f}원)", file=sys.stderr)
+    return cfg
+
+
 def _cfg(a):
-    return load_config(a.config, market=a.market, tf=a.tf, account=a.account, top_n=a.top, box_fail=a.box_fail)
+    return _with_fx(load_config(a.config, market=a.market, tf=a.tf, account=a.account, top_n=a.top,
+                                box_fail=a.box_fail))
 
 
 def html_to_pdf(html_path: Path) -> Path | None:
@@ -95,7 +107,7 @@ def cmd_scan(a) -> int:
 
 
 def cmd_backtest(a) -> int:
-    cfg = load_config(a.config, market=a.market, tf=a.tf, history_years=a.years, box_fail=a.box_fail)
+    cfg = _with_fx(load_config(a.config, market=a.market, tf=a.tf, history_years=a.years, box_fail=a.box_fail))
     tickers = D.load_universe(cfg.market, a.universe, prefilter=cfg.m.min_turnover * 0.3)
     if a.limit:
         tickers = tickers[: a.limit]

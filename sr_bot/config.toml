@@ -27,6 +27,12 @@ detail_n = 10
 # high_vol_mult = 2.0
 # retest_zone = 0.03
 
+# 원/달러 환율 대체값 (실행 시 야후 KRW=X로 자동 갱신, 실패하면 이 값)
+fx_usd_krw = 1350.0
+
 # 시장별 비용·유동성 덮어쓰기 예시
+# 미국 사건봉 하한은 원화로 지정 (기본 1,000억 원):
+# [market_params.us]
+# event_min_value_krw = 100_000_000_000
 # [market_params.kr]
 # min_turnover = 1_000_000_000

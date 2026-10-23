@@ -344,6 +344,17 @@ def load_dir(path: str | Path) -> tuple[list[Ticker], dict[str, pd.DataFrame]]:
     return tickers, frames
 
 
+def usd_krw(fallback: float) -> float:
+    """원/달러 환율 (야후 KRW=X 최근 종가). 실패하면 fallback."""
+    try:
+        import yfinance as yf
+
+        rate = float(yf.Ticker("KRW=X").history(period="10d")["Close"].dropna().iloc[-1])
+        return rate if 500 < rate < 3000 else fallback
+    except Exception:
+        return fallback
+
+
 def median_turnover(daily: pd.DataFrame, n: int = 20) -> float:
     tv = (daily["close"] * daily["volume"]).iloc[-n:]
     return float(np.median(tv)) if len(tv) else 0.0

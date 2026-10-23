@@ -101,7 +101,7 @@ class Prepared:
         self.boxes: list[L.Box] = []
         for tf in cfg.level_tfs:
             # 300억 원 조건은 국내 일봉 기준 [확정]. 주·월봉에도 같은 하한을 쓰는 것은 구현 설정값.
-            min_value = cfg.m.event_min_value if tf != "Y" else 0.0
+            min_value = cfg.event_min_local if tf != "Y" else 0.0
             lv, bx = L.detect_bar_levels(self.frames[tf], cfg.tf_params[tf], tf, min_value, cfg.doji_any)
             self.bar_levels += lv
             self.boxes += bx
