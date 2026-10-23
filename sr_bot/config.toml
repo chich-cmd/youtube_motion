@@ -2,7 +2,7 @@
 
 market = "kr"        # kr | us
 tf = "W"             # 신호를 판정할 프레임: D(일봉) | W(주봉) | M(월봉)
-level_tfs = ["D", "W", "M"]   # 기능선을 찾을 프레임
+level_tfs = ["D", "W", "M", "Y"]   # 기준선을 찾을 프레임 (Y = 연봉 종가선)
 history_years = 6
 
 # 가격 계획 필터

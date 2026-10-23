@@ -195,6 +195,7 @@ def render_html(res: ScanResult) -> str:
     parts.append(f"<p class='small muted'>자료 미검증 사유: {_e(reasons)} · 조건 충족 유형: "
                  f"{_e(', '.join(f'{k} {v}' for k, v in setups.items()) or '없음')}</p>")
 
+    parts.append(_engines(res))
     sig_top = [p for p in top if p.signal]
     watch_top = [p for p in top if not p.signal]
     if sig_top:
@@ -223,18 +224,61 @@ def render_html(res: ScanResult) -> str:
                      _e(", ".join(f"{k} {v}" for k, v in rej.most_common())) + "</p>")
 
     p = cfg.p
-    parts.append(f"""<h2>판정 기준과 한계</h2><ul class='small'>
-<li>관찰 이유: 거래대금 급증(직전 {p.vol_window}봉 평균의 {p.high_vol_mult:g}배 이상). 거래대금은 상승 확신이 아니라 관찰 종목을 고르는 근거입니다.</li>
-<li>기준선: 거래대금 급증봉 종가, 급증 후 조정봉 종가, 박스 고점·종가·저점, 추세 강화 도지 종가, 종가 클러스터. 실제 봉 가격만 쓰므로 호가 단위에 맞습니다. 일·주·월봉에서 겹치면 격에 가점.</li>
-<li>유형: 눌림(돌파 후 재접근 지지) · 도지(거래대금 급증 다음 봉 도지 박스) · 박스(추세전환 직전 봉 / 거래량 급증봉 박스) · 저점(반복 바닥 지지) · 돌파(거래대금 동반 종가 돌파 / 저항 아래 대기).</li>
-<li>박스: 봉의 고점~저점. 고점·종가·저점 3분할 매수. 박스 안에서는 저점 이탈 시 철회, 박스 돌파 후에는 <b>박스 {BOX_FAIL_LABEL[cfg.box_fail]}</b> 이탈 시 철회(사용자 설정 `box_fail`), 철회선 아래 매수 지점은 제외.</li>
-<li>모든 지지·저항 전환과 철회는 종가 기준입니다. 손절 추정가는 철회선 -{_pct(p.fail_slip)} 체결 가정입니다.</li>
-<li>가격 필터: 20일 거래대금 중앙값 {f(cfg.m.min_turnover) if mk == 'us' else f'{cfg.m.min_turnover / 1e8:,.0f}억 원'} 이상, 순손익비 {cfg.min_net_rr} 이상, 손절 폭 {_pct(cfg.max_stop_pct)} 이하, 목표 가격차 {_pct(cfg.min_target_gap)} 이상.</li>
-<li>분할매수(구간 상단 50% → 기준선 부근 50%)와 분할익절(1차 50% → 2차 50%, 1차 후 본전 손절)은 기본안입니다.</li>
-<li>이동평균 배열·주봉 저점 상승은 이론에 없는 지표라 점수에 넣지 않고 참고로만 표시합니다. 수급(투자자별 매매)은 아직 반영하지 않습니다.</li>
-<li>적합도 점수는 상승확률이 아닙니다. 공시·재무·뉴스 미반영, 체결·목표 도달 보장 없음, 자동 주문 없음.</li>
+    abs_txt = (f"{cfg.m.event_min_value / 1e8:,.0f}억 원 (국내 일봉, 확정)" if mk == "kr" and cfg.m.event_min_value
+               else f(cfg.m.event_min_value) if cfg.m.event_min_value else "없음")
+    parts.append(f"""<h2>확정 규칙 (차트술사 이론 완전판 2026-10-24)</h2><ul class='small'>
+<li>사건봉: 현재 봉을 제외한 직전 20봉 평균 대비 거래대금 3배 이상 + 해당 봉 거래대금 300억 원 이상(국내 일봉). 사건봉 종가 = 보조 기준선.</li>
+<li>조정봉: 사건봉 바로 다음 봉(색·모양 무관). 조정봉 종가 = 핵심 탐색 기준선. 이후 종가가 조정봉 종가를 아래에서 위로 돌파하면 관심종목 편입(매수 신호 아님).</li>
+<li>종가가 결재권자: 지지·저항 전환과 실패는 판정 시간봉 종가로. 아래꼬리 침범은 허용, 몸통·종가가 선 위에 있어야 지지.</li>
+<li>돌파 ≠ 지지 확인: 종가 돌파 → 지지 전환 후보 → 눌림 후보(재접근) → 지지 확인(유지 + 반등). 매매 조건 충족은 지지 확인부터.</li>
+<li>도지·박스: 상단·종가(내부 종가선)·하단. 내부 — 종가~하단 매수 우위, 하단 종가 이탈 시 실패. 도지 상단 돌파 롱 — 1차 상단, 2차 종가, 하단 종가 이탈이 최종 실패. 박스 — 1파 돌파 추격보다 2파 눌림 후 3파.</li>
+<li>상위 시간봉 선의 구조 붕괴는 그 시간봉 종가로 판정하고, 포지션 손절은 판정 시간봉 기준으로 따로 둡니다.</li>
+<li>조건이 없으면 무포지션. 진입·손절·익절이 없는 매매는 미완성.</li>
+</ul>
+<h2>구현 설정값 (이론에 수치가 없어 정한 값 — 차트술사 규칙 아님)</h2><ul class='small'>
+<li>사건봉 절대 거래대금 하한: {abs_txt}. 미국 시장 절대 기준은 미확정이라 상대 3배만 봅니다. 주·월봉에도 같은 하한을 적용합니다(구현 설정값).</li>
+<li>기준선 접근 범위 +{_pct(p.retest_zone)}, 반등 확인 {p.confirm_bars}봉 이내, 매수 검토 구간 +{_pct(p.entry_buffer)}, 도지 몸통 비율 ≤ {p.doji_body_ratio:g}.</li>
+<li>박스가 되는 봉: 사건봉 다음 봉 도지 · 추세전환 직전 봉(추세 구간 종가 이동폭 ≥ 평균 봉 길이 2배) · 거래량 3배 봉 · 횡보 박스({p.box_len}봉 이상, 고저 폭 ≤ {_pct(p.box_width)}, 상·하단 각 {p.box_touch}회 이상 반응){' · 모든 도지' if cfg.doji_any else ''}.</li>
+<li>박스 돌파 후 철회 기준: <b>{BOX_FAIL_LABEL[cfg.box_fail]}</b> (사용자 설정 box_fail). 철회선 아래 매수 지점은 제외.</li>
+<li>가격 필터: 20일 거래대금 중앙값 {f(cfg.m.min_turnover) if mk == 'us' else f'{cfg.m.min_turnover / 1e8:,.0f}억 원'} 이상, 순손익비 {cfg.min_net_rr} 이상(최소 손익비는 미확정), 손절 폭 {_pct(cfg.max_stop_pct)} 이하, 목표 가격차 {_pct(cfg.min_target_gap)} 이상.</li>
+<li>손절 추정가 = 철회선 -{_pct(p.fail_slip)} (종가 손절은 체결가가 더 불리할 수 있음). 비용은 유동성에 따라 차등.</li>
+<li>분할매수 기본 2분할, 도지·박스는 상단·종가 / 종가·하단. 분할익절 1차 목표 50% → 2차 목표 50%, 1차 후 본전컷. 30·30·40 분할은 신고가 연구 예시라 기본값으로 쓰지 않음.</li>
+<li>격 점수와 적합도 점수의 가중치는 미확정 — 순위 참고용이며 상승확률이 아닙니다.</li>
+<li>보조지표(이평·RSI·VWAP 등)는 점수에 넣지 않음. 수급(투자자별 매매)·갭 유형 ①② 구분 미반영. 공시·재무·뉴스 미반영, 자동 주문 없음.</li>
 </ul></main></body></html>""")
     return "".join(parts)
+
+
+def _engines(res: ScanResult) -> str:
+    """탐색 엔진 A~C (확정 규칙): 오늘 사건봉, 오늘 조정봉, 조정봉 종가 상향 돌파(관심종목 편입)."""
+    mk = res.cfg.market
+    f = lambda p: fmt_price(p, mk)  # noqa: E731
+    tf = TF_LABEL[res.cfg.tf]
+    out = [f"<h2>탐색 엔진 (확정 규칙 · {tf})</h2>"]
+    out.append(f"<p class='small muted'>A 사건봉 {len(res.events_today)} · B 조정봉 확정 {len(res.adjust_today)} · "
+               f"C 조정봉 종가 상향 돌파(관심종목 편입) {len(res.crosses)} — 매수 신호가 아니라 관찰 시작 신호입니다.</p>")
+    if res.crosses:
+        out.append("<h4>C. 조정봉 종가 상향 돌파 → 관심종목 편입</h4><div class='tbl'><table><tr><th>종목</th><th>섹터</th>"
+                   "<th>사건봉</th><th>거래대금</th><th>사건봉 종가</th><th>조정봉 종가</th><th>오늘 종가</th></tr>")
+        for tk, lv, close in res.crosses[:30]:
+            out.append(f"<tr><td>{_e(tk.name)}</td><td>{_e(tk.sector)}</td><td>{lv.src:%Y-%m-%d}</td>"
+                       f"<td class='n'>{lv.vol_ratio:.1f}배 {_e(lv.note)}</td>"
+                       f"<td class='n'>{f(_event_close(res, tk, lv))}</td><td class='n'>{f(lv.price)}</td>"
+                       f"<td class='n'>{f(close)}</td></tr>")
+        out.append("</table></div>")
+    if res.events_today:
+        sec = Counter(tk.sector for tk, _ in res.events_today)
+        out.append("<h4>A. 오늘 사건봉</h4><p class='small'>" + _e(" · ".join(
+            f"{tk.name}({lv.vol_ratio:.1f}배{' ' + lv.note if lv.note else ''})" for tk, lv in res.events_today[:40]))
+            + "</p><p class='small muted'>섹터 분포: " + _e(", ".join(f"{k} {v}" for k, v in sec.most_common())) + "</p>")
+    return "".join(out)
+
+
+def _event_close(res: ScanResult, tk, adj) -> float:
+    for row in res.lines:
+        if row["code"] == tk.code and row["event_date"] == adj.src.date():
+            return row["event_close"]
+    return float("nan")
 
 
 def telegram_summary(res: ScanResult, n: int = 5) -> str:
@@ -244,6 +288,7 @@ def telegram_summary(res: ScanResult, n: int = 5) -> str:
             f"점검 {res.checked} · 적격 {len(res.eligible)} · 조건 충족 {len(res.signals)}")
     if res.demo:
         head = "[데모·가상 데이터]\n" + head
+    head += f" · 관심종목 편입(조정봉 돌파) {len(res.crosses)}"
     lines = [head]
     if not res.signals:
         lines.append("조건 충족 없음 → 무포지션 유지 (관찰 후보만)")

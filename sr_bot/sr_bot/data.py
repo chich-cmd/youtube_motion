@@ -44,13 +44,13 @@ def normalize(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------- 리샘플링
 
 def resample(daily: pd.DataFrame, tf: str, asof: pd.Timestamp | None = None) -> pd.DataFrame:
-    """일봉 → 주봉(W)/월봉(M). 각 봉의 날짜는 그 기간의 실제 마지막 거래일.
+    """일봉 → 주봉(W)/월봉(M)/연봉(Y). 각 봉의 날짜는 그 기간의 실제 마지막 거래일.
 
     마지막 봉이 아직 끝나지 않은 기간이면 제외한다(확정 봉만 사용).
     """
     if tf == "D":
         return daily
-    rule = {"W": "W-FRI", "M": "ME"}[tf]
+    rule = {"W": "W-FRI", "M": "ME", "Y": "YE"}[tf]
     g = daily.groupby(pd.Grouper(freq=rule))
     out = g.agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
     last_day = g.apply(lambda x: x.index.max() if len(x) else pd.NaT)
@@ -65,6 +65,9 @@ def _period_complete(last_bar_day: pd.Timestamp, tf: str, asof: pd.Timestamp) ->
     if tf == "W":
         week_end = last_bar_day + pd.offsets.Week(weekday=4) if last_bar_day.weekday() != 4 else last_bar_day
         return last_bar_day.weekday() == 4 or asof > week_end
+    if tf == "Y":
+        year_end = last_bar_day + pd.offsets.BYearEnd(0)
+        return last_bar_day >= year_end or asof > year_end
     month_end = last_bar_day + pd.offsets.BMonthEnd(0)
     return last_bar_day >= month_end or asof > month_end
 

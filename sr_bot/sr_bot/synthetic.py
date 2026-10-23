@@ -42,13 +42,19 @@ def pullback_pattern(seed=1, end="2026-10-23", tail=0, R=100.0):
     # 조정 도지
     rows.append([R * 1.10, R * 1.12, R * 1.085, R * 1.101, 2e6])
     # 상승 후 되돌림
+    # 시가 = 직전 종가로 이어 붙여 갭이 생기지 않게 한다
+    prev = 1.101
     for x in (1.12, 1.15, 1.17, 1.14, 1.11, 1.08, 1.05, 1.03):
-        rows.append([R * (x + 0.005), R * (x + 0.012), R * (x - 0.008), R * x, 0.8e6])
-    # 재접근 지지 봉: 저가가 R 바로 위, 종가는 R 위에서 마감, 아래꼬리
-    rows.append([R * 1.02, R * 1.024, R * 1.003, R * 1.016, 0.7e6])
+        rows.append([R * prev, R * (max(prev, x) + 0.004), R * (min(prev, x) - 0.004), R * x, 0.8e6])
+        prev = x
+    # 재접근 봉: 저가가 R 바로 위, 몸통·종가는 R 위에서 마감, 아래꼬리
+    rows.append([R * 1.03, R * 1.032, R * 1.003, R * 1.016, 0.7e6])
+    # tail: 이후 반등 봉들
+    prev = 1.016
     for i in range(tail):
-        x = 1.02 + 0.01 * i
-        rows.append([R * x, R * (x + 0.012), R * (x - 0.006), R * (x + 0.008), 1e6])
+        x = 1.024 + 0.01 * i
+        rows.append([R * prev, R * (x + 0.004), R * (prev - 0.002), R * x, 1e6])
+        prev = x
     arr = np.array(rows)
     idx = pd.bdate_range(end=end, periods=len(arr))
     return pd.DataFrame(arr, index=idx, columns=["open", "high", "low", "close", "volume"])

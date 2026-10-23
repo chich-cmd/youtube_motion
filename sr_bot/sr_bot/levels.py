@@ -1,17 +1,17 @@
-"""지지저항 기능선 탐지 (공부법 Ⅱ장).
+"""기준선(기능선) 탐지. 차트술사 이론 완전판 PART 3·5·6·7·8·9.
 
-- 기준봉: 거래대금 급증봉의 종가 (완전판 3-1: 거래량보다 거래대금으로 의미 있는 가격을 찾는다)
-- 조정봉: 급증봉 직후 처음 나온 조정(음봉·눌림) 봉의 종가
-- 박스: 봉의 고점~저점을 박스권으로 삼는다. 박스가 되는 봉은 세 가지
-    ① 거래대금이 터진 바로 다음 봉의 도지 (가장 흔한 박스)
-    ② 추세전환이 일어나기 직전 봉
-    ③ 거래량이 터진 봉
-- 도지 전장: 추세 강화 도지의 종가 (선으로만 사용)
-- 종가 클러스터: 종가가 반복적으로 머문 가격대 (대표값은 실제 종가 하나)
-- 격: 기능선이 지지·저항·전환을 수행한 횟수
+- 사건봉: 거래대금이 직전 20봉 평균의 3배 이상 + (국내 일봉) 300억 원 이상인 봉. 종가 = 보조 기준선 [확정]
+- 조정봉: 사건봉 바로 다음 봉 (색·모양 무관). 종가 = 핵심 탐색 기준선 [확정]
+- 박스: 봉의 고점~저점, 또는 여러 봉 횡보 구간을 캔들 하나로 압축 (상단·내부 종가선·하단)
+    ① 사건봉 바로 다음 봉이 도지 ② 추세전환 직전 봉 ③ 거래량이 터진 봉 ④ 여러 봉 횡보 박스
+- 도지: 상단·종가·하단 세 기능선 [확정]. 추세 강화 도지 종가도 선으로 쓴다.
+- 갭 발생봉 종가 (PART 5-6, 9). 갭 유형 ①② 구분은 미확정이라 방향만 기록한다.
+- 연봉 종가선: 최상위 격 (PART 6-2)
+- 종가 클러스터, 격(지지·저항·전환 이력)
 
 모든 선은 실제 봉의 가격(종가·고가·저가)을 그대로 쓴다. 평균값을 쓰지 않으므로 호가 단위에 항상 맞는다.
 선마다 born(확정 시점)을 기록해 두고, 판정 시점보다 늦게 확정된 선은 쓰지 않는다(미래 참조 방지).
+기준선은 시간이 지났다는 이유만으로 지우지 않는다 (PART 18-5).
 """
 from __future__ import annotations
 
@@ -22,13 +22,15 @@ import pandas as pd
 
 from .config import TFParams
 
-TF_RANK = {"D": 1, "W": 2, "M": 3}
+TF_RANK = {"D": 1, "W": 2, "M": 3, "Y": 4}
 # 같은 가격대에 여러 근거가 겹칠 때 대표 가격으로 쓸 우선순위
-KIND_RANK = {"doji_close": 5, "base": 4, "box_close": 3, "adjust": 3, "cluster": 3, "box_high": 2,
-             "box_low": 2, "doji_low": 2, "doji_high": 2}
+KIND_RANK = {"year_close": 7, "adjust": 6, "event": 5, "doji_close": 5, "gap_close": 4, "box_close": 3,
+             "cluster": 3, "box_high": 2, "box_low": 2, "doji_low": 2, "doji_high": 2}
 KIND_LABEL = {
-    "base": "거래대금 급증봉 종가",
-    "adjust": "급증 후 조정봉 종가",
+    "event": "사건봉 종가(보조)",
+    "adjust": "조정봉 종가(핵심)",
+    "gap_close": "갭 발생봉 종가",
+    "year_close": "연봉 종가",
     "box_high": "박스 고점",
     "box_close": "박스 종가",
     "box_low": "박스 저점",
@@ -37,8 +39,9 @@ KIND_LABEL = {
     "doji_low": "도지 하단",
     "cluster": "종가 클러스터",
 }
-TF_LABEL = {"D": "일봉", "W": "주봉", "M": "월봉"}
-BOX_SRC_LABEL = {"doji": "거래대금 급증 다음 봉 도지", "reversal": "추세전환 직전 봉", "volume": "거래량 급증봉"}
+TF_LABEL = {"D": "일봉", "W": "주봉", "M": "월봉", "Y": "연봉"}
+BOX_SRC_LABEL = {"doji": "사건봉 다음 봉 도지", "doji_any": "도지", "reversal": "추세전환 직전 봉",
+                 "volume": "거래량 급증봉", "range": "횡보 박스"}
 
 
 @dataclass
@@ -54,10 +57,13 @@ class Box:
     date: pd.Timestamp          # 박스가 된 봉의 날짜
     mega: bool = False
     ratio: float = float("nan")  # 급증 배수 (거래대금 또는 거래량)
+    end: pd.Timestamp | None = None  # 횡보 박스의 마지막 봉
 
     def describe(self) -> str:
         s = f"{TF_LABEL[self.tf]} {BOX_SRC_LABEL[self.src]} ({self.date:%Y-%m-%d}"
-        if np.isfinite(self.ratio):
+        if self.end is not None:
+            s += f"~{self.end:%Y-%m-%d}"
+        if np.isfinite(self.ratio) and self.src != "range":
             s += f", {'거래량' if self.src == 'volume' else '거래대금'} {self.ratio:.1f}배"
         return s + (") · 초고거래량" if self.mega else ")")
 
@@ -74,6 +80,7 @@ class Level:
     doji_type: str = ""         # after_surge | trend
     box: tuple | None = None    # 박스 (저점, 고점)
     box_src: str = ""
+    note: str = ""              # 갭 방향, 사건봉 거래대금 등 표시용
     count: int = 0              # 클러스터 종가 수
 
     def describe(self) -> str:
@@ -82,8 +89,10 @@ class Level:
             s += f" ({self.count}회 체류)"
         elif self.box_src:
             s += f" · {BOX_SRC_LABEL[self.box_src]} ({self.src:%Y-%m-%d})"
-        elif self.kind == "base" and np.isfinite(self.vol_ratio):
-            s += f" ({self.src:%Y-%m-%d}, 거래대금 {self.vol_ratio:.1f}배)"
+        elif self.kind in ("event", "adjust") and np.isfinite(self.vol_ratio):
+            s += f" (사건봉 {self.src:%Y-%m-%d}, 거래대금 {self.vol_ratio:.1f}배{', ' + self.note if self.note else ''})"
+        elif self.note:
+            s += f" ({self.src:%Y-%m-%d}, {self.note})"
         else:
             s += f" ({self.src:%Y-%m-%d})"
         if self.mega:
@@ -150,11 +159,19 @@ def _runs(flag: np.ndarray) -> np.ndarray:
     return out
 
 
-def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> tuple[list[Level], list[Box]]:
-    """기준봉·조정봉·박스·추세 강화 도지. 각 선은 근거 봉 확정 시점(born)부터 유효하다.
+def _fmt_value(v: float) -> str:
+    return f"{v / 1e8:,.0f}억" if v >= 1e8 else f"{v:,.0f}"
 
-    기준봉 급증은 거래대금(종가×거래량), 박스 ③은 거래량 기준이다.
+
+def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str, min_value: float = 0.0,
+                      doji_any: bool = False) -> tuple[list[Level], list[Box]]:
+    """사건봉·조정봉·갭·박스·도지 기준선. 각 선은 근거 봉 확정 시점(born)부터 유효하다.
+
+    min_value: 사건봉 절대 거래대금 하한 (국내 일봉 300억 원). 0이면 상대 배수만 본다.
     """
+    if tf == "Y":
+        # 연봉: 확정된 연봉 종가 자체가 기준선
+        return [Level(float(c), "year_close", "Y", d, d) for d, c in df["close"].items()], []
     if len(df) < p.vol_window + 2:
         return [], []
     idx = df.index
@@ -174,25 +191,31 @@ def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> tuple[list[Leve
 
     out: list[Level] = []
     boxes: list[Box] = []
-    surge = np.nan_to_num(vr) >= p.high_vol_mult
     mega_at = np.array([bool(i >= p.mega_min_bars and c[i] > o[i] and val[i] > np.nan_to_num(vmax_prev[i]))
                         for i in range(n)])
-    for i in np.flatnonzero(surge):
-        out.append(Level(c[i], "base", tf, idx[i], idx[i], float(vr[i]), bool(mega_at[i])))
-        # 조정봉: 급증 양봉 이후 처음으로 종가가 내려온 봉
-        if c[i] > o[i]:
-            for j in range(i + 1, min(i + 1 + p.doji_lookahead, n)):
-                if c[j] < c[j - 1] and not is_doji[j]:
-                    out.append(Level(c[j], "adjust", tf, idx[j], idx[j], float(vr[i]), bool(mega_at[i])))
-                    break
-        # 박스 ①: 거래대금이 터진 바로 다음 봉이 도지
+    # 직전 20봉이 온전할 때만 사건봉으로 인정한다 (신규 상장·거래정지 직후는 배수가 의미 없음 — 데이터 처리 규칙)
+    full = (pd.Series(v, index=idx).rolling(p.vol_window, min_periods=p.vol_window).min().shift(1) > 0).to_numpy()
+    event = full & np.isfinite(vr) & (np.nan_to_num(vr) >= p.high_vol_mult) & (val >= min_value)
+    for i in np.flatnonzero(event):
+        note = f"{_fmt_value(val[i])}" if min_value else ""
+        mega = bool(mega_at[i])
+        out.append(Level(c[i], "event", tf, idx[i], idx[i], float(vr[i]), mega, note=note))
         j = i + 1
-        if j < n and is_doji[j]:
-            boxes.append(Box(l[j], h[j], c[j], "doji", tf, idx[j], idx[j], bool(mega_at[i]), float(vr[i])))
+        if j < n:
+            # 조정봉: 사건봉 바로 다음 봉, 색·모양 무관. 종가가 핵심 탐색 기준선
+            out.append(Level(c[j], "adjust", tf, idx[j], idx[i], float(vr[i]), mega, note=note))
+            if is_doji[j]:  # 박스 ①
+                boxes.append(Box(l[j], h[j], c[j], "doji", tf, idx[j], idx[j], mega, float(vr[i])))
+
+    # 갭 발생봉 종가 (이전 봉 범위와 겹치지 않는 봉)
+    for i in range(1, n):
+        if l[i] > h[i - 1] or h[i] < l[i - 1]:
+            out.append(Level(c[i], "gap_close", tf, idx[i], idx[i],
+                             note="갭상승" if l[i] > h[i - 1] else "갭하락"))
 
     # 박스 ②: 추세전환 직전 봉. 종가 하락이 trend_run봉 이상 이어진 뒤 전환 봉이 직전 봉 고점 위에서 마감
-    # (상승 추세 끝은 직전 봉 저점 아래 마감). 직전 봉이 박스, 전환 봉이 확정되는 시점부터 유효.
-    # 잔 흔들림을 거르기 위해 추세 구간의 종가 이동폭이 평균 봉 길이의 2배 이상일 때만 추세로 본다.
+    # (상승 추세 끝은 직전 봉 저점 아래 마감). 잔 흔들림을 거르려고 추세 구간 종가 이동폭이 평균 봉 길이의
+    # 2배 이상일 때만 추세로 본다 (구현 설정값). 직전 봉이 박스, 전환 봉이 확정되는 시점부터 유효.
     dn = _runs(np.r_[False, c[1:] < c[:-1]])
     up = _runs(np.r_[False, c[1:] > c[:-1]])
     for j in range(2, n):
@@ -204,17 +227,25 @@ def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> tuple[list[Leve
             boxes.append(Box(l[k], h[k], c[k], "reversal", tf, idx[j], idx[k]))
 
     # 박스 ③: 거래량이 터진 봉
-    for i in np.flatnonzero(np.nan_to_num(qr) >= p.high_vol_mult):
+    for i in np.flatnonzero(full & np.isfinite(qr) & (np.nan_to_num(qr) >= p.high_vol_mult)):
         boxes.append(Box(l[i], h[i], c[i], "volume", tf, idx[i], idx[i], bool(mega_at[i]), float(qr[i])))
 
-    seen = set()
+    # 도지 위치 제한 없이 (옵션)
+    wide = rng >= np.nan_to_num(ar, nan=np.inf)
+    if doji_any:
+        for j in np.flatnonzero(is_doji & wide):
+            boxes.append(Box(l[j], h[j], c[j], "doji_any", tf, idx[j], idx[j]))
+
+    # 박스 ④: 여러 봉 횡보 박스
+    boxes += detect_range_boxes(df, p, tf)
+
+    uniq: dict = {}
     for bx in boxes:
-        key = (bx.date, bx.src)
-        if key in seen:
-            continue
-        seen.add(key)
-        kinds = (("doji_close", bx.close), ("doji_high", bx.high), ("doji_low", bx.low)) if bx.src == "doji" else \
-                (("box_high", bx.high), ("box_close", bx.close), ("box_low", bx.low))
+        uniq.setdefault((bx.date, bx.end, bx.low, bx.high), bx)
+    boxes = sorted(uniq.values(), key=lambda b: b.born)
+    for bx in boxes:
+        kinds = (("doji_close", bx.close), ("doji_high", bx.high), ("doji_low", bx.low)) \
+            if bx.src.startswith("doji") else (("box_high", bx.high), ("box_close", bx.close), ("box_low", bx.low))
         for kind, price in kinds:
             out.append(Level(price, kind, tf, bx.born, bx.date, bx.ratio, bx.mega,
                              "after_surge" if bx.src == "doji" else "", (bx.low, bx.high), bx.src))
@@ -223,18 +254,50 @@ def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> tuple[list[Leve
     strong = body_ratio >= p.long_body_ratio
     up_run = _runs((c > o) & strong)
     dn_run = _runs((c < o) & strong)
-    wide = rng >= np.nan_to_num(ar, nan=np.inf)
-    box_days = {bx.date for bx in boxes if bx.src == "doji"}
+    box_days = {bx.date for bx in boxes if bx.src.startswith("doji")}
     for j in np.flatnonzero(is_doji & wide):
         if j == 0 or idx[j] in box_days:
             continue
         if up_run[j - 1] >= p.trend_run or dn_run[j - 1] >= p.trend_run:
             out.append(Level(c[j], "doji_close", tf, idx[j], idx[j], float(np.nan_to_num(vr[j])), False, "trend"))
-    # 같은 봉에서 나온 박스(예: 거래량 급증봉이 추세전환 직전 봉이기도 함)는 하나만 남긴다
-    uniq: dict = {}
-    for bx in boxes:
-        uniq.setdefault((bx.date, bx.low, bx.high), bx)
-    return out, sorted(uniq.values(), key=lambda b: b.born)
+    return out, boxes
+
+
+def detect_range_boxes(df: pd.DataFrame, p: TFParams, tf: str) -> list[Box]:
+    """여러 봉 횡보 박스 (PART 7). box_len봉 이상, 고저 폭 box_width 이하, 상·하단에서 각각 box_touch회 이상 반응.
+
+    박스 강도(횡보 기간·누적 거래량·반복 반응)는 기간과 누적 거래량을 ratio·end에 남긴다.
+    박스는 마지막 봉이 확정되는 시점(born)부터 유효하다. 길이·반응 수치는 미확정 — 구현 설정값.
+    """
+    n = len(df)
+    L = p.box_len
+    if n < L + 1:
+        return []
+    h, l, c, v = (df[k].to_numpy(float) for k in ("high", "low", "close", "volume"))
+    idx = df.index
+    out: list[Box] = []
+    i = 0
+    while i + L <= n:
+        hi, lo = h[i:i + L].max(), l[i:i + L].min()
+        if lo <= 0 or (hi - lo) / lo > p.box_width:
+            i += 1
+            continue
+        e = i + L
+        while e < n and max(hi, h[e]) / min(lo, l[e]) - 1 <= p.box_width:
+            hi, lo = max(hi, h[e]), min(lo, l[e])
+            e += 1
+        band = 0.1 * (hi - lo)
+        top = _dedupe_count(h[i:e] >= hi - band, 2)
+        bot = _dedupe_count(l[i:e] <= lo + band, 2)
+        if top >= p.box_touch and bot >= p.box_touch:
+            closes = c[i:e]
+            core = float(closes[np.argmin(np.abs(closes - np.median(closes)))])  # 내부 핵심 종가선 (실제 종가)
+            out.append(Box(float(lo), float(hi), core, "range", tf, idx[e - 1], idx[i],
+                           ratio=float(v[i:e].sum()), end=idx[e - 1]))
+            i = e
+        else:
+            i += 1
+    return out
 
 
 def detect_clusters(df: pd.DataFrame, p: TFParams, tf: str, asof: int | None = None) -> list[Level]:

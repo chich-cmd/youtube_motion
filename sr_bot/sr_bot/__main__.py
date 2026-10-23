@@ -57,6 +57,7 @@ def _write(res, out: Path) -> Path:
     html_path = out / f"{stem}.html"
     html_path.write_text(render_html(res), encoding="utf-8")
     plans_frame(res).to_csv(out / f"{stem}.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame(res.lines).to_csv(out / f"{stem}_lines.csv", index=False, encoding="utf-8-sig")  # 기준선 DB
     return html_path
 
 
@@ -125,7 +126,7 @@ def cmd_demo(a) -> int:
     for i in range(40):
         code = f"DEMO{i:02d}"
         if i % 4 == 0:
-            df = pullback_pattern(seed=i, R=float(10_000 + 1_000 * i), tail=0)
+            df = pullback_pattern(seed=i, R=float(10_000 + 1_000 * i), tail=1)
             df = pd.concat([random_walk(400, df.close.iloc[0], seed=100 + i, end=df.index[0] - pd.offsets.BDay(1)), df])
         else:
             df = random_walk(1200, 5_000 + 700 * i, seed=i)
