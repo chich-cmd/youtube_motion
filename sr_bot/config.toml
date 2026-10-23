@@ -10,6 +10,10 @@ min_net_rr = 1.5
 min_target_gap = 0.01
 max_stop_pct = 0.08
 
+# 박스 돌파 후 철회 기준: "high"(박스 고점) | "close"(박스 종가) | "low"(박스 저점) 아래 종가 마감 시 철회
+# 박스 안 매수는 고점·종가·저점 3분할이며, 철회선 아래 지점은 매수하지 않는다.
+box_fail = "low"
+
 # 계좌·리스크: account가 0이면 수량 계산 생략
 account = 0
 risk_per_trade = 0.01      # 1회 매매 최대 손실 = 계좌의 1%

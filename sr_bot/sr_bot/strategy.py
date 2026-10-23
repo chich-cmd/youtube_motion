@@ -13,10 +13,13 @@
 - 돌파: 저항 흔적이 있는 기준선을 거래대금 증가와 함께 종가 돌파한 봉 = 신호 / 바로 아래에서 대기 = 관찰.
   돌파와 돌파 이후 지지 성공은 다른 사건이므로(원칙 ⑤) 눌림과 따로 다룬다.
 - 저점: 반복적으로 바닥(지지) 기능을 한 기준선까지 내려와 종가로 지킴 = 신호
-- 도지: 급증 장대봉 뒤 도지 박스 내부, 종가~하단(매수 유리 구간)에 있음 = 신호. 하단 종가 이탈 시 실패
-- 박스: 급증 장대봉의 고점~저점이 박스권.
-    내부 시점 — 형성 후 종가가 박스를 벗어난 적 없고 현재가가 박스 아래 절반 = 신호, 하단 종가 이탈 시 철회
-    외부 시점 — 박스 상단을 종가로 돌파한 뒤 상단까지 되돌림, 종가로 상단 위 유지 = 신호, 상단 종가 이탈 시 철회
+- 도지·박스: 봉의 고점~저점을 박스권으로 쓴다. 박스가 되는 봉은
+    ① 거래대금이 터진 바로 다음 봉의 도지 (→ '도지' 유형, 가장 흔함)
+    ② 추세전환 직전 봉 ③ 거래량이 터진 봉 (→ '박스' 유형)
+  매수는 박스의 고점·종가·저점 3분할.
+    내부 시점 — 박스가 생긴 뒤 종가가 박스 밖으로 나간 적 없음 = 신호, 저점 아래 종가 마감 시 철회
+    외부 시점 — 고점 위로 종가 돌파 후 박스 고점 부근까지 되돌림, 철회선 위 종가 마감 = 신호.
+               돌파 후 철회선은 사용자 선택(`box_fail`: 고점·종가·저점), 철회선 아래 지점은 매수하지 않는다.
 
 이동평균 배열은 이론에 없는 지표라 점수에 넣지 않고 참고 정보로만 표시한다.
 """
@@ -32,8 +35,8 @@ from .config import Config
 from .data import Ticker, median_turnover, resample
 from .ticks import fmt_price, round_tick
 
-SETUP_ORDER = {"눌림": 0, "박스": 1, "저점": 2, "도지": 3, "돌파": 4}
-SETUP_BASE = {"눌림": 20, "박스": 17, "저점": 16, "도지": 14, "돌파": 12}
+SETUP_ORDER = {"눌림": 0, "도지": 1, "박스": 2, "저점": 3, "돌파": 4}
+SETUP_BASE = {"눌림": 20, "도지": 18, "박스": 16, "저점": 16, "돌파": 12}
 
 
 @dataclass
@@ -101,9 +104,13 @@ class Prepared:
         self.frames = {tf: resample(daily, tf) for tf in tfs}
         self.sig = self.frames[cfg.tf]
         self.bar_levels: list[L.Level] = []
+        self.boxes: list[L.Box] = []
         for tf in cfg.level_tfs:
-            self.bar_levels += L.detect_bar_levels(self.frames[tf], cfg.tf_params[tf], tf)
+            lv, bx = L.detect_bar_levels(self.frames[tf], cfg.tf_params[tf], tf)
+            self.bar_levels += lv
+            self.boxes += bx
         self.bar_levels.sort(key=lambda x: x.born)
+        self.boxes.sort(key=lambda x: x.born)
         self._born = np.array([lv.born for lv in self.bar_levels], dtype="datetime64[ns]")
         self._cluster_cache: dict = {}
 
@@ -199,7 +206,12 @@ def _why(ctx: _Ctx) -> str:
 
 def _targets(ctx: _Ctx, entry: float) -> list[tuple[float, str]]:
     cfg, p = ctx.prep.cfg, ctx.prep.cfg.p
-    above = [x for x in ctx.groups if x.price >= entry * (1 + cfg.min_target_gap)]
+    # 목표 저항은 근거가 있는 선만: 일봉 박스 선(고점·종가·저점)만으로 된 가격대는 건너뛴다.
+    # 박스 선을 모두 목표로 쓰면 1차 목표가 지나치게 가까워진다.
+    def strong(g: L.LevelGroup) -> bool:
+        return g.top_tf != "D" or any(not m.kind.startswith("box_") for m in g.members)
+
+    above = [x for x in ctx.groups if x.price >= entry * (1 + cfg.min_target_gap) and strong(x)]
     targets = [(x.price, x.describe()) for x in above[:2]]
     if len(targets) < 2:
         sw = float(ctx.h[max(0, ctx.t - p.swing_window): ctx.t + 1].max())
@@ -210,7 +222,8 @@ def _targets(ctx: _Ctx, entry: float) -> list[tuple[float, str]]:
 
 def _build(ctx: _Ctx, g: L.LevelGroup, setup: str, signal: bool, relation: str, status: str,
            fail_line: float, zone_raw: tuple, entry_raw: float, entry_rule: str, fail_rule: str,
-           b: int | None, pre_rejects: int, box: tuple | None = None) -> Plan | None:
+           b: int | None, pre_rejects: int, box: tuple | None = None,
+           buys: list[tuple[float, float]] | None = None) -> Plan | None:
     prep, cfg, p, mkt = ctx.prep, ctx.prep.cfg, ctx.prep.cfg.p, ctx.prep.cfg.market
     t, sig = ctx.t, prep.sig
     # 기준선은 실제 봉 가격이지만 수정주가(증자·분할 반영)로 호가 단위와 어긋날 수 있어
@@ -261,9 +274,10 @@ def _build(ctx: _Ctx, g: L.LevelGroup, setup: str, signal: bool, relation: str, 
     if risk / entry > cfg.max_stop_pct:
         reject.append(f"손절 폭 {risk / entry:.1%} > {cfg.max_stop_pct:.0%}")
 
-    # 분할매수·분할익절 (PART 2-6). 1차는 구간 상단, 2차는 기준선 부근. 1차 목표에서 절반 익절 후 나머지는 본전 손절.
+    # 분할매수·분할익절 (PART 2-6). 기본은 구간 상단 → 기준선 부근 2분할, 박스는 고점·종가·저점 3분할.
+    # 1차 목표에서 절반 익절 후 나머지는 본전 손절.
     split = {
-        "buy": [(zone[1], 0.5), (zone[0], 0.5)],
+        "buy": [(round_tick(px, mkt, "nearest"), w) for px, w in buys] if buys else [(zone[1], 0.5), (zone[0], 0.5)],
         "sell": [(t1, 0.5), (t2 or t1, 0.5)] if t1 else [],
         "after_t1": "남은 물량 손절선을 평균 진입가로 올림",
     }
@@ -346,60 +360,61 @@ def _bottom(ctx: _Ctx, g: L.LevelGroup) -> Plan | None:
                   P, (P, zone_hi), zone_hi, "바닥 기준선까지 내려와 종가로 지지하면 진입", fail_rule, None, 0)
 
 
-def _doji_inside(ctx: _Ctx, lv: L.Level, g: L.LevelGroup) -> Plan | None:
-    """급증 장대봉 뒤 도지 박스 내부 (도지 내부 시점)."""
-    fp = lambda x: fmt_price(x, ctx.prep.cfg.market)  # noqa: E731
-    p, t, c = ctx.prep.cfg.p, ctx.t, ctx.c
-    lo_box, hi_box = lv.box
-    born_i = ctx.born_index(lv.born)
-    if born_i > t + 1 or t - born_i > p.max_bars_since_break:  # 도지 봉 자체가 마지막 봉이어도 박스 내부
-        return None
-    if (c[born_i: t + 1] < lo_box).any() or (c[born_i: t + 1] > hi_box).any():
-        return None  # 박스를 종가로 벗어났으면 내부 시점이 아니다
-    fail_rule = f"도지 하단 {fp(lo_box)} 아래 종가 마감 시 철회"
-    in_buy_half = lo_box <= ctx.close <= lv.price
-    return _build(ctx, g, "도지", in_buy_half, "박스 내부",
-                  "도지 종가~하단(매수 유리 구간)" if in_buy_half else "도지 상단~종가(매도 유리 구간) · 하단 쪽 대기",
-                  lo_box, (lo_box, lv.price), min(ctx.close, lv.price),
-                  "도지 하단부터 분할매수 (모멘텀·시황이 좋을 때)", fail_rule, None, 0, box=lv.box)
+BOX_FAIL_LABEL = {"high": "고점", "close": "종가", "low": "저점"}
 
 
-def _box(ctx: _Ctx, lv: L.Level, g: L.LevelGroup) -> Plan | None:
-    """급증 장대봉의 고점~저점 박스. lv는 박스 상단(box_high) 기준선."""
-    fp = lambda x: fmt_price(x, ctx.prep.cfg.market)  # noqa: E731
-    p, t, c, l = ctx.prep.cfg.p, ctx.t, ctx.c, ctx.l
-    lo_box, hi_box = lv.box
-    if hi_box <= lo_box:
+def _box_setup(ctx: _Ctx, bx: L.Box, g: L.LevelGroup) -> Plan | None:
+    """박스(봉 하나의 고점~저점) 내부·외부 시점. g는 박스 종가가 속한 기준선 묶음."""
+    cfg, p, t, c, l = ctx.prep.cfg, ctx.prep.cfg.p, ctx.t, ctx.c, ctx.l
+    fp = lambda x: fmt_price(x, cfg.market)  # noqa: E731
+    lo, hi, cl = bx.low, bx.high, bx.close
+    if hi <= lo:
         return None
-    born_i = ctx.born_index(lv.born)
+    born_i = ctx.born_index(bx.born)
     if born_i > t + 1:
         return None
+    setup = "도지" if bx.src == "doji" else "박스"
+    src = L.BOX_SRC_LABEL[bx.src]
     since = c[born_i: t + 1]
-    mid = (lo_box + hi_box) / 2
-    if not (since > hi_box).any():
-        # 내부 시점: 형성 후 종가가 박스 안에만 있었다
-        if (since < lo_box).any() or t - born_i > p.max_bars_since_break or not lo_box <= ctx.close <= hi_box:
+    if (since < lo).any() and not (since > hi).any():
+        return None  # 아래로 이탈한 박스는 저항대 — 매수 후보 아님
+
+    def tranches(fail_px):
+        pts = [x for x in (hi, cl, lo) if x >= fail_px - 1e-9]
+        return [(x, 1 / len(pts)) for x in pts]
+
+    if not (since > hi).any():
+        # 내부 시점
+        if (since < lo).any() or t - born_i > p.max_bars_since_break or not lo <= ctx.close <= hi:
             return None
-        lower = ctx.close <= mid
-        return _build(ctx, g, "박스", lower, "박스 내부",
-                      "박스 아래 절반(매수 유리 구간)" if lower else "박스 위 절반 · 하단 쪽 대기",
-                      lo_box, (lo_box, mid), min(ctx.close, mid),
-                      "박스 하단~중간에서 분할매수", f"박스 하단 {fp(lo_box)} 아래 종가 마감 시 철회",
-                      None, 0, box=lv.box)
-    # 외부 시점: 상단 종가 돌파 이후
-    b = born_i + int(np.flatnonzero(since > hi_box)[0])
-    if (c[b: t + 1] < hi_box).any() or (t - b > p.max_bars_since_break and not lv.mega):
-        return None  # 돌파 후 상단 아래로 종가가 내려왔으면 박스 위 구조가 깨진 것
-    zone_hi = hi_box * (1 + p.entry_buffer)
+        buys = tranches(lo)
+        avg = sum(px * w for px, w in buys)
+        return _build(ctx, g, setup, True, "박스 내부", f"{src} 박스 안 · 고점·종가·저점 분할매수 구간",
+                      lo, (lo, hi), min(avg, ctx.close),
+                      "박스 고점·종가·저점에서 3분할 매수", f"박스 저점 {fp(lo)} 아래 종가 마감 시 철회",
+                      None, 0, box=(lo, hi), buys=buys)
+
+    # 외부 시점: 박스 고점 위로 종가 돌파 이후
+    b = born_i + int(np.flatnonzero(since > hi)[0])
+    fail_px = {"high": hi, "close": cl, "low": lo}[cfg.box_fail]
+    if b == t or (c[b: t + 1] < fail_px).any():
+        return None  # 돌파 당일(돌파 유형이 담당)이거나, 돌파 후 철회선 이탈
+    if t - b > p.max_bars_since_break and not bx.mega:
+        return None
+    if ctx.close > hi * (1 + p.max_dist):
+        return None
+    buys = tranches(fail_px)
+    avg = sum(px * w for px, w in buys)
     recent = range(max(b + 1, t - p.confirm_bars + 1), t + 1)
-    touched = any(l[k] <= hi_box * (1 + p.retest_zone) and c[k] >= hi_box for k in recent)
-    ok = touched and ctx.close <= hi_box * (1 + 2 * p.entry_buffer)
-    return _build(ctx, g, "박스", ok, "박스 위" if not ok else "지지",
-                  "박스 상단 돌파 후 되돌림 · 상단 종가 지지" if ok else "박스 상단 돌파 후 위 · 상단 재접근 대기",
-                  hi_box, (hi_box, zone_hi), min(ctx.close, zone_hi) if ok else zone_hi,
-                  "박스 상단 부근 분할매수" if ok else f"박스 상단 +{p.retest_zone:.1%} 안까지 내려와 종가로 지지하면 진입",
-                  f"박스 상단 {fp(hi_box)} 아래 종가 마감 시 철회 (하단 {fp(lo_box)} 이탈은 구조 붕괴)",
-                  b, 0, box=lv.box)
+    touched = any(l[k] <= hi * (1 + p.retest_zone) and c[k] >= fail_px for k in recent)
+    ok = touched and ctx.close <= hi * (1 + 2 * p.entry_buffer)
+    label = "·".join(BOX_FAIL_LABEL[k] for k, x in (("high", hi), ("close", cl), ("low", lo)) if x >= fail_px - 1e-9)
+    return _build(ctx, g, setup, ok, "지지" if ok else "박스 위",
+                  f"{src} 박스 돌파 후 되돌림 · 박스 지지 확인" if ok else f"{src} 박스 돌파 후 위 · 박스 재접근 대기",
+                  fail_px, (min(x for x, _ in buys), hi), min(avg, ctx.close) if ok else avg,
+                  f"박스 {label}에서 분할매수" + ("" if ok else f" (박스 고점 {fp(hi)} 부근까지 내려와 종가로 지지할 때)"),
+                  f"박스 {BOX_FAIL_LABEL[cfg.box_fail]} {fp(fail_px)} 아래 종가 마감 시 철회 (사용자 설정)",
+                  b, 0, box=(lo, hi), buys=buys)
 
 
 def _below_resistance(ctx: _Ctx, g: L.LevelGroup) -> Plan | None:
@@ -444,15 +459,19 @@ def evaluate_all(prep: Prepared, t: int, tk: Ticker, exact_clusters: bool = True
             pl = _below_resistance(ctx, g)
             if pl:
                 plans.append(pl)
-    group_of = {id(m): g for g in groups for m in g.members}
-    for lv in levels:
-        if id(lv) not in group_of or not lv.box:
+    # 박스: 박스 종가 기준선이 속한 묶음으로 격·근거를 계산한다
+    group_of = {}
+    for g in groups:
+        for m in g.members:
+            if m.box_src and m.kind in ("doji_close", "box_close"):
+                group_of[(m.src, m.box_src, m.tf)] = g
+    for bx in prep.boxes:
+        if bx.born > T or bx.low < close * (1 - p.max_dist) * 0.9:
             continue
-        pl = None
-        if lv.kind == "doji_close" and lv.doji_type == "after_long":
-            pl = _doji_inside(ctx, lv, group_of[id(lv)])
-        elif lv.kind == "box_high" and lv.box[0] >= close * (1 - p.max_dist):
-            pl = _box(ctx, lv, group_of[id(lv)])
+        g = group_of.get((bx.date, bx.src, bx.tf))
+        if g is None:
+            continue
+        pl = _box_setup(ctx, bx, g)
         if pl:
             plans.append(pl)
     plans.sort(key=Plan.sort_key)

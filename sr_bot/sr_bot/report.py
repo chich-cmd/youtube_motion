@@ -8,7 +8,7 @@ import pandas as pd
 
 from .levels import TF_LABEL
 from .scanner import ScanResult
-from .strategy import Plan
+from .strategy import BOX_FAIL_LABEL, Plan
 from .ticks import fmt_price
 
 CSS = """
@@ -111,7 +111,7 @@ def _detail(plan: Plan, rank: int, res: ScanResult) -> str:
         q2.append(("돌파 봉", f"{plan.breakout_date:%Y-%m-%d} · 거래대금 {plan.breakout_vr:.2f}배"
                    + (" · 이후 거래대금 감소" if plan.pullback_dry else "")))
     if plan.box:
-        q2.append(("도지 박스", f"{f(plan.box[0])} ~ {f(plan.box[1])}"))
+        q2.append(("박스 (저점~고점)", f"{f(plan.box[0])} ~ {f(plan.box[1])}"))
     sb = plan.split.get("buy", [])
     ss = plan.split.get("sell", [])
     q3 = [
@@ -201,7 +201,7 @@ def render_html(res: ScanResult) -> str:
         parts.append(f"<h2>매매 조건 충족 ({len(sig_top)})</h2>" + _table(sig_top, 1, res))
     if watch_top:
         parts.append(f"<h2>관찰 후보 ({len(watch_top)})</h2>" + _table(watch_top, len(sig_top) + 1, res))
-    parts.append("<p class='small muted'>순위: 적격 → 조건 충족 → 유형(눌림·박스·저점·도지·돌파) → 적합도 → 순손익비 → 종목코드. "
+    parts.append("<p class='small muted'>순위: 적격 → 조건 충족 → 유형(눌림·도지·박스·저점·돌파) → 적합도 → 순손익비 → 종목코드. "
                  "순손익비는 현재가가 아니라 계획 진입가 기준이며 유동성에 따라 비용을 다르게 잡았습니다.</p>")
 
     parts.append(f"<h2>상세 시나리오 (상위 {min(cfg.detail_n, len(top))})</h2>")
@@ -225,8 +225,9 @@ def render_html(res: ScanResult) -> str:
     p = cfg.p
     parts.append(f"""<h2>판정 기준과 한계</h2><ul class='small'>
 <li>관찰 이유: 거래대금 급증(직전 {p.vol_window}봉 평균의 {p.high_vol_mult:g}배 이상). 거래대금은 상승 확신이 아니라 관찰 종목을 고르는 근거입니다.</li>
-<li>기준선: 거래대금 급증봉 종가·고점·저점, 급증 후 조정봉 종가, 장대봉 이후·추세 강화 도지의 상단·하단·종가, 종가 클러스터. 실제 봉 가격만 쓰므로 호가 단위에 맞습니다. 일·주·월봉에서 겹치면 격에 가점.</li>
-<li>유형: 눌림(돌파 후 재접근 지지) · 박스(급증 장대봉 고점~저점: 내부 아래 절반 / 상단 돌파 후 되돌림 지지) · 저점(반복 바닥 지지) · 도지(도지 박스 내부 하단) · 돌파(거래대금 동반 종가 돌파 / 저항 아래 대기).</li>
+<li>기준선: 거래대금 급증봉 종가, 급증 후 조정봉 종가, 박스 고점·종가·저점, 추세 강화 도지 종가, 종가 클러스터. 실제 봉 가격만 쓰므로 호가 단위에 맞습니다. 일·주·월봉에서 겹치면 격에 가점.</li>
+<li>유형: 눌림(돌파 후 재접근 지지) · 도지(거래대금 급증 다음 봉 도지 박스) · 박스(추세전환 직전 봉 / 거래량 급증봉 박스) · 저점(반복 바닥 지지) · 돌파(거래대금 동반 종가 돌파 / 저항 아래 대기).</li>
+<li>박스: 봉의 고점~저점. 고점·종가·저점 3분할 매수. 박스 안에서는 저점 이탈 시 철회, 박스 돌파 후에는 <b>박스 {BOX_FAIL_LABEL[cfg.box_fail]}</b> 이탈 시 철회(사용자 설정 `box_fail`), 철회선 아래 매수 지점은 제외.</li>
 <li>모든 지지·저항 전환과 철회는 종가 기준입니다. 손절 추정가는 철회선 -{_pct(p.fail_slip)} 체결 가정입니다.</li>
 <li>가격 필터: 20일 거래대금 중앙값 {f(cfg.m.min_turnover) if mk == 'us' else f'{cfg.m.min_turnover / 1e8:,.0f}억 원'} 이상, 순손익비 {cfg.min_net_rr} 이상, 손절 폭 {_pct(cfg.max_stop_pct)} 이하, 목표 가격차 {_pct(cfg.min_target_gap)} 이상.</li>
 <li>분할매수(구간 상단 50% → 기준선 부근 50%)와 분할익절(1차 50% → 2차 50%, 1차 후 본전 손절)은 기본안입니다.</li>

@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _cfg(a):
-    return load_config(a.config, market=a.market, tf=a.tf, account=a.account, top_n=a.top)
+    return load_config(a.config, market=a.market, tf=a.tf, account=a.account, top_n=a.top, box_fail=a.box_fail)
 
 
 def html_to_pdf(html_path: Path) -> Path | None:
@@ -94,7 +94,7 @@ def cmd_scan(a) -> int:
 
 
 def cmd_backtest(a) -> int:
-    cfg = load_config(a.config, market=a.market, tf=a.tf, history_years=a.years)
+    cfg = load_config(a.config, market=a.market, tf=a.tf, history_years=a.years, box_fail=a.box_fail)
     tickers = D.load_universe(cfg.market, a.universe, prefilter=cfg.m.min_turnover * 0.3)
     if a.limit:
         tickers = tickers[: a.limit]
@@ -157,6 +157,8 @@ def main(argv=None) -> int:
         s.add_argument("--limit", type=int, default=0)
         s.add_argument("--account", type=float, help="계좌 금액 (수량 계산용)")
         s.add_argument("--top", type=int)
+        s.add_argument("--box-fail", choices=["high", "close", "low"],
+                       help="박스 돌파 후 철회 기준: 박스 고점/종가/저점 아래 종가 (기본 config.toml)")
         s.add_argument("--out", default=str(ROOT / "reports"))
         s.add_argument("--pdf", action="store_true", help="HTML과 함께 PDF도 저장 (playwright 필요)")
         if name == "scan":

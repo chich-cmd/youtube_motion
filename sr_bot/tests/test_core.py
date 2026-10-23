@@ -55,7 +55,7 @@ def test_close_below_level_invalidates():
     df.iloc[-1, df.columns.get_loc("close")] = 99.0  # 종가가 기능선 아래로 마감
     df.iloc[-1, df.columns.get_loc("low")] = 98.5
     plans = evaluate_all(Prepared(df, _cfg()), len(df) - 1, TK)
-    at100 = [p for p in plans if p.level == pytest.approx(100.0)]
+    at100 = [p for p in plans if p.level == pytest.approx(100.0) and p.setup in ("눌림", "돌파")]
     # 눌림 신호는 사라지고, 남는다면 '저항 아래' 관찰 후보뿐이다
     assert all(not p.signal and p.relation == "저항 아래" for p in at100)
 
@@ -73,8 +73,10 @@ def test_levels_are_actual_prices():
     df = random_walk(800, seed=3)
     cfg = _cfg()
     prices = set(df["close"]) | set(df["high"]) | set(df["low"])
-    lv = L.detect_bar_levels(df, cfg.p, "D") + L.detect_clusters(df, cfg.p, "D")
+    bar_lv, boxes = L.detect_bar_levels(df, cfg.p, "D")
+    lv = bar_lv + L.detect_clusters(df, cfg.p, "D")
     assert lv and all(x.price in prices for x in lv)
+    assert all(b.low in prices and b.high in prices and b.close in prices for b in boxes)
     for g in L.group_levels(lv, cfg.p.merge_tol):
         assert g.price in prices
 
@@ -171,12 +173,38 @@ def _box_frame(last_close: float, retest: bool = False):
                         index=pd.bdate_range(end="2026-10-23", periods=n))
 
 
-def test_box_inside_lower_half_is_signal():
-    hits = [p for p in _plans(_box_frame(103.0)) if p.setup == "박스"]
+def test_box_inside_buys_high_close_low():
+    hits = [p for p in _plans(_box_frame(103.0)) if p.setup == "박스" and p.box == pytest.approx((100.0, 110.0))]
     assert hits and hits[0].signal and hits[0].relation == "박스 내부"
-    assert hits[0].fail_line == pytest.approx(100.0) and hits[0].box == pytest.approx((100.0, 110.0))
+    assert hits[0].fail_line == pytest.approx(100.0)
+    assert [px for px, _ in hits[0].split["buy"]] == pytest.approx([110.0, 109.5, 100.0])  # 고점·종가·저점
 
 
-def test_box_retest_of_top_is_signal():
-    hits = [p for p in _plans(_box_frame(111.0, retest=True)) if p.setup == "박스"]
-    assert hits and hits[0].signal and hits[0].fail_line == pytest.approx(110.0)
+@pytest.mark.parametrize("fail,line,n_buys", [("low", 100.0, 3), ("close", 109.5, 2), ("high", 110.0, 1)])
+def test_box_breakout_fail_line_is_user_choice(fail, line, n_buys):
+    prep = Prepared(_box_frame(111.0, retest=True), _cfg(box_fail=fail))
+    hits = [p for p in evaluate_all(prep, len(prep.sig) - 1, TK)
+            if p.setup == "박스" and p.box == pytest.approx((100.0, 110.0))]
+    assert hits and hits[0].signal and hits[0].fail_line == pytest.approx(line)
+    assert len(hits[0].split["buy"]) == n_buys  # 철회선 아래 매수 지점은 뺀다
+
+
+def test_doji_after_surge_is_doji_box():
+    """거래대금 급증봉 → 바로 다음 봉 도지(박스 104~108, 종가 106) → 위로 밀어냄 → 박스 고점 되돌림 지지."""
+    rng = np.random.default_rng(5)
+    n = 200
+    c = 95 * np.exp(rng.normal(0, 0.003, n))
+    o = c * (1 + rng.normal(0, 0.001, n))
+    h = np.maximum(o, c) * 1.003
+    lo = np.minimum(o, c) * 0.997
+    v = np.full(n, 5e7)
+    o[150], h[150], lo[150], c[150], v[150] = 96.0, 106.5, 95.8, 106.0, 5e8   # 거래대금 급증
+    o[151], h[151], lo[151], c[151], v[151] = 106.2, 108.0, 104.0, 106.0, 5e7  # 다음 봉 도지
+    for k in range(152, n - 1):
+        x = 112.0 if k < 185 else 110.0
+        o[k], c[k], h[k], lo[k] = x, x * 1.001, x * 1.003, x * 0.997
+    o[-1], h[-1], lo[-1], c[-1] = 109.0, 109.5, 108.2, 109.2
+    df = pd.DataFrame({"open": o, "high": h, "low": lo, "close": c, "volume": v},
+                      index=pd.bdate_range(end="2026-10-23", periods=n))
+    hits = [p for p in _plans(df) if p.setup == "도지" and p.box == pytest.approx((104.0, 108.0))]
+    assert hits and hits[0].signal and hits[0].fail_line == pytest.approx(104.0)

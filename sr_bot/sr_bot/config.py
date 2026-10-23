@@ -104,6 +104,8 @@ class Config:
     min_net_rr: float = 1.5
     min_target_gap: float = 0.01
     max_stop_pct: float = 0.08
+    # 박스 돌파 후 철회 기준 (사용자 선택): high=박스 고점, close=박스 종가, low=박스 저점 아래 종가 마감 시 철회
+    box_fail: str = "low"
     # 계좌·리스크 (공부법 1장: 단일 트레이드 손실은 계좌의 일정 비율 이하)
     account: float = 0.0          # 0이면 수량 계산 생략
     risk_per_trade: float = 0.01
@@ -151,6 +153,8 @@ def load_config(path: str | Path | None = None, **overrides) -> Config:
         cfg = _apply(cfg, overrides)
     if cfg.tf not in ("D", "W", "M"):
         raise ValueError("tf는 D, W, M 중 하나")
+    if cfg.box_fail not in ("high", "close", "low"):
+        raise ValueError("box_fail은 high, close, low 중 하나")
     if cfg.market not in cfg.markets:
         raise ValueError("market은 kr 또는 us")
     return cfg
