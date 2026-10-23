@@ -20,7 +20,7 @@ class ScanResult:
     checked: int
     evaluable: int
     unverified: Counter
-    plans: list[Plan]                   # 기능선 구조가 있는 모든 종목 (적격·부적격 포함)
+    plans: list[Plan]                   # 기준선 구조가 있는 모든 종목 (적격·부적격 포함)
     charts: dict = field(default_factory=dict)   # code -> 차트용 봉 데이터
     demo: bool = False
 
@@ -29,8 +29,14 @@ class ScanResult:
         return [p for p in self.plans if p.eligible]
 
     @property
-    def confirmed(self) -> list[Plan]:
-        return [p for p in self.eligible if p.state == "confirmed"]
+    def signals(self) -> list[Plan]:
+        """매매 조건 충족 (적격 + 신호)."""
+        return [p for p in self.eligible if p.signal]
+
+    @property
+    def watch(self) -> list[Plan]:
+        """관찰 후보 (적격이지만 조건 미충족)."""
+        return [p for p in self.eligible if not p.signal]
 
     @property
     def top(self) -> list[Plan]:

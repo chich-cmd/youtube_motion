@@ -22,7 +22,7 @@ CSS = """
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
 font:15px/1.6 "Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
 main{max-width:980px;margin:0 auto;padding:24px 16px 64px}
-h1{font-size:24px;margin:0 0 4px}h2{font-size:19px;margin:36px 0 10px}h3{font-size:17px;margin:0;color:var(--accent)}
+h1{font-size:24px;margin:0 0 4px}h4{font-size:14px;margin:14px 0 4px;color:var(--muted)}h2{font-size:19px;margin:36px 0 10px}h3{font-size:17px;margin:0;color:var(--accent)}
 .muted{color:var(--muted)}.small{font-size:13px}
 .banner{background:var(--hl);color:var(--hl-ink);padding:12px 14px;border-radius:8px;margin:16px 0;font-weight:600}
 .demo{background:var(--bad);color:#fff}
@@ -79,7 +79,7 @@ def chart_svg(bars: pd.DataFrame, plan: Plan, market: str) -> str:
         top, bot = y(max(r.open, r.close)), y(min(r.open, r.close))
         out.append(f'<rect x="{x - cw * 0.35:.1f}" y="{top:.1f}" width="{cw * 0.7:.1f}" height="{max(bot - top, 0.8):.1f}" fill="{col}"/>')
 
-    specs = [(plan.level, "var(--accent)", "기능선", ""), (plan.stop, "var(--bad)", "손절 추정", "4 3")]
+    specs = [(plan.level, "var(--accent)", "기준선", ""), (plan.stop, "var(--bad)", "손절 추정", "4 3")]
     if plan.t1:
         specs.append((plan.t1, "var(--good)", "1차", "4 3"))
     if plan.t2:
@@ -100,89 +100,114 @@ def _detail(plan: Plan, rank: int, res: ScanResult) -> str:
     cfg, mk = res.cfg, res.cfg.market
     f = lambda p: fmt_price(p, mk)  # noqa: E731
     ev = plan.events
-    rows = [
-        ("초기 적합도", f"{plan.score:.1f}/100 · 상승확률 아님"),
-        ("현재 구조 상태", plan.state_label + (" · 기능선 재지지" if plan.state == "confirmed" else
-                                         " · 기능선까지 눌림 대기" if plan.state == "waiting" else " · 재접근 확인 전")),
-        ("기준일 확정 종가", f(plan.close)),
-        ("기능선", f"{f(plan.level)} · 종가 이탈 시 즉시 실패"),
-        ("기능선 근거", plan.level_desc),
-        ("격 (기능 수행 이력)", f"{plan.grade:.1f} · 지지 {ev['hold']} / 저항 {ev['reject']} / 전환 {ev['flip']} · 돌파 전 저항 {plan.pre_rejects}회"),
-        ("돌파", f"{plan.breakout_date:%Y-%m-%d} · 거래량 {plan.breakout_vr:.2f}배"
-                 + (" · 눌림 거래량 감소" if plan.pullback_dry else "")),
+    q1 = [("관찰 이유", plan.why), ("기준선 관계", f"{plan.relation} · {plan.status}")]
+    q2 = [
+        ("핵심 기준선", f"{f(plan.level)}"),
+        ("기준선 근거", plan.level_desc),
+        ("격 (기능 수행 이력)", f"{plan.grade:.1f} · 지지 {ev['hold']} / 저항 {ev['reject']} / 전환 {ev['flip']}"
+                              + (f" · 돌파 전 저항 {plan.pre_rejects}회" if plan.pre_rejects else "")),
+    ]
+    if plan.breakout_date is not None:
+        q2.append(("돌파 봉", f"{plan.breakout_date:%Y-%m-%d} · 거래대금 {plan.breakout_vr:.2f}배"
+                   + (" · 이후 거래대금 감소" if plan.pullback_dry else "")))
+    if plan.box:
+        q2.append(("도지 박스", f"{f(plan.box[0])} ~ {f(plan.box[1])}"))
+    sb = plan.split.get("buy", [])
+    ss = plan.split.get("sell", [])
+    q3 = [
+        ("진입 조건", plan.entry_rule),
         ("매수 검토 구간", f"{f(plan.zone[0])} ~ {f(plan.zone[1])}"),
+        ("분할매수", " → ".join(f"{f(px)} {w:.0%}" for px, w in sb)),
         ("계획 진입가", f(plan.entry)),
         ("1차 목표", f"{f(plan.t1)} · {plan.t1_desc}" if plan.t1 else "-"),
         ("2차 목표", f(plan.t2) if plan.t2 else "-"),
-        ("손절 추정가", f"{f(plan.stop)} (진입 대비 -{_pct(plan.stop_pct)}) · 기능선 종가 이탈 후 체결 가정"),
+        ("분할익절", (" → ".join(f"{f(px)} {w:.0%}" for px, w in ss) + f" · {plan.split.get('after_t1', '')}") if ss else "-"),
         ("계획 순손익비", f"{plan.net_rr:.2f} · 왕복 비용 {_pct(plan.cost_pct)} 가정 (유동성 반영)" if plan.net_rr else "-"),
-        ("20일 거래대금 중앙값", f"{plan.turnover / 1e8:,.0f}억 원" if mk == "kr" else f"${plan.turnover / 1e6:,.1f}M"),
+    ]
+    q4 = [
+        ("철회 조건", plan.fail_rule),
+        ("손절 추정가", f"{f(plan.stop)} (진입 대비 -{_pct(plan.stop_pct)}) · 종가 이탈 후 체결 가정"),
     ]
     if plan.qty is not None:
-        rows.append(("권장 최대 수량", f"{plan.qty:,}주 · 계좌 {cfg.account:,.0f}, 1회 위험 {_pct(cfg.risk_per_trade)}"))
-    if plan.box:
-        rows.append(("도지 박스", f"{f(plan.box[0])} ~ {f(plan.box[1])} · 하단 종가 이탈 시 2차 실패"))
-    for k, v in plan.info.items():
-        rows.append((k, v))
-    kv = "".join(f"<div>{_e(k)}</div><div>{_e(v)}</div>" for k, v in rows)
+        q4.append(("권장 최대 수량", f"{plan.qty:,}주 · 계좌 {cfg.account:,.0f}, 1회 위험 {_pct(cfg.risk_per_trade)}"))
+    etc = [("초기 적합도", f"{plan.score:.1f}/100 · 상승확률 아님"), ("기준일 확정 종가", f(plan.close)),
+           ("20일 거래대금 중앙값", f"{plan.turnover / 1e8:,.0f}억 원" if mk == "kr" else f"${plan.turnover / 1e6:,.1f}M")]
+    etc += list(plan.info.items())
+
+    def block(title, rows):
+        kv = "".join(f"<div>{_e(k)}</div><div>{_e(v)}</div>" for k, v in rows)
+        return f"<h4>{_e(title)}</h4><div class='kv'>{kv}</div>"
+
     warn = "".join(f'<li class="warn">{_e(w)}</li>' for w in plan.warnings)
     chart = chart_svg(res.charts[plan.code], plan, mk) if plan.code in res.charts else ""
-    hl = " hl" if plan.state == "confirmed" else ""
+    hl = " hl" if plan.signal else ""
     return (f'<section class="card{hl}"><h3>{rank}. {_e(plan.name)} ({_e(plan.code)})'
             f'<span class="tag{" c" if hl else ""}">{_e(plan.state_label)}</span></h3>'
-            f'<p class="muted small">{_e(plan.sector)} · {TF_LABEL[plan.tf]} · 기능선 {f(plan.level)}</p>'
-            f'{chart}<div class="kv">{kv}</div>'
-            f'{"<ul>" + warn + "</ul>" if warn else ""}'
-            f'<p class="small"><b>다음에 확인할 조건</b>: 기능선 {f(plan.level)} 위 종가 유지와 후속 봉의 지지 반응. '
-            f'{TF_LABEL[plan.tf]} 종가가 기능선 아래로 마감하면 계획 폐기.</p></section>')
+            f'<p class="muted small">{_e(plan.sector)} · {TF_LABEL[plan.tf]} · 기준선 {f(plan.level)}</p>{chart}'
+            + block("① 왜 관찰하는가", q1) + block("② 어떤 가격이 중요한가", q2)
+            + block("③ 어떤 조건에서 매매하는가", q3) + block("④ 언제 판단을 철회하는가", q4)
+            + block("참고", etc)
+            + (f"<ul>{warn}</ul>" if warn else "") + "</section>")
+
+
+def _table(rows: list[Plan], start: int, res: ScanResult) -> str:
+    f = lambda p: fmt_price(p, res.cfg.market)  # noqa: E731
+    out = ["<div class='tbl'><table><tr><th>순위</th><th>종목</th><th>섹터</th><th>유형</th><th>관계</th>"
+           "<th>기준선</th><th>매수 검토 구간</th><th>1차 목표</th><th>순손익비</th><th>격</th><th>적합도</th></tr>"]
+    for i, p in enumerate(rows, start):
+        cls = " class='hl'" if p.signal else ""
+        out.append(f"<tr{cls}><td>{i}</td><td>{_e(p.name)}</td><td>{_e(p.sector)}</td><td>{_e(p.state_label)}</td>"
+                   f"<td>{_e(p.relation)}</td><td class='n'>{f(p.level)}</td>"
+                   f"<td class='n'>{f(p.zone[0])} ~ {f(p.zone[1])}</td><td class='n'>{f(p.t1)}</td>"
+                   f"<td class='n'>{p.net_rr:.2f}</td><td class='n'>{p.grade:.1f}</td><td class='n'>{p.score:.1f}</td></tr>")
+    out.append("</table></div>")
+    return "".join(out)
 
 
 def render_html(res: ScanResult) -> str:
     cfg, mk = res.cfg, res.cfg.market
     f = lambda p: fmt_price(p, mk)  # noqa: E731
     tf = TF_LABEL[cfg.tf]
-    elig, conf, top = res.eligible, res.confirmed, res.top
+    elig, sigs, top = res.eligible, res.signals, res.top
     market_name = {"kr": "한국 주식", "us": "미국 주식"}[mk]
-    title = f"지지저항 구조 리포트 · {market_name} {tf}"
     unver = sum(res.unverified.values())
 
-    parts = [f"<!doctype html><html lang='ko'><head><meta charset='utf-8'>"
-             f"<meta name='viewport' content='width=device-width,initial-scale=1'>"
-             f"<title>지지저항 구조 리포트</title><style>{CSS}</style></head><body><main>"]
-    parts.append(f"<h1>{_e(title)}</h1><p class='muted'>기준 거래일 {res.session:%Y-%m-%d} · 확정 {tf} 기록 · "
-                 f"실시간 가격 아님 · 가격 단위: {'원' if mk == 'kr' else 'USD'}</p>")
+    parts = ["<!doctype html><html lang='ko'><head><meta charset='utf-8'>"
+             "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+             f"<title>차트술사 기준선 리포트</title><style>{CSS}</style></head><body><main>"]
+    parts.append(f"<h1>차트술사 기준선 리포트 · {market_name} {tf}</h1><p class='muted'>기준 거래일 {res.session:%Y-%m-%d} · "
+                 f"확정 {tf} 기록 · 실시간 가격 아님 · 가격 단위: {'원' if mk == 'kr' else 'USD'}</p>")
     if res.demo:
         parts.append("<div class='banner demo'>데모: 가상 데이터로 만든 리포트입니다. 실제 종목·시세가 아닙니다.</div>")
-    if not conf:
-        parts.append(f"<div class='banner'>이번 회차는 '지지 확인' 종목이 없습니다. 아래는 기능선까지 눌림을 기다리는 관찰 후보입니다.</div>")
+    if not sigs:
+        parts.append("<div class='banner'>이번 회차는 매매 조건을 충족한 종목이 없습니다 → 무포지션 유지(원칙 ⑦). "
+                     "아래는 조건이 생기면 대응할 관찰 후보입니다.</div>")
     else:
-        parts.append(f"<div class='banner'>기능선 재접근 후 종가 지지가 확인된 종목 {len(conf)}개를 맨 위에 노랑으로 표시했습니다.</div>")
+        parts.append(f"<div class='banner'>매매 조건 충족 {len(sigs)}개를 맨 위에 노랑으로 표시했습니다. "
+                     "종목 발견과 매수 신호는 다릅니다 — 관찰 후보는 조건이 생길 때만 대응합니다.</div>")
 
     reasons = ", ".join(f"{k} {v}" for k, v in res.unverified.most_common()) or "없음"
+    setups = Counter(p.setup for p in sigs)
     parts.append("<div class='stats'>" + "".join(
         f"<div class='stat'><span class='muted small'>{k}</span><b>{v}</b></div>" for k, v in (
             ("전체 점검", res.checked), ("평가 가능", res.evaluable), ("자료 미검증", unver),
-            ("구조 발견", len(res.plans)), ("적격", len(elig)), ("지지 확인", len(conf)))) + "</div>")
-    parts.append(f"<p class='small muted'>자료 미검증 사유: {_e(reasons)}</p>")
+            ("구조 발견", len(res.plans)), ("적격", len(elig)), ("조건 충족", len(sigs)))) + "</div>")
+    parts.append(f"<p class='small muted'>자료 미검증 사유: {_e(reasons)} · 조건 충족 유형: "
+                 f"{_e(', '.join(f'{k} {v}' for k, v in setups.items()) or '없음')}</p>")
 
-    # 상위 표
-    parts.append(f"<h2>전체 상위 {len(top)}</h2><div class='tbl'><table><tr><th>순위</th><th>종목</th><th>섹터</th>"
-                 "<th>상태</th><th>기능선</th><th>매수 검토 구간</th><th>1차 목표</th><th>순손익비</th><th>격</th><th>적합도</th></tr>")
-    for i, p in enumerate(top, 1):
-        cls = " class='hl'" if p.state == "confirmed" else ""
-        parts.append(f"<tr{cls}><td>{i}</td><td>{_e(p.name)}</td><td>{_e(p.sector)}</td><td>{_e(p.state_label)}</td>"
-                     f"<td class='n'>{f(p.level)}</td><td class='n'>{f(p.zone[0])} ~ {f(p.zone[1])}</td>"
-                     f"<td class='n'>{f(p.t1)}</td><td class='n'>{p.net_rr:.2f}</td><td class='n'>{p.grade:.1f}</td>"
-                     f"<td class='n'>{p.score:.1f}</td></tr>")
-    parts.append("</table></div><p class='small muted'>순위: 적격 → 지지 확인 → 재접근 대기 → 돌파 직후 → 적합도 → 순손익비 → 종목코드. "
+    sig_top = [p for p in top if p.signal]
+    watch_top = [p for p in top if not p.signal]
+    if sig_top:
+        parts.append(f"<h2>매매 조건 충족 ({len(sig_top)})</h2>" + _table(sig_top, 1, res))
+    if watch_top:
+        parts.append(f"<h2>관찰 후보 ({len(watch_top)})</h2>" + _table(watch_top, len(sig_top) + 1, res))
+    parts.append("<p class='small muted'>순위: 적격 → 조건 충족 → 유형(눌림·저점·도지·돌파) → 적합도 → 순손익비 → 종목코드. "
                  "순손익비는 현재가가 아니라 계획 진입가 기준이며 유동성에 따라 비용을 다르게 잡았습니다.</p>")
 
-    # 상세
-    parts.append(f"<h2>상세 계획 (상위 {min(cfg.detail_n, len(top))})</h2>")
+    parts.append(f"<h2>상세 시나리오 (상위 {min(cfg.detail_n, len(top))})</h2>")
     for i, p in enumerate(top[: cfg.detail_n], 1):
         parts.append(_detail(p, i, res))
 
-    # 업종 분포
     by_sec: dict[str, list] = defaultdict(list)
     for i, p in enumerate(top, 1):
         by_sec[p.sector].append(f"{p.name}({i})")
@@ -192,7 +217,6 @@ def render_html(res: ScanResult) -> str:
         parts.append(f"<tr><td>{_e(sec)}</td><td class='n'>{len(names)}/{all_sec[sec]}</td><td>{_e(' · '.join(names))}</td></tr>")
     parts.append("</table></div>")
 
-    # 탈락 사유
     rej = Counter(r.split(" ")[0] for p in res.plans if not p.eligible for r in p.reject)
     if rej:
         parts.append("<p class='small muted'>구조는 있지만 가격 계획에서 탈락: " +
@@ -200,12 +224,14 @@ def render_html(res: ScanResult) -> str:
 
     p = cfg.p
     parts.append(f"""<h2>판정 기준과 한계</h2><ul class='small'>
-<li>기능선: 고거래량 기준봉 종가, 장대봉 이후·추세 강화 도지의 상단·하단·종가, 종가 클러스터. 실제 봉 가격만 쓰므로 호가 단위에 맞습니다. 일·주·월봉에서 같은 가격대가 겹치면 하나로 묶고 격에 가점을 줍니다.</li>
-<li>눌림매매: 돌파 전 저항 흔적 {p.min_prior_rejects}회 이상 → 종가 돌파 → 이후 종가 이탈 없음 → 기능선 +{_pct(p.retest_zone)} 안 재접근 후 종가 지지 = 지지 확인.</li>
+<li>관찰 이유: 거래대금 급증(직전 {p.vol_window}봉 평균의 {p.high_vol_mult:g}배 이상). 거래대금은 상승 확신이 아니라 관찰 종목을 고르는 근거입니다.</li>
+<li>기준선: 거래대금 급증봉 종가, 급증 후 조정봉 종가, 장대봉 이후·추세 강화 도지의 상단·하단·종가, 종가 클러스터. 실제 봉 가격만 쓰므로 호가 단위에 맞습니다. 일·주·월봉에서 겹치면 격에 가점.</li>
+<li>유형: 눌림(돌파 후 재접근 지지) · 저점(반복 바닥 지지) · 도지(박스 내부 하단) · 돌파(거래대금 동반 종가 돌파 / 저항 아래 대기). 박스 유형은 세부 규칙 미확정이라 아직 판정하지 않습니다.</li>
+<li>모든 지지·저항 전환과 철회는 종가 기준입니다. 손절 추정가는 철회선 -{_pct(p.fail_slip)} 체결 가정입니다.</li>
 <li>가격 필터: 20일 거래대금 중앙값 {f(cfg.m.min_turnover) if mk == 'us' else f'{cfg.m.min_turnover / 1e8:,.0f}억 원'} 이상, 순손익비 {cfg.min_net_rr} 이상, 손절 폭 {_pct(cfg.max_stop_pct)} 이하, 목표 가격차 {_pct(cfg.min_target_gap)} 이상.</li>
-<li>손절 추정가는 기능선 종가 이탈 후 체결을 가정한 값(기능선 -{_pct(p.fail_slip)})입니다. 실제 판정은 종가 기준입니다.</li>
-<li>이동평균 배열·주봉 저점 상승은 공부법에 없는 지표라 점수에 넣지 않고 참고로만 표시합니다.</li>
-<li>적합도 점수는 상승확률이 아닙니다. 백테스트로 점수 구간별 성과를 확인한 뒤 사용하세요. 공시·재무·뉴스 미반영, 체결·목표 도달 보장 없음, 자동 주문 없음.</li>
+<li>분할매수(구간 상단 50% → 기준선 부근 50%)와 분할익절(1차 50% → 2차 50%, 1차 후 본전 손절)은 기본안입니다.</li>
+<li>이동평균 배열·주봉 저점 상승은 이론에 없는 지표라 점수에 넣지 않고 참고로만 표시합니다. 수급(투자자별 매매)은 아직 반영하지 않습니다.</li>
+<li>적합도 점수는 상승확률이 아닙니다. 공시·재무·뉴스 미반영, 체결·목표 도달 보장 없음, 자동 주문 없음.</li>
 </ul></main></body></html>""")
     return "".join(parts)
 
@@ -213,15 +239,15 @@ def render_html(res: ScanResult) -> str:
 def telegram_summary(res: ScanResult, n: int = 5) -> str:
     mk = res.cfg.market
     f = lambda p: fmt_price(p, mk)  # noqa: E731
-    head = (f"[지지저항 구조 · {'한국' if mk == 'kr' else '미국'} {TF_LABEL[res.cfg.tf]}] {res.session:%Y-%m-%d}\n"
-            f"점검 {res.checked} · 적격 {len(res.eligible)} · 지지 확인 {len(res.confirmed)}")
+    head = (f"[차트술사 기준선 · {'한국' if mk == 'kr' else '미국'} {TF_LABEL[res.cfg.tf]}] {res.session:%Y-%m-%d}\n"
+            f"점검 {res.checked} · 적격 {len(res.eligible)} · 조건 충족 {len(res.signals)}")
     if res.demo:
         head = "[데모·가상 데이터]\n" + head
     lines = [head]
-    if not res.confirmed:
-        lines.append("이번 회차 지지 확인 종목 없음 (관찰 후보만)")
+    if not res.signals:
+        lines.append("조건 충족 없음 → 무포지션 유지 (관찰 후보만)")
     for i, p in enumerate(res.top[:n], 1):
-        lines.append(f"{i}. {p.name} [{p.state_label}] 기능선 {f(p.level)} · 구간 {f(p.zone[0])}~{f(p.zone[1])} · "
+        lines.append(f"{i}. {p.name} [{p.state_label}] 기준선 {f(p.level)} · 구간 {f(p.zone[0])}~{f(p.zone[1])} · "
                      f"1차 {f(p.t1)} · 손익비 {p.net_rr:.2f}")
     lines.append("종가 기준 판정 · 상승확률 아님 · 자동 주문 없음")
     return "\n".join(lines)
@@ -231,11 +257,12 @@ def plans_frame(res: ScanResult) -> pd.DataFrame:
     rows = []
     for p in res.plans:
         rows.append({
-            "code": p.code, "name": p.name, "sector": p.sector, "eligible": p.eligible, "state": p.state_label,
-            "score": round(p.score, 1), "level": p.level, "zone_lo": p.zone[0], "zone_hi": p.zone[1],
+            "code": p.code, "name": p.name, "sector": p.sector, "eligible": p.eligible, "setup": p.setup,
+            "signal": p.signal, "relation": p.relation, "status": p.status, "score": round(p.score, 1),
+            "level": p.level, "fail_line": p.fail_line, "zone_lo": p.zone[0], "zone_hi": p.zone[1],
             "entry": p.entry, "stop": p.stop, "t1": p.t1, "t2": p.t2,
             "net_rr": round(p.net_rr, 2) if p.net_rr else None, "grade": round(p.grade, 1),
-            "breakout": p.breakout_date.date(), "level_desc": p.level_desc, "reject": "; ".join(p.reject),
+            "why": p.why, "level_desc": p.level_desc, "reject": "; ".join(p.reject),
             "warnings": "; ".join(p.warnings), "qty": p.qty,
         })
     return pd.DataFrame(rows)

@@ -133,7 +133,58 @@ def _write_cache(market: str, code: str, df: pd.DataFrame) -> None:
 
 # ---------------------------------------------------------------- 한국
 
+# KIND 업종(한국표준산업분류)을 리포트용 대분류로 묶는다. 위에서부터 먼저 맞는 것을 쓴다.
+_SECTOR_RULES = (
+    ("반도체·디스플레이", ("반도체", "전자부품", "디스플레이")),
+    ("바이오·의료기기", ("의약", "의료", "생물", "바이오", "제약")),
+    ("IT·소프트웨어", ("소프트웨어", "정보 서비스", "정보서비스", "컴퓨터 프로그래밍", "출판", "게임", "자료처리")),
+    ("통신·전자장비", ("통신", "영상", "음향", "방송", "컴퓨터 및 주변장치")),
+    ("자동차·부품", ("자동차", "트레일러")),
+    ("조선·운송", ("선박", "운송", "항공", "해운", "창고")),
+    ("전력·전기장비", ("전기", "전동기", "발전", "전지", "축전지", "가스", "증기", "절연선", "케이블", "조명")),
+    ("기계·방산", ("기계", "장비", "금속 가공", "정밀기기", "무기")),
+    ("화학·소재", ("화학", "플라스틱", "고무", "비금속", "펄프", "종이", "석유", "비료", "농약", "유리", "요업")),
+    ("철강·금속", ("1차 금속", "철강", "금속")),
+    ("금융·지주", ("금융", "은행", "보험", "증권", "지주", "신탁", "회사 본부")),
+    ("건설·부동산", ("건설", "건물", "토목", "부동산", "시멘트", "건축", "공사업", "엔지니어링")),
+    ("음식료·소비재", ("도매", "소매", "음식", "식료품", "식품", "음료", "사료", "도축", "곡물", "수산물", "유지",
+                     "과실", "의복", "가구", "화장품", "생활용품", "가정용", "가죽", "신발", "직물", "방적", "섬유",
+                     "상품 중개")),
+    ("서비스·레저", ("영화", "오디오물", "창작", "예술", "스포츠", "광고", "여행", "숙박", "교육", "학원", "오락")),
+    ("R&D·기술서비스", ("연구개발", "과학", "기술 서비스", "사업지원")),
+)
+
+
+def kr_sector(industry: str) -> str:
+    industry = str(industry or "")
+    for group, keys in _SECTOR_RULES:
+        if any(k in industry for k in keys):
+            return group
+    return "기타·확인 필요"
+
+
 def kr_universe(min_amount: float = 0) -> list[Ticker]:
+    """KOSPI·KOSDAQ 상장 보통주 (KIND 상장법인 목록). 스팩·리츠 제외. 실패하면 FinanceDataReader."""
+    import requests
+
+    out: list[Ticker] = []
+    try:
+        for mt in ("stockMkt", "kosdaqMkt"):
+            r = requests.get("https://kind.krx.co.kr/corpgeneral/corpList.do",
+                             params={"method": "download", "searchType": 13, "marketType": mt},
+                             headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
+            r.encoding = "euc-kr"
+            t = pd.read_html(io.StringIO(r.text))[0]
+            for row in t.itertuples(index=False):
+                name, code, industry = str(row.회사명), str(row.종목코드).zfill(6), row.업종
+                if "스팩" in name or "리츠" in name or "기업인수목적" in str(industry):
+                    continue
+                out.append(Ticker(code, name, kr_sector(industry), "kr"))
+    except Exception:
+        out = []
+    if out:
+        return out
+
     import FinanceDataReader as fdr
 
     lst = fdr.StockListing("KRX")
@@ -142,13 +193,7 @@ def kr_universe(min_amount: float = 0) -> list[Ticker]:
     lst = lst[lst["Code"].str.endswith("0")]  # 우선주 제외
     if "Amount" in lst and min_amount:
         lst = lst[lst["Amount"].fillna(0) >= min_amount]
-    sectors: dict[str, str] = {}
-    try:
-        desc = fdr.StockListing("KRX-DESC")
-        sectors = dict(zip(desc["Code"], desc["Sector"].fillna("기타·확인 필요")))
-    except Exception:  # 업종 자료가 없어도 스캔은 진행
-        pass
-    return [Ticker(r.Code, r.Name, sectors.get(r.Code, "기타·확인 필요"), "kr") for r in lst.itertuples()]
+    return [Ticker(r.Code, r.Name, "기타·확인 필요", "kr") for r in lst.itertuples()]
 
 
 def kr_fetch(code: str, start: str) -> pd.DataFrame | None:

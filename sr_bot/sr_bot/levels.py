@@ -1,6 +1,7 @@
 """지지저항 기능선 탐지 (공부법 Ⅱ장).
 
-- 기준봉: 고거래량 봉의 종가
+- 기준봉: 거래대금 급증봉의 종가 (완전판 3-1: 거래량보다 거래대금으로 의미 있는 가격을 찾는다)
+- 조정봉: 급증봉 직후 처음 나온 조정(음봉·눌림) 봉의 종가
 - 도지 전장: 고거래량 장대봉 이후 조정 도지 / 추세 강화 도지의 상단·하단·종가
 - 종가 클러스터: 종가가 반복적으로 머문 가격대 (대표값은 실제 종가 하나)
 - 격: 기능선이 지지·저항·전환을 수행한 횟수
@@ -19,9 +20,10 @@ from .config import TFParams
 
 TF_RANK = {"D": 1, "W": 2, "M": 3}
 # 같은 가격대에 여러 근거가 겹칠 때 대표 가격으로 쓸 우선순위
-KIND_RANK = {"doji_close": 5, "base": 4, "cluster": 3, "doji_low": 2, "doji_high": 2}
+KIND_RANK = {"doji_close": 5, "base": 4, "adjust": 3, "cluster": 3, "doji_low": 2, "doji_high": 2}
 KIND_LABEL = {
-    "base": "고거래량 기준봉 종가",
+    "base": "거래대금 급증봉 종가",
+    "adjust": "급증 후 조정봉 종가",
     "doji_close": "도지 종가",
     "doji_high": "도지 상단",
     "doji_low": "도지 하단",
@@ -48,7 +50,7 @@ class Level:
         if self.kind == "cluster":
             s += f" ({self.count}회 체류)"
         elif self.kind == "base" and np.isfinite(self.vol_ratio):
-            s += f" ({self.src:%Y-%m-%d}, 거래량 {self.vol_ratio:.1f}배)"
+            s += f" ({self.src:%Y-%m-%d}, 거래대금 {self.vol_ratio:.1f}배)"
         else:
             s += f" ({self.src:%Y-%m-%d})"
         if self.mega:
@@ -116,16 +118,22 @@ def _runs(flag: np.ndarray) -> np.ndarray:
 
 
 def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> list[Level]:
-    """기준봉·도지 박스. 각 선은 근거 봉 확정 시점(born)부터 유효하다."""
+    """기준봉·조정봉·도지 박스. 각 선은 근거 봉 확정 시점(born)부터 유효하다.
+
+    급증 판정은 거래대금(종가×거래량) 기준이다. 가격이 크게 변한 종목에서 거래량만 보면
+    싼 구간의 거래가 과대평가되기 때문이다.
+    """
     if len(df) < p.vol_window + 2:
         return []
     idx = df.index
     o, h, l, c, v = (df[k].to_numpy(float) for k in ("open", "high", "low", "close", "volume"))
     rng = h - l
     body = np.abs(c - o)
-    vr = (df["volume"] / _prev_mean(df["volume"], p.vol_window)).to_numpy()
+    value = df["close"] * df["volume"]
+    vr = (value / _prev_mean(value, p.vol_window)).to_numpy()
     ar = _prev_mean(pd.Series(rng, index=idx), p.vol_window).to_numpy()
-    vmax_prev = df["volume"].rolling(p.mega_window, min_periods=1).max().shift(1).to_numpy()
+    vmax_prev = value.rolling(p.mega_window, min_periods=1).max().shift(1).to_numpy()
+    val = value.to_numpy(float)
     with np.errstate(invalid="ignore", divide="ignore"):
         body_ratio = np.where(rng > 0, body / rng, 1.0)
     is_doji = (body_ratio <= p.doji_body_ratio) & (rng > 0)
@@ -134,8 +142,14 @@ def detect_bar_levels(df: pd.DataFrame, p: TFParams, tf: str) -> list[Level]:
     doji_used: set[int] = set()
     n = len(df)
     for i in np.flatnonzero(np.nan_to_num(vr) >= p.high_vol_mult):
-        mega = bool(i >= p.mega_min_bars and c[i] > o[i] and v[i] > np.nan_to_num(vmax_prev[i]))
+        mega = bool(i >= p.mega_min_bars and c[i] > o[i] and val[i] > np.nan_to_num(vmax_prev[i]))
         out.append(Level(c[i], "base", tf, idx[i], idx[i], float(vr[i]), mega))
+        # 조정봉: 급증 양봉 이후 처음으로 종가가 내려온 봉 (도지가 아니어도 재합의 흔적)
+        if c[i] > o[i]:
+            for j in range(i + 1, min(i + 1 + p.doji_lookahead, n)):
+                if c[j] < c[j - 1] and not is_doji[j]:
+                    out.append(Level(c[j], "adjust", tf, idx[j], idx[j], float(vr[i]), mega))
+                    break
         is_long = rng[i] >= p.long_range_mult * np.nan_to_num(ar[i], nan=np.inf) and body_ratio[i] >= p.long_body_ratio
         if not is_long:
             continue

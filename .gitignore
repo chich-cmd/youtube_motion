@@ -22,3 +22,4 @@ concat.txt
 sr_bot/data_cache/
 sr_bot/reports/
 .pytest_cache/
+/reports_out/

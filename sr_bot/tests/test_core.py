@@ -5,7 +5,9 @@ from sr_bot import levels as L
 from sr_bot.backtest import backtest_ticker, summarize
 from sr_bot.config import load_config
 from sr_bot.data import Ticker, resample, validate
-from sr_bot.strategy import Prepared, evaluate
+import numpy as np
+
+from sr_bot.strategy import Prepared, evaluate, evaluate_all
 from sr_bot.synthetic import pullback_pattern, random_walk
 from sr_bot.ticks import round_tick, tick_size
 
@@ -40,7 +42,7 @@ def test_pullback_confirmed_on_planted_level():
     plan = evaluate(Prepared(_pattern(), _cfg()), len(_pattern()) - 1, TK)
     assert plan is not None
     assert plan.level == pytest.approx(100.0)
-    assert plan.state == "confirmed"
+    assert plan.setup == "눌림" and plan.signal and plan.relation == "지지"
     assert plan.eligible
     assert plan.zone[0] <= plan.entry <= plan.zone[1]
     assert plan.stop < plan.level < plan.entry < plan.t1
@@ -62,7 +64,7 @@ def test_no_lookahead():
     t = len(full) - 16
     a = evaluate(Prepared(full, _cfg()), t, TK)
     b = evaluate(Prepared(full.iloc[: t + 1], _cfg()), t, TK)
-    assert (a.level, a.state, a.entry, a.t1, a.stop) == (b.level, b.state, b.entry, b.t1, b.stop)
+    assert (a.level, a.setup, a.signal, a.entry, a.t1, a.stop) == (b.level, b.setup, b.signal, b.entry, b.t1, b.stop)
 
 
 def test_levels_are_actual_prices():
@@ -100,3 +102,46 @@ def test_position_size_respects_risk():
     plan = evaluate(Prepared(df, cfg), len(df) - 1, TK)
     loss = plan.qty * (plan.entry - plan.stop + plan.entry * plan.cost_pct)
     assert 0 < loss <= 10_000_000 * 0.01 + 1e-6
+
+
+def _plans(df, t=None):
+    prep = Prepared(df, _cfg())
+    return evaluate_all(prep, len(prep.sig) - 1 if t is None else t, TK)
+
+
+def test_breakout_day_is_breakout_setup():
+    df = _pattern().iloc[:321]  # 마지막 봉 = 거래대금 급증 장대 양봉 돌파
+    hits = [p for p in _plans(df) if p.setup == "돌파" and p.level == pytest.approx(100.0)]
+    assert hits and hits[0].signal and hits[0].relation == "돌파"
+
+
+def test_doji_inside_box():
+    df = _pattern().iloc[:322]  # 마지막 봉 = 돌파 직후 조정 도지
+    hits = [p for p in _plans(df) if p.setup == "도지"]
+    assert hits and hits[0].box is not None
+    assert hits[0].fail_line == pytest.approx(hits[0].box[0])
+
+
+def test_below_resistance_is_watch_only():
+    df = _pattern().iloc[:320].copy()
+    df.iloc[-1, df.columns.get_loc("close")] = 97.0  # 기준선 100 바로 아래
+    df.iloc[-1, df.columns.get_loc("high")] = 97.5
+    hits = [p for p in _plans(df) if p.setup == "돌파" and p.relation == "저항 아래"]
+    assert hits and not hits[0].signal
+
+
+def test_bottom_support():
+    rng = np.random.default_rng(7)
+    n = 300
+    c = 112 * np.exp(rng.normal(0, 0.004, n))
+    o = c * (1 + rng.normal(0, 0.002, n))
+    h = np.maximum(o, c) * 1.004
+    lo = np.minimum(o, c) * 0.996
+    v = np.full(n, 1e6) * 50
+    o[30], c[30], h[30], lo[30], v[30] = 99.0, 100.0, 100.5, 98.8, 2e8  # 거래대금 급증봉 종가 100
+    for k in (120, 190, 250, n - 1):
+        o[k], c[k], h[k], lo[k] = 103.0, 102.0, 103.5, 100.3
+    df = pd.DataFrame({"open": o, "high": h, "low": lo, "close": c, "volume": v},
+                      index=pd.bdate_range(end="2026-10-23", periods=n))
+    hits = [p for p in _plans(df) if p.setup == "저점" and p.level == pytest.approx(100.0)]
+    assert hits and hits[0].signal
