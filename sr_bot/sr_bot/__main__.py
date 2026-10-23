@@ -30,6 +30,27 @@ def _cfg(a):
     return load_config(a.config, market=a.market, tf=a.tf, account=a.account, top_n=a.top)
 
 
+def html_to_pdf(html_path: Path) -> Path | None:
+    """Chromium(Playwright)으로 HTML 리포트를 A4 PDF로 변환. Playwright가 없으면 건너뛴다."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print("PDF 생략: pip install playwright && playwright install chromium", file=sys.stderr)
+        return None
+    import os
+
+    pdf = html_path.with_suffix(".pdf")
+    exe = os.getenv("CHROMIUM_PATH") or None
+    with sync_playwright() as p:
+        b = p.chromium.launch(executable_path=exe)
+        pg = b.new_page()
+        pg.goto(html_path.resolve().as_uri())
+        pg.pdf(path=str(pdf), format="A4", print_background=True,
+               margin={"top": "10mm", "bottom": "10mm", "left": "8mm", "right": "8mm"})
+        b.close()
+    return pdf
+
+
 def _write(res, out: Path) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     stem = f"{res.cfg.market}_{res.cfg.tf}_{res.session:%Y%m%d}" + ("_demo" if res.demo else "")
@@ -41,11 +62,16 @@ def _write(res, out: Path) -> Path:
 
 def cmd_scan(a) -> int:
     cfg = _cfg(a)
-    tickers = D.load_universe(cfg.market, a.universe, prefilter=cfg.m.min_turnover * 0.3)
-    if a.limit:
-        tickers = tickers[: a.limit]
-    print(f"종목 {len(tickers)}개 수집 중…", file=sys.stderr)
-    frames = D.fetch_all(tickers, cfg.market, cfg.history_years)
+    if a.data_dir:
+        tickers, frames = D.load_dir(a.data_dir)
+        for t in tickers:
+            t.market = cfg.market
+    else:
+        tickers = D.load_universe(cfg.market, a.universe, prefilter=cfg.m.min_turnover * 0.3)
+        if a.limit:
+            tickers = tickers[: a.limit]
+        print(f"종목 {len(tickers)}개 수집 중…", file=sys.stderr)
+        frames = D.fetch_all(tickers, cfg.market, cfg.history_years)
     session = D.expected_session(cfg.m.tz, cfg.m.close_hour)
     if a.asof:
         session = pd.Timestamp(a.asof)
@@ -56,10 +82,13 @@ def cmd_scan(a) -> int:
         print(f"평가 가능한 종목이 없습니다 ({dict(res.unverified)}). 네트워크·데이터 소스를 확인하세요.", file=sys.stderr)
         return 2
     path = _write(res, Path(a.out))
+    files = [path]
+    if a.pdf and (pdf := html_to_pdf(path)):
+        files.append(pdf)
     summary = telegram_summary(res)
     print(summary)
-    print(f"\n리포트: {path}")
-    if a.telegram and not telegram(summary, [path]):
+    print("\n리포트: " + ", ".join(map(str, files)))
+    if a.telegram and not telegram(summary, files[-1:]):
         print("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID 가 없어 전송하지 않았습니다.", file=sys.stderr)
     return 0
 
@@ -110,8 +139,9 @@ def cmd_demo(a) -> int:
     session = D.reference_session(frames, max(f.index[-1] for f in frames.values()))
     res = scan(cfg, tickers, frames, session, demo=True)
     path = _write(res, Path(a.out))
+    files = [path] + ([p] if a.pdf and (p := html_to_pdf(path)) else [])
     print(telegram_summary(res))
-    print(f"\n리포트: {path}")
+    print("\n리포트: " + ", ".join(map(str, files)))
     return 0
 
 
@@ -128,8 +158,10 @@ def main(argv=None) -> int:
         s.add_argument("--account", type=float, help="계좌 금액 (수량 계산용)")
         s.add_argument("--top", type=int)
         s.add_argument("--out", default=str(ROOT / "reports"))
+        s.add_argument("--pdf", action="store_true", help="HTML과 함께 PDF도 저장 (playwright 필요)")
         if name == "scan":
             s.add_argument("--asof", help="YYYY-MM-DD 과거 기준일로 스캔")
+            s.add_argument("--data-dir", help="종목별 일봉 CSV 폴더 (인터넷 없이 실행)")
             s.add_argument("--telegram", action="store_true")
         if name == "backtest":
             s.add_argument("--years", type=int, default=10)

@@ -52,6 +52,13 @@ python -m sr_bot scan --market kr --tf D --universe 005930,000660 --account 3000
 # 과거 기준일로 다시 스캔
 python -m sr_bot scan --market us --tf D --universe CRWD --asof 2026-09-14
 
+# 인터넷 없이: 종목별 일봉 CSV 폴더로 실행 (파일명 = 코드 또는 코드_이름.csv,
+# 열 = date/open/high/low/close/volume 또는 날짜/시가/고가/저가/종가/거래량)
+python -m sr_bot scan --market kr --tf W --data-dir ./my_csv
+
+# PDF도 함께 저장 (pip install playwright && playwright install chromium)
+python -m sr_bot scan --market kr --tf W --pdf
+
 # 백테스트: 점수 구간별·프레임별 성과
 python -m sr_bot backtest --market us --tf D --universe ndx --years 10
 ```

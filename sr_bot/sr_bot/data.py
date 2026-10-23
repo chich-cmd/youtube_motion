@@ -265,6 +265,37 @@ def fetch_all(tickers: list[Ticker], market: str, years: int, cache_hours: float
     return out
 
 
+_KO_COLS = {"날짜": "date", "일자": "date", "시가": "open", "고가": "high", "저가": "low",
+            "종가": "close", "현재가": "close", "거래량": "volume"}
+
+
+def load_dir(path: str | Path) -> tuple[list[Ticker], dict[str, pd.DataFrame]]:
+    """폴더 안의 종목별 CSV(파일명 = 종목코드 또는 '코드_이름.csv')를 읽는다.
+
+    열 이름은 date/open/high/low/close/volume 또는 날짜/시가/고가/저가/종가/거래량.
+    같은 폴더에 universe.csv(code,name,sector)가 있으면 이름·업종을 가져온다.
+    """
+    path = Path(path)
+    meta = {}
+    if (path / "universe.csv").exists():
+        u = pd.read_csv(path / "universe.csv", dtype={"code": str})
+        meta = {r.code: r for r in u.itertuples()}
+    tickers, frames = [], {}
+    for f in sorted(path.glob("*.csv")):
+        if f.name == "universe.csv":
+            continue
+        code, _, name = f.stem.partition("_")
+        raw = pd.read_csv(f, thousands=",")
+        raw = raw.rename(columns=lambda c: _KO_COLS.get(str(c).strip(), str(c).strip().lower()))
+        date_col = "date" if "date" in raw.columns else raw.columns[0]
+        df = normalize(raw.set_index(date_col))
+        m = meta.get(code)
+        tickers.append(Ticker(code, getattr(m, "name", None) or name or code,
+                              getattr(m, "sector", None) or "기타·확인 필요"))
+        frames[code] = df
+    return tickers, frames
+
+
 def median_turnover(daily: pd.DataFrame, n: int = 20) -> float:
     tv = (daily["close"] * daily["volume"]).iloc[-n:]
     return float(np.median(tv)) if len(tv) else 0.0
