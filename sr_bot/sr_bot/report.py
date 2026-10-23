@@ -241,7 +241,7 @@ def render_html(res: ScanResult) -> str:
 <li>조건이 없으면 무포지션. 진입·손절·익절이 없는 매매는 미완성.</li>
 </ul>
 <h2>구현 설정값 (이론에 수치가 없어 정한 값 — 차트술사 규칙 아님)</h2><ul class='small'>
-<li>사건봉 절대 거래대금 하한: {abs_txt}. 미국 시장 절대 기준은 완전판에서 미확정이라 사용자가 1,000억 원으로 정했습니다. 주·월봉에도 같은 하한을 적용합니다(구현 설정값).</li>
+<li>사건봉 절대 거래대금 하한: {abs_txt}. 미국 시장 절대 기준은 완전판에서 미확정이라 사용자가 2,000억 원으로 정했습니다. 주·월봉에도 같은 하한을 적용합니다(구현 설정값).</li>
 <li>기준선 접근 범위 +{_pct(p.retest_zone)}, 반등 확인 {p.confirm_bars}봉 이내, 매수 검토 구간 +{_pct(p.entry_buffer)}, 도지 몸통 비율 ≤ {p.doji_body_ratio:g}.</li>
 <li>박스가 되는 봉: 사건봉 다음 봉 도지 · 추세전환 직전 봉(추세 구간 종가 이동폭 ≥ 평균 봉 길이 2배) · 거래량 3배 봉 · 횡보 박스({p.box_len}봉 이상, 고저 폭 ≤ {_pct(p.box_width)}, 상·하단 각 {p.box_touch}회 이상 반응){' · 모든 도지' if cfg.doji_any else ''}.</li>
 <li>박스 돌파 후 철회 기준: <b>{BOX_FAIL_LABEL[cfg.box_fail]}</b> (사용자 설정 box_fail). 철회선 아래 매수 지점은 제외.</li>

@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _with_fx(cfg):
-    """원화로 정한 사건봉 하한(미국 1,000억 원)을 쓰는 시장이면 실시간 환율을 받아 넣는다."""
+    """원화로 정한 사건봉 하한(미국 2,000억 원)을 쓰는 시장이면 실시간 환율을 받아 넣는다."""
     if cfg.market != "kr" and cfg.m.event_min_value_krw:
         from dataclasses import replace
 

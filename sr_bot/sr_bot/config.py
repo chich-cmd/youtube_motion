@@ -87,7 +87,7 @@ class MarketParams:
     close_hour: int = 16
     # 사건봉 절대 거래대금 하한 (일봉, 현지 통화). 국내 300억 원 [확정].
     event_min_value: float = 0.0
-    # 원화로 정한 하한 (미국: 1,000억 원 — 사용자 지정). 실행 시 원/달러 환율로 현지 통화로 바꾼다.
+    # 원화로 정한 하한 (미국: 2,000억 원 — 사용자 지정). 실행 시 원/달러 환율로 현지 통화로 바꾼다.
     event_min_value_krw: float = 0.0
 
 
@@ -100,7 +100,7 @@ DEFAULT_MARKETS = {
     "us": MarketParams(
         currency="$", base_cost=0.001, min_turnover=20_000_000,
         slippage_tiers=((5e7, 0.002), (2e8, 0.001)),
-        tz="America/New_York", close_hour=17, event_min_value_krw=100_000_000_000,
+        tz="America/New_York", close_hour=17, event_min_value_krw=200_000_000_000,
     ),
 }
 

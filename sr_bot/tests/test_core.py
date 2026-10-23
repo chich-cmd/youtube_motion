@@ -237,7 +237,7 @@ def test_event_requires_3x_and_300eok_on_kr_daily():
     assert events == [idx[40]] and adjusts == [idx[41]]  # 조정봉 = 바로 다음 봉
 
 
-def test_us_event_floor_is_1000eok_krw_converted():
+def test_us_event_floor_is_2000eok_krw_converted():
     cfg = load_config(market="us", tf="D", fx_usd_krw=1250.0)
-    assert cfg.event_min_local == pytest.approx(100_000_000_000 / 1250.0)  # $80M
+    assert cfg.event_min_local == pytest.approx(200_000_000_000 / 1250.0)  # $160M
     assert load_config(market="kr", tf="D").event_min_local == 30_000_000_000
