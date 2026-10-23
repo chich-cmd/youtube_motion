@@ -1,0 +1,28 @@
+# 기본 설정. 주석을 지우고 값을 바꾸면 기본값을 덮어쓴다. 전체 항목은 sr_bot/config.py 참고.
+
+market = "kr"        # kr | us
+tf = "W"             # 신호를 판정할 프레임: D(일봉) | W(주봉) | M(월봉)
+level_tfs = ["D", "W", "M"]   # 기능선을 찾을 프레임
+history_years = 6
+
+# 가격 계획 필터
+min_net_rr = 1.5
+min_target_gap = 0.01
+max_stop_pct = 0.08
+
+# 계좌·리스크: account가 0이면 수량 계산 생략
+account = 0
+risk_per_trade = 0.01      # 1회 매매 최대 손실 = 계좌의 1%
+max_position_pct = 0.20
+
+top_n = 20
+detail_n = 10
+
+# 프레임별 판정 파라미터 덮어쓰기 예시
+# [tf_params.W]
+# high_vol_mult = 2.0
+# retest_zone = 0.03
+
+# 시장별 비용·유동성 덮어쓰기 예시
+# [market_params.kr]
+# min_turnover = 1_000_000_000

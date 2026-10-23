@@ -1,0 +1,8 @@
+pandas>=2.2
+numpy>=1.26
+requests>=2.31
+lxml>=5.0
+yfinance>=0.2.50
+finance-datareader>=0.9.90
+pykrx>=1.0.45
+pytest>=8.0

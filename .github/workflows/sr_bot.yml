@@ -1,0 +1,65 @@
+name: sr-bot scan
+
+on:
+  schedule:
+    - cron: "43 7 * * 1-5"    # 한국 16:43 KST (장 마감 후)
+    - cron: "13 22 * * 1-5"   # 미국 장 마감 후 (서머타임 18:13 ET / 해제 17:13 ET)
+  workflow_dispatch:
+    inputs:
+      market:
+        description: "kr | us"
+        default: "kr"
+      tf:
+        description: "D | W | M"
+        default: "W"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: sr_bot
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      KRX_ID: ${{ secrets.KRX_ID }}
+      KRX_PW: ${{ secrets.KRX_PW }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: sr_bot/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q tests
+      - name: 스캔할 시장·프레임 결정
+        id: plan
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "runs=${{ inputs.market }}:${{ inputs.tf }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "43 7 * * 1-5" ]; then
+            # 매일 일봉, 금요일에는 주봉도
+            runs="kr:D"
+            [ "$(date -u +%u)" = "5" ] && runs="$runs kr:W"
+            echo "runs=$runs" >> "$GITHUB_OUTPUT"
+          else
+            runs="us:D"
+            [ "$(date -u +%u)" = "5" ] && runs="$runs us:W"
+            echo "runs=$runs" >> "$GITHUB_OUTPUT"
+          fi
+      - name: 스캔 + 텔레그램 전송
+        run: |
+          for r in ${{ steps.plan.outputs.runs }}; do
+            m="${r%%:*}"; t="${r##*:}"
+            u=""; [ "$m" = "us" ] && u="--universe all"
+            python -m sr_bot scan --market "$m" --tf "$t" $u --telegram
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sr-bot-reports-${{ github.run_id }}
+          path: sr_bot/reports/
+          retention-days: 30
+
