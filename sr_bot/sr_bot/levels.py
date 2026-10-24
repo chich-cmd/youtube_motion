@@ -283,7 +283,7 @@ def detect_range_boxes(df: pd.DataFrame, p: TFParams, tf: str) -> list[Box]:
             i += 1
             continue
         e = i + L
-        while e < n and max(hi, h[e]) / min(lo, l[e]) - 1 <= p.box_width:
+        while e < n and min(lo, l[e]) > 0 and max(hi, h[e]) / min(lo, l[e]) - 1 <= p.box_width:
             hi, lo = max(hi, h[e]), min(lo, l[e])
             e += 1
         band = 0.1 * (hi - lo)

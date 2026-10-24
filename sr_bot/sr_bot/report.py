@@ -320,3 +320,72 @@ def plans_frame(res: ScanResult) -> pd.DataFrame:
             "warnings": "; ".join(p.warnings), "qty": p.qty,
         })
     return pd.DataFrame(rows)
+
+
+OUTCOME_LABEL = {"target": "1차 목표 전량", "t1+t2": "1차·2차 목표", "t1+be": "1차 후 본전컷", "fail": "철회(손절)",
+                 "time": "시간 청산", "open": "미청산", "t1+open": "1차 익절 후 보유"}
+
+
+def render_backtest_html(cfg, trades, s: dict, start, end, n_tickers: int) -> str:
+    """백테스트 결과 페이지."""
+    from dataclasses import asdict
+
+    mk = cfg.market
+    f = lambda p: fmt_price(p, mk)  # noqa: E731
+    market_name = {"kr": "코스피·코스닥", "us": "미국 주식"}[mk]
+    span = f"{start:%Y-%m-%d} ~ {end:%Y-%m-%d}" if start is not None else f"~ {end:%Y-%m-%d}"
+    parts = ["<!doctype html><html lang='ko'><head><meta charset='utf-8'>"
+             "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+             f"<title>차트술사 백테스트</title><style>{CSS}</style></head><body><main>"]
+    parts.append(f"<h1>차트술사 백테스트 · {market_name} {TF_LABEL[cfg.tf]}</h1>"
+                 f"<p class='muted'>검증 기간 {span} · 대상 {n_tickers}종목(기간 시작 시점 유동성 통과) · "
+                 "각 날짜에 그날까지의 데이터로만 판정</p>")
+    if not trades:
+        parts.append("<div class='banner'>기간 중 매매 조건을 충족해 진입한 거래가 없습니다.</div></main></body></html>")
+        return "".join(parts)
+    df = pd.DataFrame([asdict(t) for t in trades]).sort_values(["signal_date", "code"])
+    is_open = df.outcome.str.contains("open")
+    if s["open"]:
+        parts.append(f"<div class='banner'>기간이 짧아 {s['open']}건은 아직 청산되지 않았습니다. "
+                     f"미청산 거래는 {end:%Y-%m-%d} 종가로 평가한 값이며 확정 손익이 아닙니다.</div>")
+    cards = (("거래", s["trades"]), ("청산", s["closed"]), ("미청산", s["open"]),
+             ("청산 승률", f"{s['closed_win_rate']:.0%}" if s["closed"] else "-"),
+             ("평균 수익률", f"{s['avg_ret']:+.2%}"), ("평균 R", f"{s['avg_r']:+.2f}"),
+             ("1차 목표 도달", f"{s['target_rate']:.0%}"), ("철회(손절)", f"{s['fail_rate']:.0%}"),
+             ("손익비 PF", f"{s['profit_factor']:.2f}"), ("평균 보유", f"{s['avg_bars']:.1f}봉"))
+    parts.append("<div class='stats'>" + "".join(
+        f"<div class='stat'><span class='muted small'>{k}</span><b>{v}</b></div>" for k, v in cards) + "</div>")
+
+    def group_table(title, key, order=None):
+        g = df.groupby(key, observed=True).agg(n=("ret", "size"), win=("ret", lambda x: (x > 0).mean()),
+                                avg=("ret", "mean"), r=("r", "mean"))
+        if order:
+            g = g.reindex([o for o in order if o in g.index])
+        rows = "".join(f"<tr><td>{_e(OUTCOME_LABEL.get(i, i))}</td><td class='n'>{int(r.n)}</td>"
+                       f"<td class='n'>{r.win:.0%}</td><td class='n'>{r.avg:+.2%}</td><td class='n'>{r.r:+.2f}</td></tr>"
+                       for i, r in g.iterrows())
+        return (f"<h2>{title}</h2><div class='tbl'><table><tr><th>구분</th><th>거래</th><th>승률</th>"
+                f"<th>평균 수익률</th><th>평균 R</th></tr>{rows}</table></div>")
+
+    parts.append(group_table("유형별", "setup", ["눌림", "도지", "박스", "저점", "돌파"]))
+    df["bucket"] = pd.cut(df.score, [0, 50, 65, 80, 101], labels=["<50", "50-65", "65-80", "80+"], right=False)
+    parts.append(group_table("적합도 구간별", "bucket"))
+    parts.append(group_table("결과별", "outcome", list(OUTCOME_LABEL)))
+
+    parts.append("<h2>거래 목록</h2><div class='tbl'><table><tr><th>신호일</th><th>종목</th><th>유형</th>"
+                 "<th>진입</th><th>진입가</th><th>청산</th><th>청산가</th><th>결과</th><th>수익률</th><th>R</th>"
+                 "<th>적합도</th></tr>")
+    for r in df.itertuples():
+        cls = " class='hl'" if r.ret > 0 else ""
+        parts.append(f"<tr{cls}><td>{r.signal_date:%m-%d}</td><td>{_e(r.name)}</td><td>{_e(r.setup)}</td>"
+                     f"<td>{r.entry_date:%m-%d}</td><td class='n'>{f(r.entry)}</td><td>{r.exit_date:%m-%d}</td>"
+                     f"<td class='n'>{f(r.exit)}</td><td>{_e(OUTCOME_LABEL.get(r.outcome, r.outcome))}</td>"
+                     f"<td class='n'>{r.ret:+.2%}</td><td class='n'>{r.r:+.2f}</td><td class='n'>{r.score:.0f}</td></tr>")
+    parts.append("</table></div>")
+    parts.append(f"""<h2>검증 규칙과 한계</h2><ul class='small'>
+<li>각 날짜에 그날까지의 데이터로만 판정하고(미래 참조 없음), 매매 조건 충족 + 적격이면 다음 봉 시가에 진입합니다. 시가가 철회선 아래이거나 매수 구간 상단보다 1% 넘게 위면 진입하지 않습니다.</li>
+<li>청산: 1차 목표에서 절반 익절 → 남은 절반은 본전컷·2차 목표 / 종가가 철회선 아래면 다음 봉 시가 / {cfg.p.max_hold}봉 경과 시 종가. 왕복 비용(유동성별)을 차감했습니다.</li>
+<li>R = 수익률 ÷ 계획 위험(진입가 대비 손절 추정가 + 비용). 같은 종목은 포지션이 끝나기 전 새 신호를 받지 않습니다.</li>
+<li>현재 상장 종목만 대상이라 기간 중 상장폐지 종목이 빠지는 생존 편향이 있습니다. 두 달은 표본이 작아 결과의 우연 변동이 큽니다 — 규칙 점검용이지 성과 보장이 아닙니다.</li>
+</ul></main></body></html>""")
+    return "".join(parts)

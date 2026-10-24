@@ -83,6 +83,9 @@ python -m sr_bot scan --market kr --tf W --data-dir ./my_csv
 # PDF도 함께 저장 (pip install playwright && playwright install chromium)
 python -m sr_bot scan --market kr --tf W --pdf
 
+# 최근 2개월 신호만 검증 (미청산 거래는 마지막 종가로 평가), HTML/PDF 리포트
+python -m sr_bot backtest --market kr --tf D --months 2 --pdf
+
 # 백테스트: 점수 구간별·프레임별 성과
 python -m sr_bot backtest --market us --tf D --universe ndx --years 10
 ```

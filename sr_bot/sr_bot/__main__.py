@@ -113,27 +113,61 @@ def cmd_scan(a) -> int:
     return 0
 
 
+def _bt_job(args):
+    df, cfg, tk, start = args
+    return backtest_ticker(df, cfg, tk, start=start, include_open=start is not None)
+
+
 def cmd_backtest(a) -> int:
+    from concurrent.futures import ProcessPoolExecutor
+
     cfg = _with_fx(load_config(a.config, market=a.market, tf=a.tf, history_years=a.years, box_fail=a.box_fail,
                                universe=_uni_key(a.universe)))
     tickers = D.load_universe(cfg.market, a.universe, prefilter=cfg.m.min_turnover * 0.3)
     if a.limit:
         tickers = tickers[: a.limit]
-    frames = D.fetch_all(tickers, cfg.market, cfg.history_years)
-    trades = []
-    for i, tk in enumerate(tickers, 1):
+    frames = D.fetch_all(tickers, cfg.market, cfg.history_years, cache_hours=a.cache_hours)
+    end = D.reference_session(frames, D.expected_session(cfg.m.tz, cfg.m.close_hour))
+    if a.start:
+        start = pd.Timestamp(a.start)
+    elif a.months:
+        start = end - pd.DateOffset(months=a.months) + pd.Timedelta(days=1)
+    else:
+        start = None
+    jobs = []
+    for tk in tickers:
         df = frames.get(tk.code)
         if df is None or len(df) < 300:
             continue
-        trades += backtest_ticker(df, cfg, tk)
-        if i % 25 == 0:
-            print(f"{i}/{len(tickers)} 종목 · 누적 거래 {len(trades)}", file=sys.stderr)
+        df = df.loc[:end]
+        if start is not None:
+            # 기간 시작 시점에 유동성 필터를 통과하지 못하면 적격이 될 수 없으므로 건너뛴다
+            before = df.loc[:start]
+            if len(before) < 260 or D.median_turnover(before) < cfg.m.min_turnover * 0.5:
+                continue
+        jobs.append((df, cfg, tk, start))
+    span = f"{start:%Y-%m-%d} ~ {end:%Y-%m-%d}" if start is not None else f"~ {end:%Y-%m-%d}"
+    print(f"백테스트 {span} · {len(jobs)}종목 (전체 {len(tickers)})", file=sys.stderr)
+    trades = []
+    with ProcessPoolExecutor(a.workers) as ex:
+        for i, tr in enumerate(ex.map(_bt_job, jobs, chunksize=8), 1):
+            trades += tr
+            if i % 200 == 0:
+                print(f"{i}/{len(jobs)} 종목 · 누적 거래 {len(trades)}", file=sys.stderr)
     s = summarize(trades)
     print(format_summary(s))
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame([asdict(t) for t in trades]).to_csv(out / f"backtest_{cfg.market}_{cfg.tf}.csv", index=False)
-    (out / f"backtest_{cfg.market}_{cfg.tf}.json").write_text(json.dumps(s, ensure_ascii=False, indent=2, default=str))
+    stem = f"backtest_{cfg.market}{'_' + cfg.universe if cfg.universe else ''}_{cfg.tf}" + \
+        (f"_{start:%Y%m%d}_{end:%Y%m%d}" if start is not None else "")
+    pd.DataFrame([asdict(t) for t in trades]).to_csv(out / f"{stem}.csv", index=False, encoding="utf-8-sig")
+    (out / f"{stem}.json").write_text(json.dumps(s, ensure_ascii=False, indent=2, default=str))
+    from .report import render_backtest_html
+
+    html_path = out / f"{stem}.html"
+    html_path.write_text(render_backtest_html(cfg, trades, s, start, end, len(jobs)), encoding="utf-8")
+    files = [html_path] + ([p] if a.pdf and (p := html_to_pdf(html_path)) else [])
+    print("\n리포트: " + ", ".join(map(str, files)))
     return 0
 
 
@@ -187,7 +221,11 @@ def main(argv=None) -> int:
             s.add_argument("--data-dir", help="종목별 일봉 CSV 폴더 (인터넷 없이 실행)")
             s.add_argument("--telegram", action="store_true")
         if name == "backtest":
-            s.add_argument("--years", type=int, default=10)
+            s.add_argument("--years", type=int, default=10, help="받을 시세 이력 (기준선 계산용)")
+            s.add_argument("--months", type=int, default=0, help="최근 N개월 신호만 검증 (미청산 거래는 마지막 종가로 평가)")
+            s.add_argument("--start", help="YYYY-MM-DD 이후 신호만 검증")
+            s.add_argument("--workers", type=int, default=4)
+            s.add_argument("--cache-hours", type=float, default=10)
     a = ap.parse_args(argv)
     return {"scan": cmd_scan, "backtest": cmd_backtest, "demo": cmd_demo}[a.cmd](a)
 
