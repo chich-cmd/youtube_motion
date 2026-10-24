@@ -18,10 +18,3 @@ node_modules/
 cutlist.json
 sfx_events.json
 concat.txt
-# sr_bot
-sr_bot/data_cache/
-sr_bot/reports/
-.pytest_cache/
-/reports_out/
-__pycache__/
-*.pyc
