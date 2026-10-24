@@ -45,15 +45,17 @@ jobs:
             [ "$(date -u +%u)" = "5" ] && runs="$runs kr:W"
             echo "runs=$runs" >> "$GITHUB_OUTPUT"
           else
-            runs="us:D"
-            [ "$(date -u +%u)" = "5" ] && runs="$runs us:W"
+            # S&P 500(사건봉 5,000억 원 이상)과 나스닥-100(2,000억 원 이상)을 따로
+            runs="us:D:sp500 us:D:ndx"
+            [ "$(date -u +%u)" = "5" ] && runs="$runs us:W:sp500 us:W:ndx"
             echo "runs=$runs" >> "$GITHUB_OUTPUT"
           fi
       - name: 스캔 + 텔레그램 전송
         run: |
           for r in ${{ steps.plan.outputs.runs }}; do
-            m="${r%%:*}"; t="${r##*:}"
-            u=""; [ "$m" = "us" ] && u="--universe all"
+            IFS=: read -r m t uni <<< "$r"
+            u=""; [ -n "$uni" ] && u="--universe $uni"
+            [ "$m" = "us" ] && [ -z "$uni" ] && u="--universe sp500"
             python -m sr_bot scan --market "$m" --tf "$t" $u --telegram
           done
       - uses: actions/upload-artifact@v4

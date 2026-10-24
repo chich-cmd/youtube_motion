@@ -122,6 +122,9 @@ class Config:
     doji_any: bool = False
     # 원/달러 환율. 실행 시 야후(KRW=X)에서 받아 덮어쓰고, 실패하면 이 값을 쓴다.
     fx_usd_krw: float = 1350.0
+    # 스캔 대상(--universe)별 사건봉 하한 (원화, 사용자 지정). 없으면 시장 기본값(event_min_value_krw).
+    universe: str = ""
+    universe_min_krw: dict = field(default_factory=lambda: {"sp500": 500_000_000_000, "ndx": 200_000_000_000})
     # 계좌·리스크 (공부법 1장: 단일 트레이드 손실은 계좌의 일정 비율 이하)
     account: float = 0.0          # 0이면 수량 계산 생략
     risk_per_trade: float = 0.01
@@ -144,10 +147,15 @@ class Config:
     @property
     def event_min_local(self) -> float:
         """사건봉 절대 거래대금 하한 (현지 통화)."""
-        m = self.m
-        if m.event_min_value_krw and self.market != "kr":
-            return m.event_min_value_krw / self.fx_usd_krw
-        return m.event_min_value
+        krw = self.event_min_krw
+        if krw and self.market != "kr":
+            return krw / self.fx_usd_krw
+        return self.m.event_min_value
+
+    @property
+    def event_min_krw(self) -> float:
+        """원화로 정한 사건봉 하한 (대상별 값이 있으면 우선)."""
+        return self.universe_min_krw.get(self.universe, self.m.event_min_value_krw)
 
 
 def _apply(obj, overrides: dict):

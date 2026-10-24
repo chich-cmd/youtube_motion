@@ -227,7 +227,7 @@ def _build(ctx: _Ctx, g: L.LevelGroup, setup: str, signal: bool, relation: str, 
     level_px = round_tick(g.price if key_line is None else key_line, mkt, "nearest")
     fail_line = round_tick(fail_line, mkt, "nearest")
     zone = (round_tick(zone_raw[0], mkt, "nearest"), round_tick(zone_raw[1], mkt, "down"))
-    entry = round_tick(entry_raw, mkt, "down")
+    entry = max(round_tick(entry_raw, mkt, "down"), fail_line)  # 호가 내림으로 철회선 아래가 되지 않게
     stop = round_tick(fail_line * (1 - p.fail_slip), mkt, "down")
     risk = entry - stop
     if risk <= 0:
@@ -459,7 +459,17 @@ def _box_setup(ctx: _Ctx, bx: L.Box, g: L.LevelGroup) -> Plan | None:
     pts = [(k, x) for k, x in (("high", hi), ("close", cl)) if x > fail_px + 1e-9 or (k == "high" and key == "high")]
     buys = [(x, 1 / len(pts)) for _, x in pts]
     avg = sum(px * w for px, w in buys)
-    state, _ = _retest(ctx, hi, fail_px, b, top=hi)
+    # 지지 판정은 가장 낮은 매수 지점 위에서 몸통·종가가 유지될 때만. 그 아래로 박스 안에 다시 들어오면
+    # 돌파 실패 의심(7-4) — 철회선(box_fail)까지는 버티더라도 매매 조건 충족은 아니다.
+    hold_px = min(x for x, _ in buys)
+    if ctx.close < hold_px:
+        return _build(ctx, g, setup, False, "박스 재진입",
+                      f"{src} 상단 돌파 후 매수 지점 아래로 재진입 — 돌파 실패 의심, 관찰만",
+                      fail_px, (hold_px, hi * (1 + p.entry_buffer)), avg,
+                      f"{name} 종가선·상단 위로 몸통·종가가 회복되면 재평가",
+                      f"{name} {BOX_FAIL_LABEL[key]}({fp(fail_px)}) 종가 마감 시 철회 — 설정 box_fail={cfg.box_fail}",
+                      b, 0, box=(lo, hi), buys=buys, key_line=hi)
+    state, _ = _retest(ctx, hi, hold_px, b, top=hi)
     ok = state == "지지 확인"
     label = "→".join(f"{i + 1}차 {BOX_PT_LABEL[k]}" for i, (k, _) in enumerate(pts))
     status = {"지지 확인": f"{src} 상단 돌파 → 눌림 → 지지 후 반등 (3파 진입 구간)",

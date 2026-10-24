@@ -1,7 +1,8 @@
 """명령줄 진입점.
 
   python -m sr_bot scan --market kr --tf W
-  python -m sr_bot scan --market us --tf D --universe sp500 --telegram
+  python -m sr_bot scan --market us --tf D --universe sp500 --telegram   # S&P 500, 사건봉 5,000억 원 이상
+  python -m sr_bot scan --market us --tf D --universe ndx               # 나스닥-100, 2,000억 원 이상
   python -m sr_bot backtest --market us --tf D --universe AAPL,MSFT,NVDA
   python -m sr_bot demo           # 네트워크 없이 가상 데이터로 리포트 생성
 """
@@ -27,19 +28,24 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _with_fx(cfg):
-    """원화로 정한 사건봉 하한(미국 2,000억 원)을 쓰는 시장이면 실시간 환율을 받아 넣는다."""
-    if cfg.market != "kr" and cfg.m.event_min_value_krw:
+    """원화로 정한 사건봉 하한(S&P 500 5,000억 원, 나스닥-100 2,000억 원 등)을 쓰는 시장이면 실시간 환율을 받아 넣는다."""
+    if cfg.market != "kr" and cfg.event_min_krw:
         from dataclasses import replace
 
         cfg = replace(cfg, fx_usd_krw=D.usd_krw(cfg.fx_usd_krw))
-        print(f"사건봉 하한: {cfg.m.event_min_value_krw / 1e8:,.0f}억 원 ≈ ${cfg.event_min_local / 1e6:,.1f}M "
+        print(f"사건봉 하한({cfg.universe or '기본'}): {cfg.event_min_krw / 1e8:,.0f}억 원 ≈ ${cfg.event_min_local / 1e6:,.1f}M "
               f"(환율 {cfg.fx_usd_krw:,.1f}원)", file=sys.stderr)
     return cfg
 
 
 def _cfg(a):
     return _with_fx(load_config(a.config, market=a.market, tf=a.tf, account=a.account, top_n=a.top,
-                                box_fail=a.box_fail))
+                                box_fail=a.box_fail, universe=_uni_key(a.universe)))
+
+
+def _uni_key(universe: str | None) -> str | None:
+    """대상별 설정을 찾을 이름 (sp500, ndx, ...). 파일 경로·종목 목록이면 None."""
+    return universe if universe in ("sp500", "ndx", "all", "nasdaq", "krx") else None
 
 
 def html_to_pdf(html_path: Path) -> Path | None:
@@ -65,7 +71,8 @@ def html_to_pdf(html_path: Path) -> Path | None:
 
 def _write(res, out: Path) -> Path:
     out.mkdir(parents=True, exist_ok=True)
-    stem = f"{res.cfg.market}_{res.cfg.tf}_{res.session:%Y%m%d}" + ("_demo" if res.demo else "")
+    uni = f"_{res.cfg.universe}" if res.cfg.universe else ""
+    stem = f"{res.cfg.market}{uni}_{res.cfg.tf}_{res.session:%Y%m%d}" + ("_demo" if res.demo else "")
     html_path = out / f"{stem}.html"
     html_path.write_text(render_html(res), encoding="utf-8")
     plans_frame(res).to_csv(out / f"{stem}.csv", index=False, encoding="utf-8-sig")
@@ -107,7 +114,8 @@ def cmd_scan(a) -> int:
 
 
 def cmd_backtest(a) -> int:
-    cfg = _with_fx(load_config(a.config, market=a.market, tf=a.tf, history_years=a.years, box_fail=a.box_fail))
+    cfg = _with_fx(load_config(a.config, market=a.market, tf=a.tf, history_years=a.years, box_fail=a.box_fail,
+                               universe=_uni_key(a.universe)))
     tickers = D.load_universe(cfg.market, a.universe, prefilter=cfg.m.min_turnover * 0.3)
     if a.limit:
         tickers = tickers[: a.limit]

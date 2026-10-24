@@ -33,7 +33,7 @@
 
 | 항목 | 기본값 | 비고 |
 |---|---|---|
-| 미국 사건봉 절대 거래대금 | **2,000억 원**(실행 시 원/달러 환율로 달러 환산, 실패 시 1,350원) | 완전판 18-6 미확정 → 사용자 지정 |
+| 미국 사건봉 절대 거래대금 | **S&P 500 5,000억 원 · 나스닥-100 2,000억 원**(실행 시 원/달러 환율로 달러 환산, 실패 시 1,350원) | 완전판 18-6 미확정 → 사용자 지정, `universe_min_krw` |
 | 주·월봉 사건봉 절대 거래대금 | 국내 300억 동일 적용 | 일봉 기준만 확정 |
 | 직전 20봉 중 거래 없는 봉이 있으면 사건봉 제외 | 적용 | 신규 상장·거래정지 직후 배수 왜곡 방지 |
 | 데이터 처리 | 장중 미완성 봉 버림, 분할만 반영한 가격(배당 수정 안 함) | 마감된 봉만 캐시 저장 |
@@ -63,8 +63,9 @@ python -m sr_bot demo            # 가상 데이터로 리포트 예시 생성 �
 # 한국 주봉 (KOSPI+KOSDAQ 전체, 우선주·스팩·리츠 제외)
 python -m sr_bot scan --market kr --tf W
 
-# 미국 일봉 (S&P 500 + Nasdaq-100)
-python -m sr_bot scan --market us --tf D --universe all
+# 미국 일봉: S&P 500 (사건봉 5,000억 원 이상) / 나스닥-100 (2,000억 원 이상)
+python -m sr_bot scan --market us --tf D --universe sp500
+python -m sr_bot scan --market us --tf D --universe ndx
 
 # 나스닥 상장 전체 (약 3,200종목, 스팩·워런트·우선주 제외)
 python -m sr_bot scan --market us --tf D --universe nasdaq
@@ -96,7 +97,7 @@ python -m sr_bot backtest --market us --tf D --universe ndx --years 10
 
 `.github/workflows/sr_bot.yml`
 - 평일 16:43 KST: 한국 일봉, 금요일에는 주봉도
-- 평일 미국 장 마감 후: 미국 일봉, 금요일에는 주봉도
+- 평일 미국 장 마감 후: S&P 500·나스닥-100 일봉, 금요일에는 주봉도
 - 리포트는 Actions 아티팩트로 30일 보관, 텔레그램 시크릿이 있으면 전송
 
 저장소 Settings → Secrets and variables → Actions에 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`를 등록하세요.

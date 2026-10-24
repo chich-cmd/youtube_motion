@@ -245,3 +245,24 @@ def test_us_event_floor_is_2000eok_krw_converted():
     cfg = load_config(market="us", tf="D", fx_usd_krw=1250.0)
     assert cfg.event_min_local == pytest.approx(200_000_000_000 / 1250.0)  # $160M
     assert load_config(market="kr", tf="D").event_min_local == 30_000_000_000
+
+
+def test_universe_specific_event_floor():
+    sp = load_config(market="us", tf="D", universe="sp500", fx_usd_krw=1250.0)
+    nd = load_config(market="us", tf="D", universe="ndx", fx_usd_krw=1250.0)
+    assert sp.event_min_local == pytest.approx(500_000_000_000 / 1250.0)  # S&P 500: 5,000억 원
+    assert nd.event_min_local == pytest.approx(200_000_000_000 / 1250.0)  # 나스닥-100: 2,000억 원
+
+
+def test_box_reentry_below_buy_points_is_not_signal():
+    """상단 돌파 후 2차 매수 지점(종가선) 아래로 박스 안에 재진입하면 돌파 실패 의심 — 신호 아님."""
+    df = _box_frame(111.8, retest=True)
+    df.iloc[-2, df.columns.get_loc("low")] = 104.0
+    df.iloc[-2, df.columns.get_loc("close")] = 105.0
+    df.iloc[-2, df.columns.get_loc("open")] = 108.0
+    df.iloc[-1, df.columns.get_loc("open")] = 105.0
+    df.iloc[-1, df.columns.get_loc("close")] = 106.0
+    df.iloc[-1, df.columns.get_loc("high")] = 106.3
+    df.iloc[-1, df.columns.get_loc("low")] = 104.8
+    hits = [p for p in _plans(df) if p.setup == "박스" and p.box == pytest.approx((100.0, 110.0))]
+    assert hits and not hits[0].signal and hits[0].relation == "박스 재진입"
