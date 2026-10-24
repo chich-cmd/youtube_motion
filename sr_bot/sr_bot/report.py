@@ -326,6 +326,46 @@ OUTCOME_LABEL = {"target": "1차 목표 전량", "t1+t2": "1차·2차 목표", "
                  "time": "시간 청산", "open": "미청산", "t1+open": "1차 익절 후 보유"}
 
 
+def _index_returns(mk: str, start, end) -> dict:
+    """분기별 지수 등락률 (장세 비교용). 받지 못하면 빈 dict."""
+    symbols = {"kr": {"코스피": "^KS11", "코스닥": "^KQ11"}, "us": {"S&P 500": "^GSPC", "나스닥100": "^NDX"}}[mk]
+    out = {}
+    try:
+        import yfinance as yf
+
+        for name, sym in symbols.items():
+            c = yf.Ticker(sym).history(start=start - pd.Timedelta(days=10), end=end + pd.Timedelta(days=1))["Close"]
+            c.index = c.index.tz_localize(None)
+            q = c.groupby(c.index.to_period("Q")).last()
+            prev = c.loc[:start].iloc[-1] if len(c.loc[:start]) else c.iloc[0]
+            rets = {}
+            for per, last in q.items():
+                rets[per] = last / prev - 1
+                prev = last
+            out[name] = rets
+    except Exception:
+        return {}
+    return out
+
+
+def _period_table(df: pd.DataFrame, mk: str, start, end) -> str:
+    """신호 분기별 성과와 같은 분기 지수 등락률."""
+    if start is None:
+        start = df.signal_date.min()
+    idx = _index_returns(mk, pd.Timestamp(start), pd.Timestamp(end))
+    g = df.groupby(df.signal_date.dt.to_period("Q")).agg(n=("ret", "size"), win=("ret", lambda x: (x > 0).mean()),
+                                                         avg=("ret", "mean"), r=("r", "mean"))
+    head = "".join(f"<th>{_e(k)}</th>" for k in idx)
+    rows = []
+    for per, r in g.iterrows():
+        ix = "".join(f"<td class='n'>{idx[k].get(per, float('nan')):+.1%}</td>" for k in idx)
+        rows.append(f"<tr><td>{per.year}년 {per.quarter}분기</td><td class='n'>{int(r.n)}</td><td class='n'>{r.win:.0%}</td>"
+                    f"<td class='n'>{r.avg:+.2%}</td><td class='n'>{r.r:+.2f}</td>{ix}</tr>")
+    return ("<h2>분기별 (신호일 기준) · 같은 분기 지수 등락률</h2><div class='tbl'><table><tr><th>분기</th><th>거래</th>"
+            f"<th>승률</th><th>평균 수익률</th><th>평균 R</th>{head}</tr>{''.join(rows)}</table></div>"
+            "<p class='small muted'>매수 전용 규칙이라 지수 하락 분기에는 불리합니다. 장세별 차이를 보려는 표입니다.</p>")
+
+
 def render_backtest_html(cfg, trades, s: dict, start, end, n_tickers: int) -> str:
     """백테스트 결과 페이지."""
     from dataclasses import asdict
@@ -367,6 +407,7 @@ def render_backtest_html(cfg, trades, s: dict, start, end, n_tickers: int) -> st
         return (f"<h2>{title}</h2><div class='tbl'><table><tr><th>구분</th><th>거래</th><th>승률</th>"
                 f"<th>평균 수익률</th><th>평균 R</th></tr>{rows}</table></div>")
 
+    parts.append(_period_table(df, mk, start, end))
     parts.append(group_table("유형별", "setup", ["눌림", "도지", "박스", "저점", "돌파"]))
     df["bucket"] = pd.cut(df.score, [0, 50, 65, 80, 101], labels=["<50", "50-65", "65-80", "80+"], right=False)
     parts.append(group_table("적합도 구간별", "bucket"))
