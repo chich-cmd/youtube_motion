@@ -232,7 +232,9 @@ def _build(ctx: _Ctx, g: L.LevelGroup, setup: str, signal: bool, relation: str, 
     risk = entry - stop
     if risk <= 0:
         return None
-    targets = _targets(ctx, entry)
+    # 목표는 가장 높은 매수 지점보다 위의 저항에서 잡는다 (분할매수 구간 안의 선은 목표가 아님)
+    top_buy = max([entry, zone[1]] + [px for px, _ in buys] if buys else [entry, zone[1]])
+    targets = _targets(ctx, top_buy)
     t1 = round_tick(targets[0][0], mkt, "down") if targets else None
     t2 = round_tick(targets[1][0], mkt, "down") if len(targets) > 1 else None
     net_rr = ((t1 - entry) - entry * ctx.cost) / (risk + entry * ctx.cost) if t1 else None
@@ -429,9 +431,16 @@ def _box_setup(ctx: _Ctx, bx: L.Box, g: L.LevelGroup) -> Plan | None:
         if (since < lo).any() or t - born_i > p.max_bars_since_break or not lo <= ctx.close <= hi:
             return None
         buy_side = ctx.close <= cl
+        # 매수 우위 구간에서도 지지를 관찰한다(8-2): 전 봉보다 높게, 몸통이 하단 위에서 마감해야 지지 확인
+        rebound = t > born_i and c[t] > c[t - 1] and _held(ctx, t, lo)
         buys = [(cl, 0.5), (lo, 0.5)]
-        return _build(ctx, g, setup, buy_side, "박스 내부",
-                      f"{src} 안 · 종가~하단(매수 우위 구간)" if buy_side else f"{src} 안 · 상단~종가(매도 우위 구간) — 하단 쪽 대기",
+        if not buy_side:
+            status = f"{src} 안 · 상단~종가(매도 우위 구간) — 하단 쪽 대기"
+        elif rebound:
+            status = f"{src} 안 · 종가~하단(매수 우위 구간)에서 지지 후 반등"
+        else:
+            status = f"{src} 안 · 종가~하단(매수 우위 구간) — 지지 관찰 중"
+        return _build(ctx, g, setup, buy_side and rebound, "박스 내부", status,
                       lo, (lo, cl), min(ctx.close, cl),
                       f"{name} 종가~하단에서 분할매수", f"{name} 하단 {fp(lo)} 아래 종가 마감 시 실패",
                       None, 0, box=(lo, hi), buys=buys, key_line=lo)

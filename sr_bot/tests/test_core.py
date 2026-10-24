@@ -182,7 +182,11 @@ def _box_frame(last_close: float, retest: bool = False):
 
 
 def test_box_inside_buys_close_to_low():
-    hits = [p for p in _plans(_box_frame(103.0)) if p.setup == "박스" and p.box == pytest.approx((100.0, 110.0))]
+    df = _box_frame(103.0)
+    hits = [p for p in _plans(df) if p.setup == "박스" and p.box == pytest.approx((100.0, 110.0))]
+    assert hits and not hits[0].signal  # 매수 우위 구간이지만 반등 전 = 지지 관찰
+    df.iloc[-1, df.columns.get_loc("close")] = 104.4  # 전 봉(104)보다 높게 마감 = 반등
+    hits = [p for p in _plans(df) if p.setup == "박스" and p.box == pytest.approx((100.0, 110.0))]
     assert hits and hits[0].signal and hits[0].relation == "박스 내부"
     assert hits[0].fail_line == pytest.approx(100.0)
     assert [px for px, _ in hits[0].split["buy"]] == pytest.approx([109.5, 100.0])  # 종가~하단 매수 우위

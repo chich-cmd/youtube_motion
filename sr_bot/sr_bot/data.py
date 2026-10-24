@@ -216,13 +216,35 @@ def kr_fetch(code: str, start: str) -> pd.DataFrame | None:
 
 # ---------------------------------------------------------------- 미국
 
-def us_universe(name: str = "sp500") -> list[Ticker]:
-    """S&P 500 / Nasdaq-100 구성 종목 (위키백과). 실패하면 universe/us_default.csv."""
+def nasdaq_listed() -> list[Ticker]:
+    """나스닥 상장 보통주 전체 (nasdaq.com 스크리너). 워런트·유닛·권리·우선주·스팩 제외."""
+    import re
+
     import requests
+
+    r = requests.get("https://api.nasdaq.com/api/screener/stocks", params={"exchange": "nasdaq", "download": "true"},
+                     headers={"User-Agent": "Mozilla/5.0"}, timeout=60)
+    out = []
+    for row in r.json()["data"]["rows"]:
+        sym, name = row["symbol"].strip(), row["name"]
+        if not re.fullmatch(r"[A-Z]{1,5}", sym):
+            continue
+        if re.search(r"Warrant|Right|Unit|Preferred|Notes? due|Acquisition Corp", name, re.I):  # 스팩 제외
+            continue
+        out.append(Ticker(sym, name, row.get("sector") or "기타·확인 필요", "us"))
+    return out
+
+
+def us_universe(name: str = "sp500") -> list[Ticker]:
+    """S&P 500 / Nasdaq-100 구성 종목 (위키백과), nasdaq = 나스닥 상장 전체. 실패하면 universe/us_default.csv."""
+    import requests
+
+    if name == "nasdaq":
+        return nasdaq_listed()
 
     urls = {
         "sp500": ("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies", "Symbol", "Security", "GICS Sector"),
-        "ndx": ("https://en.wikipedia.org/wiki/Nasdaq-100", "Ticker", "Company", "GICS Sector"),
+        "ndx": ("https://en.wikipedia.org/wiki/List_of_NASDAQ-100_companies", "Ticker", "Company", "ICB Industry"),
     }
     out: dict[str, Ticker] = {}
     for key in (["sp500", "ndx"] if name == "all" else [name]):
@@ -234,7 +256,8 @@ def us_universe(name: str = "sp500") -> list[Ticker]:
                     for r in t.itertuples(index=False):
                         row = dict(zip(t.columns, r))
                         code = str(row[sym]).replace(".", "-").strip()
-                        out[code] = Ticker(code, str(row[nm]), str(row.get(sec, "기타·확인 필요")), "us")
+                        sec_col = next((k for k in t.columns if str(k).startswith(sec)), None)
+                        out[code] = Ticker(code, str(row[nm]), str(row[sec_col]) if sec_col else "기타·확인 필요", "us")
                     break
         except Exception:
             continue
@@ -269,7 +292,7 @@ def load_universe(market: str, universe: str | None, prefilter: float = 0) -> li
         t = pd.read_csv(universe, dtype={"code": str})
         return [Ticker(r.code, getattr(r, "name", r.code), getattr(r, "sector", "기타·확인 필요"), market)
                 for r in t.itertuples()]
-    if universe and universe not in ("sp500", "ndx", "all", "krx"):
+    if universe and universe not in ("sp500", "ndx", "all", "krx", "nasdaq"):
         # 쉼표로 구분한 종목코드 목록
         return [Ticker(c.strip(), c.strip(), "기타·확인 필요", market) for c in universe.split(",") if c.strip()]
     if market == "kr":
@@ -279,19 +302,28 @@ def load_universe(market: str, universe: str | None, prefilter: float = 0) -> li
 
 def fetch_all(tickers: list[Ticker], market: str, years: int, cache_hours: float = 10,
               workers: int = 8) -> dict[str, pd.DataFrame | None]:
+    from .config import DEFAULT_MARKETS
+
     start = (pd.Timestamp.today() - pd.DateOffset(years=years)).strftime("%Y-%m-%d")
+    m = DEFAULT_MARKETS[market]
+    done = expected_session(m.tz, m.close_hour)  # 마감된 마지막 거래일
+
+    def completed(df):
+        # 장중에 받은 미완성 봉은 버린다. 캐시에 남으면 마감 후에도 완성 봉처럼 쓰이기 때문이다.
+        return df.loc[:done] if df is not None else None
+
     out: dict[str, pd.DataFrame | None] = {}
     todo = []
     for t in tickers:
         cached = _read_cache(market, t.code, cache_hours)
         if cached is not None:
-            out[t.code] = cached
+            out[t.code] = completed(cached)
         else:
             todo.append(t.code)
     if market == "us":
         for i in range(0, len(todo), 100):
             chunk = todo[i:i + 100]
-            got = us_fetch_batch(chunk, start)
+            got = {c: completed(df) for c, df in us_fetch_batch(chunk, start).items()}
             for c in chunk:
                 out[c] = got.get(c)
                 if got.get(c) is not None:
@@ -307,6 +339,7 @@ def fetch_all(tickers: list[Ticker], market: str, years: int, cache_hours: float
 
         with ThreadPoolExecutor(workers) as ex:
             for code, df in ex.map(job, todo):
+                df = completed(df)
                 out[code] = df
                 if df is not None:
                     _write_cache(market, code, df)

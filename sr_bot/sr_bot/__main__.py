@@ -166,7 +166,7 @@ def main(argv=None) -> int:
         s.add_argument("--config", default=str(ROOT / "config.toml"))
         s.add_argument("--market", choices=["kr", "us"])
         s.add_argument("--tf", choices=["D", "W", "M"])
-        s.add_argument("--universe", help="sp500 | ndx | all | CSV 경로(code,name,sector) | 쉼표 구분 코드")
+        s.add_argument("--universe", help="sp500 | ndx | all(S&P500+나스닥100) | nasdaq(나스닥 상장 전체) | CSV 경로 | 쉼표 구분 코드")
         s.add_argument("--limit", type=int, default=0)
         s.add_argument("--account", type=float, help="계좌 금액 (수량 계산용)")
         s.add_argument("--top", type=int)
