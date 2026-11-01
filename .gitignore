@@ -27,3 +27,4 @@ concat.txt
 /ep2/*.mp4
 /ep2/*.wav
 /ep2/*.f32
+__pycache__/
