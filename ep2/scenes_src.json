@@ -1,0 +1,1196 @@
+{
+ "chapters": [
+  {
+   "title": "01 단어",
+   "start": 35.5
+  },
+  {
+   "title": "02 문법",
+   "start": 265.5
+  },
+  {
+   "title": "03 해석",
+   "start": 335.0
+  },
+  {
+   "title": "04 듣기",
+   "start": 880.7
+  }
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "start": 0,
+   "end": 7.4,
+   "kicker": "노베이스 영어 공부법",
+   "title": "딱 한 달로 역전하는 영어 공부법",
+   "sub": "6모 4등급 → 수능 영어 100점",
+   "subAt": 1.8
+  },
+  {
+   "type": "ratio",
+   "start": 7.4,
+   "end": 17.5,
+   "heading": "노베이스 공부 비중",
+   "parts": [
+    {
+     "t": 13.5,
+     "kw": "단어",
+     "label": "단어",
+     "value": 4
+    },
+    {
+     "t": 14.3,
+     "kw": "해석",
+     "label": "해석",
+     "value": 5
+    },
+    {
+     "t": 15.3,
+     "kw": "듣기",
+     "label": "듣기",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "type": "quote",
+   "start": 17.5,
+   "end": 35.5,
+   "lines": [
+    "노베이스는 문제풀이 X",
+    "단어 · 해석부터 잡으세요"
+   ],
+   "marks": [
+    "문제풀이 X",
+    "단어 · 해석부터"
+   ],
+   "markAt": 28.9
+  },
+  {
+   "type": "section",
+   "start": 35.5,
+   "end": 37.5,
+   "index": "01",
+   "title": "단어",
+   "sub": "매일 책 읽듯이"
+  },
+  {
+   "type": "list",
+   "start": 37.5,
+   "end": 57.6,
+   "heading": "단어장 고르는 법",
+   "items": [
+    {
+     "t": 41.6,
+     "text": "서점에서 마음에 드는 단어장 고르기",
+     "badge": "1"
+    },
+    {
+     "t": 44.1,
+     "text": "중간을 펼쳐서 모르는 단어 3개 이상",
+     "sub": "→ 그 단어장 선택",
+     "badge": "2"
+    },
+    {
+     "t": 49.7,
+     "text": "구매가 어렵다면: 워드마스터",
+     "sub": "고등 · 4등급 이상은 수능",
+     "badge": "★",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "start": 57.6,
+   "end": 69.9,
+   "heading": "원래 베스트는 예문 반복 읽기",
+   "items": [
+    {
+     "t": 62.7,
+     "text": "노베이스는 예문 해석이 어려울 수 있음",
+     "badge": "!"
+    },
+    {
+     "t": 66.0,
+     "text": "단어에 익숙해지는 게 더 중요",
+     "sub": "그래서 다른 방법을 씁니다",
+     "badge": "→",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "compare",
+   "start": 69.9,
+   "end": 91.5,
+   "heading": "매일 단어를 책 읽듯이 읽기",
+   "left": {
+    "t": 80.0,
+    "title": "하루 50개 완벽 암기",
+    "items": [
+     "누적 복습 안 하면 다 날아감"
+    ]
+   },
+   "right": {
+    "t": 72.0,
+    "title": "매일 단어장 통으로 읽기",
+    "items": [
+     "자연스러운 누적 복습",
+     "가장 빨리 많은 양을 익힘"
+    ],
+    "good": true
+   }
+  },
+  {
+   "type": "plan",
+   "start": 91.5,
+   "end": 123.7,
+   "label": "단어",
+   "heading": "1주차 1일 (첫날)",
+   "rows": [
+    {
+     "t": 95.2,
+     "when": "아침",
+     "what": "1–2000번 뜻 가리고 분류",
+     "sub": "2초 안에 뜻이 떠오르면 지우기 · 첫날은 약 2시간"
+    },
+    {
+     "t": 108.0,
+     "when": "밤",
+     "what": "공부 끝나기 20분 전, 남은 단어 읽기",
+     "sub": "영단어 → 발음 → 뜻",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "wordcard",
+   "start": 123.7,
+   "end": 135.0,
+   "label": "단어",
+   "heading": "예시: 뜻을 가리고 2초",
+   "cards": [
+    {
+     "t": 124.0,
+     "en": "exact",
+     "ko": "정확한",
+     "revealAt": 127.6,
+     "mark": "check",
+     "markAt": 129.6
+    },
+    {
+     "t": 130.8,
+     "en": "elaborate",
+     "ko": "정교한",
+     "mark": "q",
+     "markAt": 132.3
+    }
+   ],
+   "note": {
+    "t": 132.8,
+    "text": "안 떠오르면 그냥 넘어가기"
+   }
+  },
+  {
+   "type": "list",
+   "start": 135.0,
+   "end": 163.0,
+   "label": "단어",
+   "heading": "읽는 순서: 생김새 → 발음 → 뜻",
+   "items": [
+    {
+     "t": 135.0,
+     "text": "단어의 생김새를 눈에 박기",
+     "sub": "대문자 · 소문자만 달라도 인식 속도가 달라져요",
+     "badge": "1"
+    },
+    {
+     "t": 149.0,
+     "text": "속으로 발음해 보기",
+     "badge": "2"
+    },
+    {
+     "t": 152.2,
+     "text": "뜻은 뇌에 집어넣듯 강조",
+     "sub": "exact, '정확한' — 그래, 얜 정확한 거야",
+     "badge": "3",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "plan",
+   "start": 163.0,
+   "end": 186.0,
+   "label": "단어",
+   "heading": "1주차 2–7일",
+   "rows": [
+    {
+     "t": 167.5,
+     "when": "아침",
+     "what": "공부 시작할 때: 영단어 → 발음 → 뜻",
+     "sub": "지운 단어는 빼고 읽기"
+    },
+    {
+     "t": 177.2,
+     "when": "밤",
+     "what": "끝나기 20–30분 전: 똑같이 한 번 더"
+    },
+    {
+     "t": 184.8,
+     "when": "하루 2번",
+     "what": "일주일 반복",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "stat",
+   "start": 186.0,
+   "end": 196.3,
+   "label": "단어",
+   "value": "80",
+   "unit": "%",
+   "caption": "한 달 뒤, 단어장의 80%가 머릿속에",
+   "countFrom": 0
+  },
+  {
+   "type": "plan",
+   "start": 196.3,
+   "end": 216.6,
+   "label": "단어",
+   "heading": "2주차",
+   "rows": [
+    {
+     "t": 196.3,
+     "when": "1일",
+     "what": "남은 단어만 뜻 가리고 읽기",
+     "sub": "2초 안에 떠오르면 또 지우기"
+    },
+    {
+     "t": 211.3,
+     "when": "왜?",
+     "what": "외워진 단어를 지워 공부 시간 단축",
+     "accent": true
+    },
+    {
+     "t": 213.1,
+     "when": "2–7일",
+     "what": "1주차와 똑같이 반복"
+    }
+   ]
+  },
+  {
+   "type": "plan",
+   "start": 216.6,
+   "end": 239.2,
+   "label": "단어",
+   "heading": "3주차 1일은 특별해요",
+   "rows": [
+    {
+     "t": 218.4,
+     "when": "1일",
+     "what": "1–2000번 전부 다시 읽기",
+     "sub": "지운 단어도 포함 — 누적 복습",
+     "accent": true
+    },
+    {
+     "t": 230.6,
+     "when": "판정",
+     "what": "안 떠오르면 다시 암기 목록, 떠오르면 지우기"
+    },
+    {
+     "t": 236.9,
+     "when": "2–7일",
+     "what": "전주와 똑같이"
+    }
+   ]
+  },
+  {
+   "type": "plan",
+   "start": 239.2,
+   "end": 245.9,
+   "label": "단어",
+   "heading": "한 달 루틴 정리",
+   "rows": [
+    {
+     "t": 239.3,
+     "when": "1주차",
+     "what": "분류 + 하루 2번 읽기"
+    },
+    {
+     "t": 239.6,
+     "when": "2주차",
+     "what": "남은 단어 재분류"
+    },
+    {
+     "t": 239.9,
+     "when": "3주차",
+     "what": "전체 다시 (복습)"
+    },
+    {
+     "t": 240.7,
+     "when": "4주차",
+     "what": "2주차와 똑같이",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "stat",
+   "start": 245.9,
+   "end": 255.0,
+   "label": "단어",
+   "value": "5–10",
+   "unit": "분",
+   "caption": "한 달 더 하면, 1회독에 5~10분"
+  },
+  {
+   "type": "quote",
+   "start": 255.0,
+   "end": 265.5,
+   "label": "단어",
+   "lines": [
+    "단어장은 노베이스일 때만",
+    "빠르게 많은 단어를 눈에 익히는 용도"
+   ],
+   "marks": [
+    "노베이스일 때만"
+   ],
+   "markAt": 259.6
+  },
+  {
+   "type": "section",
+   "start": 265.5,
+   "end": 272.6,
+   "index": "02",
+   "title": "문법",
+   "sub": "첫 일주일은 문법만"
+  },
+  {
+   "type": "list",
+   "start": 272.6,
+   "end": 291.8,
+   "label": "문법",
+   "heading": "문법은 해석을 잘하려고 배운다",
+   "columns": 2,
+   "items": [
+    {
+     "t": 276.1,
+     "kw": "품사",
+     "text": "품사",
+     "badge": "1"
+    },
+    {
+     "t": 276.6,
+     "kw": "구",
+     "text": "구",
+     "badge": "2"
+    },
+    {
+     "t": 277.0,
+     "kw": "절",
+     "text": "절",
+     "badge": "3"
+    },
+    {
+     "t": 277.3,
+     "kw": "형식",
+     "text": "형식",
+     "badge": "4"
+    },
+    {
+     "t": 287.6,
+     "text": "이름만 아는 건 개념이 아니에요",
+     "badge": "!",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "start": 291.8,
+   "end": 314.7,
+   "label": "문법",
+   "heading": "셀프 테스트",
+   "items": [
+    {
+     "t": 293.9,
+     "text": "to부정사 용법이 뭐가 있죠?",
+     "badge": "Q1",
+     "tags": [
+      "50% 막힘"
+     ]
+    },
+    {
+     "t": 302.0,
+     "text": "명사 · 형용사 · 부사적 용법, 어떻게 구별해?",
+     "badge": "Q2",
+     "tags": [
+      "40% 막힘"
+     ]
+    },
+    {
+     "t": 309.8,
+     "text": "하나라도 막혔다면 → 문법 공부 필수",
+     "badge": "!",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "start": 314.7,
+   "end": 330.7,
+   "label": "문법",
+   "heading": "추천: EBS 정승익 쌤 영문법",
+   "items": [
+    {
+     "t": 320.9,
+     "text": "무료",
+     "sub": "EBS니까",
+     "badge": "1"
+    },
+    {
+     "t": 322.2,
+     "text": "15강으로 짧아요",
+     "badge": "2"
+    },
+    {
+     "t": 325.8,
+     "text": "기초 영문법 위주",
+     "sub": "구문책 문법 용어를 다 알아듣게 돼요",
+     "badge": "3",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "plan",
+   "start": 330.7,
+   "end": 335.0,
+   "label": "문법",
+   "heading": "주차별 병행",
+   "rows": [
+    {
+     "t": 330.8,
+     "when": "1주차",
+     "what": "단어 + 문법"
+    },
+    {
+     "t": 332.1,
+     "when": "2주차~",
+     "what": "단어 + 해석",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "section",
+   "start": 335.0,
+   "end": 339.5,
+   "index": "03",
+   "title": "해석",
+   "sub": "1순위 목표 = 문장 나누기"
+  },
+  {
+   "type": "quote",
+   "start": 339.5,
+   "end": 348.4,
+   "label": "해석",
+   "lines": [
+    "해석이 어려운 건 문장이 길어서",
+    "긴 문장을 쉬운 덩어리로 나누기"
+   ],
+   "marks": [
+    "쉬운 덩어리"
+   ],
+   "markAt": 345.9
+  },
+  {
+   "type": "list",
+   "start": 348.4,
+   "end": 409.6,
+   "label": "해석",
+   "heading": "문장 나누는 기준",
+   "items": [
+    {
+     "t": 350.3,
+     "text": "주어 S · 동사 V 표시",
+     "sub": "주어가 길면 동사 앞에서도 /",
+     "badge": "1"
+    },
+    {
+     "t": 364.4,
+     "text": "전치사 앞에서 끊기",
+     "sub": "to, for, with, in, on, at, as … (of는 제외해도 OK)",
+     "badge": "2"
+    },
+    {
+     "t": 400.4,
+     "text": "명사 뒤 준동사 앞에서 끊기",
+     "sub": "to부정사 · ing(현재분사) · p.p.(과거분사)",
+     "badge": "3",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 409.6,
+   "end": 422.5,
+   "label": "해석",
+   "heading": "p.p. + 전치사는 세트",
+   "size": 60,
+   "text": "an abusive measure targeted at small business owners",
+   "marks": [
+    {
+     "t": 412.1,
+     "kind": "underline",
+     "from": 3,
+     "to": 3,
+     "color": "blue"
+    },
+    {
+     "t": 413.4,
+     "kind": "label",
+     "at": 4,
+     "text": "전치사",
+     "color": "blue"
+    },
+    {
+     "t": 418.1,
+     "kind": "slash",
+     "after": 2
+    },
+    {
+     "t": 418.7,
+     "kind": "highlight",
+     "from": 3,
+     "to": 7
+    }
+   ],
+   "notes": [
+    {
+     "t": 412.1,
+     "text": "과거분사 = 동사 + ed"
+    },
+    {
+     "t": 418.1,
+     "text": "명사 뒤 p.p. 앞에서 끊기"
+    },
+    {
+     "t": 419.5,
+     "text": "p.p.와 전치사 사이는 끊지 않기",
+     "color": "red"
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "start": 422.5,
+   "end": 459.0,
+   "label": "해석",
+   "heading": "문장 나누는 기준 (계속)",
+   "items": [
+    {
+     "t": 422.5,
+     "text": "접속사절은 괄호 ( )",
+     "sub": "that / which + 주어 + 동사 = 문장 속 문장",
+     "badge": "4"
+    },
+    {
+     "t": 444.7,
+     "text": "문장 부호에서 분리",
+     "sub": "콜론 : · 세미콜론 ; · 콤마 , · 하이픈 - → '즉'",
+     "badge": "5",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 459.0,
+   "end": 476.7,
+   "label": "해석",
+   "heading": "단, 나열형은 끊지 않기",
+   "size": 80,
+   "text": "A, B, C and D",
+   "marks": [
+    {
+     "t": 468.1,
+     "kind": "circle",
+     "from": 0,
+     "to": 3
+    }
+   ],
+   "notes": [
+    {
+     "t": 470.1,
+     "text": "A, B, C 그리고 D = 세트 단어"
+    },
+    {
+     "t": 474.1,
+     "text": "한 번에 해석 → 끊지 않기",
+     "color": "red"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 476.7,
+   "end": 493.9,
+   "label": "해석",
+   "heading": "먼저 직접 끊어보세요",
+   "text": "Despite framing the estate tax as an abusive measure targeted at small business owners and family farms, proponents of terminating the estate tax are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [],
+   "notes": [
+    {
+     "t": 488.5,
+     "text": "일시정지 → 캡처 → 스스로 끊기"
+    },
+    {
+     "t": 492.3,
+     "text": "다 끊었으면 다시 재생",
+     "color": "red"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 493.9,
+   "end": 598.1,
+   "label": "해석",
+   "heading": "문장 나누기 시연",
+   "text": "Despite framing the estate tax as an abusive measure targeted at small business owners and family farms, proponents of terminating the estate tax are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [
+    {
+     "t": 495.8,
+     "kind": "circle",
+     "from": 0,
+     "to": 0,
+     "color": "blue"
+    },
+    {
+     "t": 502.2,
+     "kind": "underline",
+     "from": 1,
+     "to": 1,
+     "color": "blue"
+    },
+    {
+     "t": 511.7,
+     "kind": "slash",
+     "after": 4
+    },
+    {
+     "t": 512.0,
+     "kind": "label",
+     "at": 5,
+     "text": "전치사"
+    },
+    {
+     "t": 515.8,
+     "kind": "underline",
+     "from": 9,
+     "to": 9
+    },
+    {
+     "t": 523.7,
+     "kind": "slash",
+     "after": 8
+    },
+    {
+     "t": 530.0,
+     "kind": "highlight",
+     "from": 9,
+     "to": 13
+    },
+    {
+     "t": 550.0,
+     "kind": "slash",
+     "after": 16
+    },
+    {
+     "t": 553.3,
+     "kind": "underline",
+     "from": 18,
+     "to": 18,
+     "color": "blue"
+    },
+    {
+     "t": 557.0,
+     "kind": "label",
+     "at": 17,
+     "text": "S"
+    },
+    {
+     "t": 558.2,
+     "kind": "label",
+     "at": 23,
+     "text": "V"
+    },
+    {
+     "t": 560.5,
+     "kind": "slash",
+     "after": 22
+    },
+    {
+     "t": 563.3,
+     "kind": "underline",
+     "from": 24,
+     "to": 24,
+     "color": "blue"
+    },
+    {
+     "t": 567.6,
+     "kind": "underline",
+     "from": 25,
+     "to": 25,
+     "color": "blue"
+    },
+    {
+     "t": 578.2,
+     "kind": "label",
+     "at": 0,
+     "text": "1",
+     "color": "blue"
+    },
+    {
+     "t": 578.4,
+     "kind": "label",
+     "at": 5,
+     "text": "2",
+     "color": "blue"
+    },
+    {
+     "t": 579.7,
+     "kind": "label",
+     "at": 9,
+     "text": "3",
+     "color": "blue"
+    },
+    {
+     "t": 580.9,
+     "kind": "label",
+     "at": 17,
+     "text": "4",
+     "color": "blue"
+    },
+    {
+     "t": 581.9,
+     "kind": "label",
+     "at": 23,
+     "text": "5",
+     "color": "blue"
+    }
+   ],
+   "notes": [
+    {
+     "t": 499.2,
+     "text": "문장 맨 앞 전치사는 안 끊어도 OK"
+    },
+    {
+     "t": 507.1,
+     "text": "framing: 전치사 뒤 ing → 안 끊기"
+    },
+    {
+     "t": 511.7,
+     "text": "as = 전치사 → 앞에서 /"
+    },
+    {
+     "t": 522.7,
+     "text": "measure(명사) 뒤 p.p. → /"
+    },
+    {
+     "t": 547.9,
+     "text": "콤마(문장 부호) → /"
+    },
+    {
+     "t": 559.5,
+     "text": "주어가 길어서 동사 앞 /"
+    },
+    {
+     "t": 582.4,
+     "text": "5개의 덩어리로 나눠 해석",
+     "color": "red"
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "start": 598.1,
+   "end": 620.1,
+   "label": "해석",
+   "heading": "해석 패턴을 의식하기",
+   "items": [
+    {
+     "t": 608.6,
+     "text": "전치사 + ing",
+     "sub": "어떻게 해석할까?",
+     "badge": "1"
+    },
+    {
+     "t": 611.3,
+     "text": "명사 + 접속사절",
+     "badge": "2"
+    },
+    {
+     "t": 613.5,
+     "text": "명사 + p.p.(과거분사)",
+     "badge": "3"
+    },
+    {
+     "t": 615.6,
+     "text": "의식하면 해석의 틀이 빠르게 잡혀요",
+     "badge": "→",
+     "accent": true
+    }
+   ]
+  },
+  {
+   "type": "quote",
+   "start": 620.1,
+   "end": 647.6,
+   "label": "해석",
+   "lines": [
+    "나오는 패턴은 계속 나온다",
+    "2주면 단어만 알면 해석 가능",
+    "패턴 단권화 노트 만들기"
+   ],
+   "marks": [
+    "2주",
+    "패턴 단권화 노트"
+   ],
+   "markAt": 621.5
+  },
+  {
+   "type": "passage",
+   "start": 647.6,
+   "end": 694.5,
+   "label": "해석",
+   "heading": "덩어리 1",
+   "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [
+    {
+     "t": 650.9,
+     "kind": "highlight",
+     "from": 0,
+     "to": 4
+    }
+   ],
+   "notes": [
+    {
+     "t": 656.7,
+     "text": "덩어리 마지막 단어에서 앞으로"
+    },
+    {
+     "t": 661.6,
+     "text": "패턴: 전치사 + ing → ~하는 것 + 전치사"
+    },
+    {
+     "t": 672.7,
+     "text": "Despite ~에도 불구하고 · frame 규정짓다 · estate tax 재산세"
+    },
+    {
+     "t": 686.6,
+     "text": "재산세를 규정 지음에도 불구하고",
+     "color": "red"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 694.5,
+   "end": 741.8,
+   "label": "해석",
+   "heading": "덩어리 2",
+   "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [
+    {
+     "t": 694.6,
+     "kind": "highlight",
+     "from": 6,
+     "to": 9
+    }
+   ],
+   "notes": [
+    {
+     "t": 696.2,
+     "text": "앞 덩어리와 의미를 계속 연결"
+    },
+    {
+     "t": 708.7,
+     "text": "as ~로서 · abusive measure 남용적인 조치"
+    },
+    {
+     "t": 720.1,
+     "text": "남용적인 조치로서",
+     "color": "red"
+    },
+    {
+     "t": 728.2,
+     "text": "→ 재산세가 안 좋은 거구나!"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 741.8,
+   "end": 780.7,
+   "label": "해석",
+   "heading": "덩어리 3",
+   "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [
+    {
+     "t": 741.9,
+     "kind": "highlight",
+     "from": 11,
+     "to": 18
+    }
+   ],
+   "notes": [
+    {
+     "t": 744.5,
+     "text": "패턴: 명사 + p.p. → ~된 (명사)"
+    },
+    {
+     "t": 751.9,
+     "text": "target 목표로 하다 · small business owners 소상공인 · family farms 가족 경영 농장"
+    },
+    {
+     "t": 759.9,
+     "text": "가족 경영 농장과 소상공인에게 목표가 된",
+     "color": "red"
+    },
+    {
+     "t": 772.2,
+     "text": "→ 재산세는 작은 사람들에게 안 좋다"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 780.7,
+   "end": 803.6,
+   "label": "해석",
+   "heading": "덩어리 4",
+   "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [
+    {
+     "t": 780.8,
+     "kind": "highlight",
+     "from": 20,
+     "to": 25
+    }
+   ],
+   "notes": [
+    {
+     "t": 783.4,
+     "text": "패턴: 전치사 + ing (덩어리 1과 같음)"
+    },
+    {
+     "t": 791.5,
+     "text": "proponent 지지자 · terminate 종결시키다"
+    },
+    {
+     "t": 798.5,
+     "text": "재산세를 종결시키는 것의 지지자들은",
+     "color": "red"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 803.6,
+   "end": 845.2,
+   "label": "해석",
+   "heading": "덩어리 5",
+   "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
+   "marks": [
+    {
+     "t": 803.7,
+     "kind": "highlight",
+     "from": 27,
+     "to": 36
+    }
+   ],
+   "notes": [
+    {
+     "t": 808.3,
+     "text": "패턴: 동사 + to부정사 → ~하려고 ~하다"
+    },
+    {
+     "t": 813.1,
+     "text": "attempt 시도하다 · shelter 보호하다 · assets 자산 · wealthy 부유한 · constituent 주민"
+    },
+    {
+     "t": 817.3,
+     "text": "극도로 부유한 주민들의 자산을 보호하려고 시도하는 중이다",
+     "color": "red"
+    },
+    {
+     "t": 836.5,
+     "text": "→ 재산세가 없어지면 부자가 이득!"
+    }
+   ]
+  },
+  {
+   "type": "quote",
+   "start": 845.2,
+   "end": 860.2,
+   "label": "해석",
+   "lines": [
+    "1. 해석하기 쉬운 덩어리로 나누기",
+    "2. 덩어리 속 해석 패턴 알기"
+   ],
+   "marks": [
+    "덩어리로 나누기",
+    "해석 패턴"
+   ],
+   "markAt": 855.6
+  },
+  {
+   "type": "stat",
+   "start": 860.2,
+   "end": 880.7,
+   "label": "해석",
+   "value": "1–1.5",
+   "unit": "시간",
+   "caption": "해석 연습 시간 (최저가 급한 고3은 2시간까지)"
+  },
+  {
+   "type": "section",
+   "start": 880.7,
+   "end": 885.3,
+   "index": "04",
+   "title": "듣기",
+   "sub": "쉐도잉이 최고"
+  },
+  {
+   "type": "list",
+   "start": 885.3,
+   "end": 910.2,
+   "label": "듣기",
+   "heading": "듣기 공부 순서",
+   "items": [
+    {
+     "t": 887.9,
+     "text": "듣고 풀기",
+     "sub": "5개 이상 틀리면 생략하고 2번부터",
+     "badge": "1"
+    },
+    {
+     "t": 894.1,
+     "text": "대본 보며 원어민 음성 따라 발음",
+     "sub": "발음 · 속도 · 강세 맞추기 = 쉐도잉",
+     "badge": "2",
+     "accent": true
+    },
+    {
+     "t": 904.6,
+     "text": "보이는 글자를 아는 발음대로 읽으려는 습관 주의",
+     "badge": "!"
+    }
+   ]
+  },
+  {
+   "type": "passage",
+   "start": 910.2,
+   "end": 936.4,
+   "label": "듣기",
+   "heading": "노란 부분, 어떻게 발음할까?",
+   "size": 48,
+   "text": "W: Hello, Timberglade High School students. This is your P.E. teacher, Ms. Larsen. I'd like to announce that we're looking for volunteers to help with the charity soccer match next month.",
+   "marks": [
+    {
+     "t": 910.3,
+     "kind": "highlight",
+     "from": 13,
+     "to": 15
+    },
+    {
+     "t": 910.6,
+     "kind": "highlight",
+     "from": 18,
+     "to": 20
+    },
+    {
+     "t": 910.9,
+     "kind": "highlight",
+     "from": 22,
+     "to": 24
+    },
+    {
+     "t": 927.2,
+     "kind": "label",
+     "at": 14,
+     "text": "아트락투",
+     "color": "blue"
+    },
+    {
+     "t": 929.6,
+     "kind": "label",
+     "at": 18,
+     "text": "윌",
+     "color": "blue"
+    }
+   ],
+   "notes": [
+    {
+     "t": 916.1,
+     "text": "또박또박 끊어 읽기 X"
+    },
+    {
+     "t": 924.0,
+     "text": "실제로는 빠르게 연결 · 생략"
+    },
+    {
+     "t": 927.2,
+     "text": "I'd like to → 아트락투",
+     "color": "red"
+    },
+    {
+     "t": 929.6,
+     "text": "we're → 윌",
+     "color": "red"
+    },
+    {
+     "t": 931.6,
+     "text": "생략 · 연결 방식을 익히는 게 핵심"
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "start": 936.4,
+   "end": 946.7,
+   "label": "듣기",
+   "heading": "시간이 남으면",
+   "items": [
+    {
+     "t": 936.5,
+     "text": "대본 없이 음성만 듣고 따라 발음",
+     "badge": "3",
+     "accent": true
+    },
+    {
+     "t": 944.4,
+     "text": "3번이 어려우면 2번으로 돌아가기",
+     "badge": "↺"
+    }
+   ]
+  },
+  {
+   "type": "title",
+   "start": 946.7,
+   "end": 954.27,
+   "kicker": "다음 영상",
+   "title": "듣기 · 해석 · 독해 연습법",
+   "sub": "구독과 좋아요 부탁드려요",
+   "subAt": 951.4
+  }
+ ]
+}

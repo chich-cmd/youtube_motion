@@ -134,6 +134,9 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
                     {'text' in m && m.text ? <Tag text={m.text} p={m.p} color={C.red} /> : null}(
                   </span>
                 ))}
+                {w === '/' ? (
+                  <span style={{display: 'inline-block', color: C.red, fontWeight: 900, fontSize: fs * 1.15, margin: '0 4px', transform: 'rotate(8deg)'}}>/</span>
+                ) : (
                 <span style={{position: 'relative', display: 'inline-block', padding: '0 2px'}}>
                   {ms.map((m, k) => <Ink key={k} m={m} first={'from' in m && m.from === i} last={'to' in m && m.to === i} />)}
                   <span style={{position: 'relative'}}>{w}</span>
@@ -141,6 +144,7 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
                     <Tag key={`l${k}`} text={(m as {text: string}).text} p={m.p} color={PEN[(m as {color?: string}).color ?? 'red']} />
                   ))}
                 </span>
+                )}
                 {brClose.map((m, k) => <span key={`bc${k}`} style={{color: C.red, fontWeight: 800, opacity: m.p, marginLeft: 2}}>)</span>)}
                 {ms.filter((m) => m.kind === 'slash').map((m, k) => (
                   <span key={`s${k}`} style={{display: 'inline-block', color: C.red, fontWeight: 900, fontSize: fs * 1.15,

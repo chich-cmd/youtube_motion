@@ -24,3 +24,6 @@ concat.txt
 /ep2/frames/
 /ep2/hi/
 /ep2/subs/
+/ep2/*.mp4
+/ep2/*.wav
+/ep2/*.f32
