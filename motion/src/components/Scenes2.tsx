@@ -168,7 +168,7 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
                         transform: `scale(${m.p}) rotate(8deg)`}}>/</span>
                       <span style={{position: 'absolute', left: '50%', top: '50%', transform: `translate(-50%,-50%) scale(${x})`, opacity: x,
                         color: C.red, fontWeight: 900, fontSize: fs * 1.25, lineHeight: 1}}>✕</span>
-                      <Tag text="끊지 않음" p={x} color={C.red} />
+                      <Tag text="끊지 않음" p={x} color={C.red} below />
                     </span>
                   );
                 })}{' '}
@@ -193,8 +193,8 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
   );
 };
 
-const Tag: React.FC<{text: string; p: number; color: string}> = ({text, p, color}) => (
-  <span style={{position: 'absolute', left: '50%', top: '-0.95em', transform: `translateX(-50%) scale(${p})`, fontSize: '0.5em',
+const Tag: React.FC<{text: string; p: number; color: string; below?: boolean}> = ({text, p, color, below}) => (
+  <span style={{position: 'absolute', left: '50%', top: below ? '4.3em' : '-0.95em', transform: `translateX(-50%) scale(${p})`, fontSize: '0.5em',
     fontWeight: 800, color: '#fff', background: color, borderRadius: 8, padding: '2px 10px', whiteSpace: 'nowrap', lineHeight: 1.3}}>{text}</span>
 );
 
