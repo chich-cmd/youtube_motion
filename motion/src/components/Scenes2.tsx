@@ -147,10 +147,31 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
                 </span>
                 )}
                 {brClose.map((m, k) => <span key={`bc${k}`} style={{color: C.red, fontWeight: 800, opacity: m.p, marginLeft: 2}}>)</span>)}
-                {ms.filter((m) => m.kind === 'slash').map((m, k) => (
-                  <span key={`s${k}`} style={{display: 'inline-block', color: C.red, fontWeight: 900, fontSize: fs * 1.15,
-                    margin: '0 6px', transform: `scale(${m.p}) rotate(8deg)`, opacity: m.p}}>/</span>
-                ))}{' '}
+                {ms.filter((m) => m.kind === 'slash').map((m, k) => {
+                  const ma = (m as {markAt?: number}).markAt;
+                  const fr = ma === undefined ? -1 : f - at(s, ma);
+                  const bump = fr > 0 && fr < 20 ? Math.sin((Math.PI * fr) / 20) * 0.7 : 0;
+                  const tp = ma === undefined ? 0 : enter(f, at(s, ma), 12);
+                  return (
+                    <span key={`s${k}`} style={{position: 'relative', display: 'inline-block', margin: '0 6px'}}>
+                      <span style={{display: 'inline-block', color: C.red, fontWeight: 900, fontSize: fs * 1.15,
+                        transform: `scale(${m.p * (1 + bump)}) rotate(8deg)`, opacity: m.p}}>/</span>
+                      {ma !== undefined ? <Tag text="여기서 끊기" p={tp} color={C.red} /> : null}
+                    </span>
+                  );
+                })}
+                {ms.filter((m) => m.kind === 'noslash').map((m, k) => {
+                  const x = enter(f, at(s, (m as {markAt: number}).markAt), 12);
+                  return (
+                    <span key={`n${k}`} style={{position: 'relative', display: 'inline-block', margin: '0 6px', opacity: m.p}}>
+                      <span style={{display: 'inline-block', color: '#9AA3AF', fontWeight: 900, fontSize: fs * 1.15,
+                        transform: `scale(${m.p}) rotate(8deg)`}}>/</span>
+                      <span style={{position: 'absolute', left: '50%', top: '50%', transform: `translate(-50%,-50%) scale(${x})`, opacity: x,
+                        color: C.red, fontWeight: 900, fontSize: fs * 1.25, lineHeight: 1}}>✕</span>
+                      <Tag text="끊지 않음" p={x} color={C.red} />
+                    </span>
+                  );
+                })}{' '}
               </React.Fragment>
             );
           })}

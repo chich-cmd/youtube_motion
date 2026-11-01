@@ -57,6 +57,7 @@ def make_sfx(scenes, n):
         for nt in s.get('notes', []): events.append(('ding' if nt.get('color') == 'red' else 'tick', max(nt['t'], st + 0.3)))
         for it in s.get('parts', []) + s.get('cards', []) + s.get('rows', []): events.append(('pop', max(it['t'], st + 0.25)))
         for m in [m for m in s.get('marks', []) if isinstance(m, dict)]: events.append(('swipe' if m.get('kind') == 'highlight' else 'tick', max(m['t'], st + 0.2)))
+        for m in [m for m in s.get('marks', []) if isinstance(m, dict) and 'markAt' in m]: events.append(('tick', m['markAt']))
     sfx = np.zeros(n + SR)
     for k, at in events:
         i0 = max(0, int((at + OFF.get(k, 0)) * SR)); x = S[k]

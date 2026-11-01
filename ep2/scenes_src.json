@@ -563,13 +563,20 @@
     {
      "t": 418.1,
      "kind": "slash",
-     "after": 2
+     "after": 2,
+     "markAt": 421.6
     },
     {
      "t": 418.7,
      "kind": "highlight",
      "from": 3,
      "to": 7
+    },
+    {
+     "t": 415.9,
+     "kind": "noslash",
+     "after": 3,
+     "markAt": 419.5
     }
    ],
    "notes": [

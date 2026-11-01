@@ -21,7 +21,8 @@ export type WordCard = {t: number; en: string; ko: string; revealAt?: number; ma
 
 /** Annotation on the passage. Word indexes refer to text.split(' '). */
 export type PassageMark = {t: number} & (
-  | {kind: 'slash'; after: number}                                  // red "/" after word i
+  | {kind: 'slash'; after: number; markAt?: number}                                // red "/" after word i
+  | {kind: 'noslash'; after: number; markAt: number}                // grey "/" after word i, crossed out at markAt
   | {kind: 'underline' | 'highlight' | 'circle' | 'strike'; from: number; to: number; color?: 'red' | 'blue' | 'yellow'}
   | {kind: 'label'; at: number; text: string; color?: 'red' | 'blue'}  // small tag above a word (S, V, 전치사…)
   | {kind: 'bracket'; from: number; to: number; text?: string}     // ( … ) around a clause, optional tag

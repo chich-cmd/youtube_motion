@@ -15,10 +15,15 @@ FPS, SR = 30, 48000
 SRC, VOICE = 'ep2/src/original.mp4', 'ep2/src/voice_df.wav'
 MIN_SIL, PAD_IN, PAD_OUT = 0.45, 0.10, 0.14
 HOLD = 1.5                                         # silent beat on each chapter title card
+CUT = (880.48, 946.48)                             # listening chapter removed (source seconds)
+SPEED = 0.9                                        # playback speed of the voice (pitch kept, rubberband)
 snap = lambda t: round(t * FPS) / FPS
 
 src = json.load(open('ep2/scenes_src.json'))
 tr = json.load(open('ep2/transcript_clean.json'))
+src['scenes'] = [sc for sc in src['scenes'] if not (CUT[0] <= sc['start'] < CUT[1])]
+src['chapters'] = [c for c in src['chapters'] if not (CUT[0] <= c['start'] < CUT[1])]
+tr = [s for s in tr if not (CUT[0] <= s['start'] < CUT[1])]
 words = [w for s in tr for w in s['words']]
 
 # 1. snap card times to the moment their keyword is spoken (within ±1.5 s of the planned time)
@@ -64,6 +69,12 @@ for sc in src['scenes']:
     out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': HOLD})
     pieces = sorted(out, key=lambda p: (p['a'], p['kind'] != 'gap'))
     holds[id(sc)] = hx
+cut = []
+for p in pieces:
+    if p['kind'] == 'gap' or p['b'] <= CUT[0] or p['a'] >= CUT[1]: cut.append(p); continue
+    if p['a'] < CUT[0]: cut.append({**p, 'b': snap(CUT[0])})
+    if p['b'] > CUT[1]: cut.append({**p, 'a': snap(CUT[1])})
+pieces = cut
 for p in pieces: p['dur'] = p['gap'] if p['kind'] == 'gap' else round(p['b'] - p['a'], 4)
 
 def remap(x):
@@ -73,7 +84,9 @@ def remap(x):
         if x <= p['b'] and p['kind'] == 'src': return round(acc + x - p['a'], 3)
         acc += p['dur']
     return round(acc, 3)
-total = round(sum(p['dur'] for p in pieces), 3)
+_remap = remap
+remap = lambda x: round(_remap(x) / SPEED, 3)
+total = round(sum(p['dur'] for p in pieces) / SPEED, 3)
 
 # 3. remap scenes / transcript
 TK = {'start', 'end', 't', 'subAt', 'markAt', 'revealAt'}
@@ -113,6 +126,11 @@ for p in pieces:
     if p['kind'] == 'src' and len(seg) > 2 * F: seg[:F] *= ramp; seg[-F:] *= ramp[::-1]
     parts.append(seg)
 voice = np.concatenate(parts)
+if SPEED != 1:
+    st = subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-af', f'rubberband=tempo={SPEED}:pitchq=quality',
+                         '-f', 'f32le', '-'], input=voice.tobytes(), capture_output=True, check=True).stdout
+    voice = np.frombuffer(st, np.float32).reshape(-1, 2)
+n = int(round(total * SR)); voice = np.concatenate([voice, np.zeros((max(0, n - len(voice)), 2), np.float32)])[:n]
 voice.tofile('ep2/voice_cut.f32')
 make_sfx(scenes, len(voice)).tofile('ep2/sfx.f32')
 print('audio', round(len(voice) / SR, 2), 's')
