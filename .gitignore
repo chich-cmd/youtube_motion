@@ -18,3 +18,9 @@ node_modules/
 cutlist.json
 sfx_events.json
 concat.txt
+
+# episode 2 working media
+/ep2/src/
+/ep2/frames/
+/ep2/hi/
+/ep2/subs/
