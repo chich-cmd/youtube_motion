@@ -6,6 +6,8 @@ import {Scene, Segment} from './types';
 import {Background, Progress} from './components/Chrome';
 import {Captions} from './components/Captions';
 import * as S from './components/Scenes';
+import * as S2 from './components/Scenes2';
+import {Line} from './components/Captions';
 
 const pick = (s: Scene, len: number) => {
   switch (s.type) {
@@ -17,6 +19,10 @@ const pick = (s: Scene, len: number) => {
     case 'footage': return <S.FootageScene s={s} len={len} />;
     case 'timeline': return <S.TimelineScene s={s} len={len} />;
     case 'compare': return <S.CompareScene s={s} len={len} />;
+    case 'ratio': return <S2.RatioScene s={s} len={len} />;
+    case 'wordcard': return <S2.WordCardScene s={s} len={len} />;
+    case 'plan': return <S2.PlanScene s={s} len={len} />;
+    case 'passage': return <S2.PassageScene s={s} len={len} />;
   }
 };
 
@@ -26,9 +32,10 @@ export type VideoProps = {
   chapters: {title: string; start: number}[];
   total: number;
   offset?: number;
+  captions?: Line[];   // pre-timed caption lines; [] = build from segments
 };
 
-export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total}) => (
+export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, captions}) => (
   <AbsoluteFill>
     <Background />
     {scenes.map((s, i) => {
@@ -40,6 +47,6 @@ export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total}) 
       );
     })}
     <Progress chapters={chapters} total={total} />
-    <Captions segments={segments} />
+    <Captions segments={segments} edited={captions} />
   </AbsoluteFill>
 );

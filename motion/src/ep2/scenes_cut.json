@@ -1,0 +1,7 @@
+{"total": 40, "chapters": [{"title": "01 단어", "start": 0}, {"title": "02 문법", "start": 20}, {"title": "03 해석", "start": 30}],
+ "scenes": [
+  {"type":"ratio","start":0,"end":10,"heading":"노베이스 공부 비중","parts":[{"t":0.5,"label":"단어","value":4},{"t":1.0,"label":"해석","value":5},{"t":1.5,"label":"듣기","value":1}],"foot":{"t":2,"text":"문제풀이는 아직 NO"}},
+  {"type":"wordcard","start":10,"end":20,"heading":"뜻을 가리고 2초 안에","cards":[{"t":10.3,"en":"exact","ko":"정확한","revealAt":11,"mark":"check","markAt":11.5},{"t":12,"en":"low rate","ko":"낮은 비율","mark":"q","markAt":12.5}],"note":{"t":13,"text":"떠오르면 ✓ 지우기, 안 떠오르면 넘어가기"}},
+  {"type":"plan","start":20,"end":30,"heading":"1주차 단어 계획","rows":[{"t":20.3,"when":"1일차","what":"1–2000번 분류","sub":"2초 안에 뜻이 떠오르면 지우기"},{"t":21,"when":"2–7일차","what":"아침 · 밤 2번 읽기","sub":"영단어 → 발음 → 뜻","accent":true}]},
+  {"type":"passage","start":30,"end":40,"heading":"문장 나누기","text":"Despite framing the estate tax as an abusive measure targeted at small business owners and family farms, proponents of terminating the estate tax are attempting to shelter the assets of extremely wealthy constituents.","marks":[{"t":30.5,"kind":"circle","from":0,"to":0},{"t":31,"kind":"slash","after":19},{"t":31.5,"kind":"label","at":20,"text":"S"},{"t":32,"kind":"label","at":27,"text":"V"},{"t":32.5,"kind":"underline","from":20,"to":21,"color":"blue"},{"t":33,"kind":"highlight","from":3,"to":5},{"t":33.5,"kind":"bracket","from":1,"to":19,"text":"전치사구"}],"notes":[{"t":31,"text":"Despite = 전치사 → 앞에서 끊기"},{"t":32,"text":"진짜 주어는 proponents","color":"red"}]}
+ ]}

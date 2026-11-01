@@ -8,7 +8,7 @@ export const Frame: React.FC<{label?: string; len: number; children: React.React
   const f = useCurrentFrame();
   const o = Math.min(enter(f, 0, 12), exit(f, len));
   return (
-    <AbsoluteFill style={{opacity: o, fontFamily: FONT, color: C.ink}}>
+    <AbsoluteFill style={{opacity: o, fontFamily: FONT, color: C.ink, wordBreak: 'keep-all'}}>
       {false && label ? (
         <div style={{position: 'absolute', left: 120, top: 92, display: 'flex', alignItems: 'center', gap: 14, ...{opacity: enter(f, 2)}}}>
           <div style={{width: 10, height: 10, borderRadius: 5, background: C.blue}} />

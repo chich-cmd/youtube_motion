@@ -11,6 +11,20 @@ export type Scene = {start: number; end: number; chapter?: number} & (
   | {type: 'footage'; label?: string; heading: string; from: number; notes: {t: number; text: string; color?: 'blue' | 'red'}[]}
   | {type: 'timeline'; label?: string; heading: string; total: number; days: {t: number; day: string; to: number; from?: number}[]; foot?: {t: number; text: string}}
   | {type: 'compare'; label?: string; heading: string; left: {title: string; items: string[]; t: number}; right: {title: string; items: string[]; t: number; good?: boolean}}
+  | {type: 'ratio'; label?: string; heading: string; parts: {t: number; label: string; value: number; color?: string}[]; foot?: {t: number; text: string}}
+  | {type: 'wordcard'; label?: string; heading: string; cards: WordCard[]; note?: {t: number; text: string}}
+  | {type: 'plan'; label?: string; heading: string; rows: {t: number; when: string; what: string; sub?: string; accent?: boolean}[]}
+  | {type: 'passage'; label?: string; heading?: string; text: string; size?: number; marks: PassageMark[]; notes?: {t: number; text: string; color?: 'blue' | 'red'}[]}
+);
+
+export type WordCard = {t: number; en: string; ko: string; revealAt?: number; mark?: 'check' | 'q'; markAt?: number};
+
+/** Annotation on the passage. Word indexes refer to text.split(' '). */
+export type PassageMark = {t: number} & (
+  | {kind: 'slash'; after: number}                                  // red "/" after word i
+  | {kind: 'underline' | 'highlight' | 'circle' | 'strike'; from: number; to: number; color?: 'red' | 'blue' | 'yellow'}
+  | {kind: 'label'; at: number; text: string; color?: 'red' | 'blue'}  // small tag above a word (S, V, 전치사…)
+  | {kind: 'bracket'; from: number; to: number; text?: string}     // ( … ) around a clause, optional tag
 );
 
 export type Word = {s: number; e: number; w: string};

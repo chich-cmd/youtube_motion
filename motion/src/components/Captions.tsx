@@ -4,7 +4,7 @@ import {FONT, FPS} from '../theme';
 import {Segment} from '../types';
 import edited from '../data/captions.json';
 
-type Line = {s: number; e: number; text: string};
+export type Line = {s: number; e: number; text: string};
 type W = {s: number; e: number; w: string; segEnd: boolean};
 
 const TARGET = 15, MAX = 24;
@@ -99,10 +99,10 @@ const holdLines = (out: Line[]): Line[] => {
   return out.map((l, i) => ({...l, e: Math.min(Math.max(l.e, (out[i + 1]?.s ?? l.e + 0.6) - 0.02), l.e + 0.6)}));
 };
 
-export const Captions: React.FC<{segments: Segment[]}> = ({segments}) => {
+export const Captions: React.FC<{segments: Segment[]; edited?: Line[]}> = ({segments, edited: ed = edited as Line[]}) => {
   const f = useCurrentFrame();
   // Hand-edited caption lines (rec2/captions_user.txt, timed by scripts/time_captions.py) win when present.
-  const lines = useMemo(() => (edited.length ? holdLines(edited as Line[]) : buildLines(segments)), [segments]);
+  const lines = useMemo(() => (ed.length ? holdLines(ed) : buildLines(segments)), [segments, ed]);
   const t = f / FPS;
   const line = lines.find((l) => t >= l.s && t < l.e);
   if (!line) return null;
