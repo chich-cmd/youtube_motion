@@ -28,3 +28,5 @@ concat.txt
 /ep2/*.wav
 /ep2/*.f32
 __pycache__/
+/output/ep2_parts/
+/output/ep2_preview.mp4

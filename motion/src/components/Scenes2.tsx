@@ -111,18 +111,19 @@ export const PlanScene: React.FC<P<'plan'>> = ({s, len}) => {
 export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
   const f = useCurrentFrame();
   const words = s.text.split(' ');
-  const fs = s.size ?? 52;
+  const fs = s.size ?? (s.text.length > 150 && s.notes?.length ? 42 : 52);
   const marks = s.marks.map((m) => ({...m, p: enter(f, at(s, m.t), 14)}));
   const of = (i: number) => marks.filter((m) =>
     ('from' in m && i >= m.from && i <= m.to) || ('at' in m && m.at === i) || ('after' in m && m.after === i));
   const hasNotes = !!s.notes?.length;
+  const lh = fs <= 44 ? 1.95 : 2.05;
   return (
     <Frame label={s.label} len={len}>
       {s.heading ? <Heading text={s.heading} /> : null}
       <div style={{position: 'absolute', left: 120, right: hasNotes ? 640 : 120, top: s.heading ? 270 : 170, background: C.card,
-        borderRadius: 28, padding: '64px 60px', boxShadow: '0 20px 50px rgba(20,30,50,0.10)', border: `3px solid ${C.line}`,
+        borderRadius: 28, padding: fs <= 44 ? '48px 52px' : '64px 60px', boxShadow: '0 20px 50px rgba(20,30,50,0.10)', border: `3px solid ${C.line}`,
         opacity: enter(f, 2, 18)}}>
-        <div style={{fontSize: fs, lineHeight: 2.05, fontWeight: 500, color: C.ink, letterSpacing: -0.2}}>
+        <div style={{fontSize: fs, lineHeight: lh, fontWeight: 500, color: C.ink, letterSpacing: -0.2}}>
           {words.map((w, i) => {
             const ms = of(i);
             const brOpen = ms.filter((m) => m.kind === 'bracket' && 'from' in m && m.from === i);
