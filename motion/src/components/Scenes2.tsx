@@ -109,6 +109,8 @@ export const PlanScene: React.FC<P<'plan'>> = ({s, len}) => {
   return (
     <Frame label={s.label} len={len}>
       <Heading text={s.heading} />
+      {s.badge ? <div style={{position: 'absolute', right: 120, top: 150, fontSize: 34, fontWeight: 800, color: C.red, background: C.redSoft,
+        border: `3px solid ${C.red}`, borderRadius: 999, padding: '12px 30px', transform: `scale(${pop(f, 10)}) rotate(-2deg)`}}>{s.badge}</div> : null}
       <div style={{position: 'absolute', left: 120, right: 120, top: 270, display: 'flex', flexDirection: 'column', gap: 20}}>
         {s.rows.map((r, i) => {
           const p = pop(f, at(s, r.t));
@@ -119,7 +121,8 @@ export const PlanScene: React.FC<P<'plan'>> = ({s, len}) => {
               <div style={{width: 300, background: r.accent ? C.blue : C.blueSoft, color: r.accent ? '#fff' : C.blue,
                 fontSize: 40, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 10px'}}>{r.when}</div>
               <div style={{flex: 1, padding: '24px 36px'}}>
-                <div style={{fontSize: 44, fontWeight: 700, letterSpacing: -0.8}}>{r.what}</div>
+                <div style={{fontSize: 44, fontWeight: 700, letterSpacing: -0.8, display: 'flex', alignItems: 'center', gap: 16}}>
+                  {r.tag ? <span style={{fontSize: 26, fontWeight: 800, color: C.blue, background: C.blueSoft, borderRadius: 10, padding: '4px 14px'}}>{r.tag}</span> : null}{r.what}</div>
                 {r.sub ? <div style={{fontSize: 30, fontWeight: 500, color: C.sub, marginTop: 6}}>{r.sub}</div> : null}
               </div>
             </div>

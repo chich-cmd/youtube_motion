@@ -15,7 +15,7 @@ export type Scene = {start: number; end: number; chapter?: number} & (
   | {type: 'ratio'; label?: string; heading: string; parts: {t: number; label: string; value: number; color?: string}[]; foot?: {t: number; text: string}}
   | {type: 'wordcard'; label?: string; heading: string; cards: WordCard[]; note?: {t: number; text: string}}
   | {type: 'notice'; label?: string; badge?: string; lines: string[]; accentLine?: number}
-  | {type: 'plan'; label?: string; heading: string; rows: {t: number; when: string; what: string; sub?: string; accent?: boolean}[]}
+  | {type: 'plan'; label?: string; heading: string; badge?: string; rows: {t: number; when: string; what: string; sub?: string; tag?: string; accent?: boolean}[]}
   | {type: 'passage'; label?: string; heading?: string; text: string; size?: number; marks: PassageMark[]; notes?: {t: number; text: string; color?: 'blue' | 'red'}[]}
 );
 

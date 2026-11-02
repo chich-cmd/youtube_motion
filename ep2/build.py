@@ -57,17 +57,22 @@ pieces = [p for p in pieces if p['b'] > p['a']]
 
 holds, inserts = {}, {}
 for j, sc in enumerate(src['scenes']):
-    ins = src['scenes'][j - 1] if j and src['scenes'][j - 1].get('insert') else None   # silent card shown before this scene
-    if sc['type'] != 'section' and not ins: continue
-    k = min(range(1, len(words)), key=lambda i: abs(words[i]['s'] - sc['start']))
-    gs, ge = words[k - 1]['e'], words[k]['s']
-    inside = [(s, e) for s, e in sil if s <= ge and e >= gs]
-    hx = snap((max(gs, inside[0][0]) + min(ge, inside[0][1])) / 2) if inside else snap((gs + ge) / 2)
+    ins = []                                       # silent card(s) shown right before this scene
+    while j - len(ins) - 1 >= 0 and src['scenes'][j - len(ins) - 1].get('insert'): ins.insert(0, src['scenes'][j - len(ins) - 1])
+    if sc.get('insert') or (sc['type'] != 'section' and not ins): continue
+    if sc['start'] <= 0.01: hx = 0.0                # card before the very first scene
+    else:
+        k = min(range(1, len(words)), key=lambda i: abs(words[i]['s'] - sc['start']))
+        gs, ge = words[k - 1]['e'], words[k]['s']
+        inside = [(s, e) for s, e in sil if s <= ge and e >= gs]
+        hx = snap((max(gs, inside[0][0]) + min(ge, inside[0][1])) / 2) if inside else snap((gs + ge) / 2)
     out = []
     for p in pieces:
         if p['kind'] == 'src' and p['a'] < hx < p['b']: out += [{**p, 'b': hx}, {**p, 'a': hx}]
         else: out.append(p)
-    if ins: out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': ins['insert'] * SPEED}); inserts[id(ins)] = hx
+    off = 0.0
+    for c in ins:
+        out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': c['insert'] * SPEED}); inserts[id(c)] = (hx, off); off += c['insert']
     if sc['type'] == 'section': out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': HOLD})
     pieces = sorted(out, key=lambda p: (p['a'], p['kind'] != 'gap'))
     holds[id(sc)] = hx
@@ -100,11 +105,11 @@ scenes = []
 for sc in src['scenes']:
     m = walk(sc)
     if id(sc) in inserts:
-        m['start'] = remap(inserts[id(sc)])
+        m['start'] = round(remap(inserts[id(sc)][0]) + inserts[id(sc)][1], 3)
         for k, r in enumerate(m.get('rows', [])): r['t'] = round(m['start'] + 0.6 + 1.2 * k, 3)
     if id(sc) in holds:
         m['start'] = remap(holds[id(sc)])
-        if scenes and scenes[-1].get('insert'): m['start'] = round(m['start'] + scenes[-1]['insert'], 3)
+        if scenes and scenes[-1].get('insert'): m['start'] = round(scenes[-1]['start'] + scenes[-1]['insert'], 3)
     scenes.append(m)
 for i in range(len(scenes) - 1): scenes[i]['end'] = scenes[i + 1]['start']
 scenes[0]['start'] = 0.0; scenes[-1]['end'] = total
