@@ -422,6 +422,13 @@
      "badge": "Q1",
      "tags": [
       "50% 막힘"
+     ],
+     "hl": [
+      {
+       "t": 305.6,
+       "until": 308.0,
+       "text": "50% 막힘"
+      }
      ]
     },
     {
@@ -430,6 +437,13 @@
      "badge": "Q2",
      "tags": [
       "40% 막힘"
+     ],
+     "hl": [
+      {
+       "t": 306.2,
+       "until": 308.0,
+       "text": "40% 막힘"
+      }
      ]
     },
     {
@@ -526,7 +540,14 @@
      "t": 364.4,
      "text": "전치사 앞에서 끊기",
      "sub": "to, for, with, in, on, at, as … (of는 제외해도 OK)",
-     "badge": "2"
+     "badge": "2",
+     "hl": [
+      {
+       "t": 390.9,
+       "until": 399.5,
+       "text": "(of는 제외해도 OK)"
+      }
+     ]
     },
     {
      "t": 400.4,
@@ -631,6 +652,19 @@
      "kind": "circle",
      "from": 0,
      "to": 3
+    },
+    {
+     "t": 472.2,
+     "kind": "noslash",
+     "after": 0,
+     "markAt": 473.6
+    },
+    {
+     "t": 472.2,
+     "kind": "noslash",
+     "after": 1,
+     "markAt": 473.6,
+     "quiet": true
     }
    ],
    "notes": [
@@ -696,7 +730,8 @@
      "t": 512.0,
      "kind": "label",
      "at": 5,
-     "text": "전치사"
+     "text": "전치사",
+     "until": 577.6
     },
     {
      "t": 515.8,
@@ -713,7 +748,8 @@
      "t": 530.0,
      "kind": "highlight",
      "from": 9,
-     "to": 13
+     "to": 13,
+     "until": 547.5
     },
     {
      "t": 550.0,
@@ -731,13 +767,15 @@
      "t": 557.0,
      "kind": "label",
      "at": 17,
-     "text": "S"
+     "text": "S",
+     "until": 577.6
     },
     {
      "t": 558.2,
      "kind": "label",
      "at": 23,
-     "text": "V"
+     "text": "V",
+     "until": 577.6
     },
     {
      "t": 560.5,
@@ -792,6 +830,123 @@
      "at": 23,
      "text": "5",
      "color": "blue"
+    },
+    {
+     "t": 496.4,
+     "until": 501.0,
+     "kind": "label",
+     "at": 0,
+     "text": "전치사",
+     "color": "blue"
+    },
+    {
+     "t": 502.9,
+     "kind": "noslash",
+     "after": 0,
+     "markAt": 504.6
+    },
+    {
+     "t": 507.1,
+     "until": 510.0,
+     "kind": "highlight",
+     "from": 0,
+     "to": 1
+    },
+    {
+     "t": 521.6,
+     "kind": "underline",
+     "from": 8,
+     "to": 8,
+     "color": "blue"
+    },
+    {
+     "t": 522.7,
+     "until": 528.0,
+     "kind": "label",
+     "at": 8,
+     "text": "명사",
+     "color": "blue"
+    },
+    {
+     "t": 526.6,
+     "kind": "noslash",
+     "after": 9,
+     "markAt": 531.0
+    },
+    {
+     "t": 547.9,
+     "until": 551.5,
+     "kind": "circle",
+     "from": 16,
+     "to": 16
+    },
+    {
+     "t": 554.4,
+     "kind": "underline",
+     "from": 19,
+     "to": 19,
+     "color": "blue"
+    },
+    {
+     "t": 563.4,
+     "kind": "noslash",
+     "after": 23,
+     "markAt": 564.6
+    },
+    {
+     "t": 567.7,
+     "kind": "noslash",
+     "after": 24,
+     "markAt": 569.9
+    },
+    {
+     "t": 585.5,
+     "until": 586.1,
+     "kind": "highlight",
+     "from": 0,
+     "to": 4
+    },
+    {
+     "t": 586.1,
+     "until": 586.9,
+     "kind": "highlight",
+     "from": 5,
+     "to": 8
+    },
+    {
+     "t": 586.94,
+     "until": 587.5,
+     "kind": "highlight",
+     "from": 9,
+     "to": 16
+    },
+    {
+     "t": 587.56,
+     "until": 588.2,
+     "kind": "highlight",
+     "from": 17,
+     "to": 22
+    },
+    {
+     "t": 588.28,
+     "until": 589.3,
+     "kind": "highlight",
+     "from": 23,
+     "to": 32
+    },
+    {
+     "t": 591.0,
+     "until": 595.4,
+     "kind": "highlight",
+     "from": 23,
+     "to": 32
+    },
+    {
+     "t": 592.8,
+     "until": 595.4,
+     "kind": "circle",
+     "from": 25,
+     "to": 25
     }
    ],
    "notes": [
@@ -886,6 +1041,14 @@
      "kind": "highlight",
      "from": 0,
      "to": 4
+    },
+    {
+     "t": 676.7,
+     "until": 679.4,
+     "kind": "underline",
+     "from": 1,
+     "to": 1,
+     "color": "red"
     }
    ],
    "notes": [
@@ -956,6 +1119,22 @@
      "kind": "highlight",
      "from": 11,
      "to": 18
+    },
+    {
+     "t": 748.2,
+     "until": 751.8,
+     "kind": "underline",
+     "from": 9,
+     "to": 9,
+     "color": "blue"
+    },
+    {
+     "t": 750.2,
+     "until": 751.8,
+     "kind": "underline",
+     "from": 11,
+     "to": 11,
+     "color": "red"
     }
    ],
    "notes": [

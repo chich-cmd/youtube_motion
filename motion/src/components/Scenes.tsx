@@ -55,6 +55,16 @@ export const SectionScene: React.FC<P<'section'>> = ({s, len}) => {
   );
 };
 
+/** Wrap substrings of `str` that the item's hl list names in an animated marker. */
+const withHl = (str: string, hl: {t: number; until?: number; text: string}[] | undefined, f: number, s: Scene): React.ReactNode => {
+  const h = hl?.find((x) => str.includes(x.text));
+  if (!h) return str;
+  const p = enter(f, at(s, h.t), 12) * (h.until === undefined ? 1 : 1 - enter(f, at(s, h.until), 10));
+  const i = str.indexOf(h.text);
+  const rest = hl!.filter((x) => x !== h);
+  return <>{withHl(str.slice(0, i), rest, f, s)}<Marker p={p}>{h.text}</Marker>{withHl(str.slice(i + h.text.length), rest, f, s)}</>;
+};
+
 export const ListScene: React.FC<P<'list'>> = ({s, len}) => {
   const f = useCurrentFrame();
   const two = s.columns === 2;
@@ -79,12 +89,17 @@ export const ListScene: React.FC<P<'list'>> = ({s, len}) => {
                 color: hl ? '#fff' : C.blue, display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: (it.badge ?? '').length > 3 ? 26 : 34, fontWeight: 800, padding: '0 14px'}}>{it.badge ?? i + 1}</div>
               <div style={{flex: 1}}>
-                <div style={{fontSize: 46, fontWeight: 700, letterSpacing: -1}}>{it.text}</div>
-                {it.sub ? <div style={{fontSize: 30, fontWeight: 500, color: C.sub, marginTop: 6}}>{it.sub}</div> : null}
+                <div style={{fontSize: 46, fontWeight: 700, letterSpacing: -1}}>{withHl(it.text, it.hl, f, s)}</div>
+                {it.sub ? <div style={{fontSize: 30, fontWeight: 500, color: C.sub, marginTop: 6}}>{withHl(it.sub, it.hl, f, s)}</div> : null}
               </div>
-              {it.tags?.map((t) => (
-                <div key={t} style={{fontSize: 28, fontWeight: 700, color: C.red, background: C.redSoft, padding: '10px 20px', borderRadius: 999}}>{t}</div>
-              ))}
+              {it.tags?.map((t) => {
+                const h = it.hl?.find((x) => x.text === t);
+                const q = h ? enter(f, at(s, h.t), 10) * (h.until === undefined ? 1 : 1 - enter(f, at(s, h.until), 10)) : 0;
+                return (
+                  <div key={t} style={{fontSize: 28, fontWeight: 700, color: q > 0.5 ? '#fff' : C.red, background: q > 0.5 ? C.red : C.redSoft,
+                    padding: '10px 20px', borderRadius: 999, transform: `scale(${1 + 0.15 * q})`, boxShadow: `0 0 0 ${6 * q}px rgba(229,72,77,0.25)`}}>{t}</div>
+                );
+              })}
             </div>
           );
         })}

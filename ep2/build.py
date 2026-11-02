@@ -89,7 +89,7 @@ remap = lambda x: round(_remap(x) / SPEED, 3)
 total = round(sum(p['dur'] for p in pieces) / SPEED, 3)
 
 # 3. remap scenes / transcript
-TK = {'start', 'end', 't', 'subAt', 'markAt', 'revealAt'}
+TK = {'start', 'end', 't', 'subAt', 'markAt', 'revealAt', 'until'}
 def walk(o):
     if isinstance(o, dict): return {k: (remap(v) if k in TK and isinstance(v, (int, float)) else walk(v)) for k, v in o.items()}
     if isinstance(o, list): return [walk(v) for v in o]
@@ -105,6 +105,7 @@ for s in scenes:                                   # keep card times inside thei
     for key in ('items', 'notes', 'days', 'parts', 'cards', 'rows', 'marks'):
         for it in s.get(key, []):
             if isinstance(it, dict): it['t'] = min(max(it['t'], s['start'] + 0.2), s['end'] - 0.3)
+            if isinstance(it, dict) and 'until' in it: it['until'] = min(it['until'], s['end'] - 0.1)
 chapters = [{'title': c['title'], 'start': next(s['start'] for s in scenes if s['type'] == 'section' and c['title'].startswith(s['index']))}
             for c in src['chapters']]
 json.dump({'scenes': scenes, 'chapters': chapters, 'total': total}, open('motion/src/ep2/scenes_cut.json', 'w'), ensure_ascii=False, indent=1)

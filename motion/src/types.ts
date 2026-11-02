@@ -1,6 +1,7 @@
 export type Mark = {text: string; color?: 'blue' | 'red' | 'yellow'};
 
-export type ListItem = {t: number; text: string; sub?: string; badge?: string; tags?: string[]; accent?: boolean};
+export type ListItem = {t: number; text: string; sub?: string; badge?: string; tags?: string[]; accent?: boolean;
+  hl?: {t: number; until?: number; text: string}[]};  // marker sweeps over substrings of text / sub / tags
 
 export type Scene = {start: number; end: number; chapter?: number} & (
   | {type: 'title'; kicker: string; title: string; sub?: string; subAt?: number}
@@ -20,9 +21,9 @@ export type Scene = {start: number; end: number; chapter?: number} & (
 export type WordCard = {t: number; en: string; ko: string; revealAt?: number; mark?: 'check' | 'q'; markAt?: number};
 
 /** Annotation on the passage. Word indexes refer to text.split(' '). */
-export type PassageMark = {t: number} & (
+export type PassageMark = {t: number; until?: number} & (  // until: fade the mark out again
   | {kind: 'slash'; after: number; markAt?: number}                                // red "/" after word i
-  | {kind: 'noslash'; after: number; markAt: number}                // grey "/" after word i, crossed out at markAt
+  | {kind: 'noslash'; after: number; markAt: number; quiet?: boolean}                // grey "/" after word i, crossed out at markAt
   | {kind: 'underline' | 'highlight' | 'circle' | 'strike'; from: number; to: number; color?: 'red' | 'blue' | 'yellow'}
   | {kind: 'label'; at: number; text: string; color?: 'red' | 'blue'}  // small tag above a word (S, V, 전치사…)
   | {kind: 'bracket'; from: number; to: number; text?: string}     // ( … ) around a clause, optional tag

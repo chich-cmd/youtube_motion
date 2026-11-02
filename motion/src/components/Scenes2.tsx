@@ -112,7 +112,7 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
   const f = useCurrentFrame();
   const words = s.text.split(' ');
   const fs = s.size ?? (s.text.length > 150 && s.notes?.length ? 42 : 52);
-  const marks = s.marks.map((m) => ({...m, p: enter(f, at(s, m.t), 14)}));
+  const marks = s.marks.map((m) => ({...m, p: enter(f, at(s, m.t), 14) * (m.until === undefined ? 1 : 1 - enter(f, at(s, m.until), 10))}));
   const of = (i: number) => marks.filter((m) =>
     ('from' in m && i >= m.from && i <= m.to) || ('at' in m && m.at === i) || ('after' in m && m.after === i));
   const hasNotes = !!s.notes?.length;
@@ -168,7 +168,7 @@ export const PassageScene: React.FC<P<'passage'>> = ({s, len}) => {
                         transform: `scale(${m.p}) rotate(8deg)`}}>/</span>
                       <span style={{position: 'absolute', left: '50%', top: '50%', transform: `translate(-50%,-50%) scale(${x})`, opacity: x,
                         color: C.red, fontWeight: 900, fontSize: fs * 1.25, lineHeight: 1}}>✕</span>
-                      <Tag text="끊지 않음" p={x} color={C.red} below />
+                      {(m as {quiet?: boolean}).quiet ? null : <Tag text="끊지 않음" p={x * (1 - enter(f, at(s, (m as {markAt: number}).markAt + 3), 10))} color={C.red} below />}
                     </span>
                   );
                 })}{' '}
