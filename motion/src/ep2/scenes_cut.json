@@ -47,32 +47,45 @@
    "markAt": 32.111
   },
   {
-   "type": "section",
+   "type": "notice",
    "start": 38.63,
-   "end": 42.667,
+   "end": 47.63,
+   "insert": 9.0,
+   "badge": "안내",
+   "lines": [
+    "이 영상은 재업로드용이라 한 달 버전이기 때문에",
+    "더 짧은 압축 루틴은 영상 마지막 부분에 삽입했습니다.",
+    "일단 공부법 설명을 듣고, 해당 공부법대로 압축 루틴으로 공부해보세요."
+   ],
+   "accentLine": 2
+  },
+  {
+   "type": "section",
+   "start": 47.63,
+   "end": 51.667,
    "index": "01",
    "title": "단어",
    "sub": "매일 책 읽듯이"
   },
   {
    "type": "list",
-   "start": 42.667,
-   "end": 65.0,
+   "start": 51.667,
+   "end": 74.0,
    "heading": "단어장 고르는 법",
    "items": [
     {
-     "t": 47.222,
+     "t": 56.222,
      "text": "서점에서 마음에 드는 단어장 고르기",
      "badge": "1"
     },
     {
-     "t": 50.0,
+     "t": 59.0,
      "text": "중간을 펼쳐서 모르는 단어 3개 이상",
      "sub": "→ 그 단어장 선택",
      "badge": "2"
     },
     {
-     "t": 56.222,
+     "t": 65.222,
      "text": "구매가 어렵다면: 워드마스터",
      "sub": "고등 · 4등급 이상은 수능",
      "badge": "★",
@@ -82,17 +95,17 @@
   },
   {
    "type": "list",
-   "start": 65.0,
-   "end": 78.37,
+   "start": 74.0,
+   "end": 87.37,
    "heading": "원래 베스트는 예문 반복 읽기",
    "items": [
     {
-     "t": 70.37,
+     "t": 79.37,
      "text": "노베이스는 예문 해석이 어려울 수 있음",
      "badge": "!"
     },
     {
-     "t": 74.037,
+     "t": 83.037,
      "text": "단어에 익숙해지는 게 더 중요",
      "sub": "그래서 다른 방법을 씁니다",
      "badge": "→",
@@ -102,18 +115,18 @@
   },
   {
    "type": "compare",
-   "start": 78.37,
-   "end": 102.37,
+   "start": 87.37,
+   "end": 111.37,
    "heading": "매일 단어를 책 읽듯이 읽기",
    "left": {
-    "t": 89.592,
+    "t": 98.592,
     "title": "하루 50개 완벽 암기",
     "items": [
      "누적 복습 안 하면 다 날아감"
     ]
    },
    "right": {
-    "t": 80.703,
+    "t": 89.703,
     "title": "매일 단어장 통으로 읽기",
     "items": [
      "자연스러운 누적 복습",
@@ -124,19 +137,19 @@
   },
   {
    "type": "plan",
-   "start": 102.37,
-   "end": 136.926,
+   "start": 111.37,
+   "end": 145.926,
    "label": "단어",
    "heading": "1주차 1일 (첫날)",
    "rows": [
     {
-     "t": 106.481,
+     "t": 115.481,
      "when": "아침",
      "what": "1–2000번 뜻 가리고 분류",
      "sub": "2초 안에 뜻이 떠오르면 지우기 · 첫날은 약 2시간"
     },
     {
-     "t": 120.0,
+     "t": 129.0,
      "when": "밤",
      "what": "공부 끝나기 20분 전, 남은 단어 읽기",
      "sub": "영단어 → 발음 → 뜻",
@@ -146,52 +159,52 @@
   },
   {
    "type": "wordcard",
-   "start": 136.926,
-   "end": 149.481,
+   "start": 145.926,
+   "end": 158.481,
    "label": "단어",
    "heading": "예시: 뜻을 가리고 2초",
    "cards": [
     {
-     "t": 137.259,
+     "t": 146.259,
      "en": "exact",
      "ko": "정확한",
-     "revealAt": 141.259,
+     "revealAt": 150.259,
      "mark": "check",
-     "markAt": 143.481
+     "markAt": 152.481
     },
     {
-     "t": 144.814,
+     "t": 153.814,
      "en": "elaborate",
      "ko": "정교한",
      "mark": "q",
-     "markAt": 146.481
+     "markAt": 155.481
     }
    ],
    "note": {
-    "t": 147.037,
+    "t": 156.037,
     "text": "안 떠오르면 그냥 넘어가기"
    }
   },
   {
    "type": "list",
-   "start": 149.481,
-   "end": 180.259,
+   "start": 158.481,
+   "end": 189.259,
    "label": "단어",
    "heading": "읽는 순서: 생김새 → 발음 → 뜻",
    "items": [
     {
-     "t": 149.68099999999998,
+     "t": 158.68099999999998,
      "text": "단어의 생김새를 눈에 박기",
      "sub": "대문자 · 소문자만 달라도 인식 속도가 달라져요",
      "badge": "1"
     },
     {
-     "t": 165.037,
+     "t": 174.037,
      "text": "속으로 발음해 보기",
      "badge": "2"
     },
     {
-     "t": 168.592,
+     "t": 177.592,
      "text": "뜻은 뇌에 집어넣듯 강조",
      "sub": "exact, '정확한' — 그래, 얜 정확한 거야",
      "badge": "3",
@@ -201,24 +214,24 @@
   },
   {
    "type": "plan",
-   "start": 180.259,
-   "end": 205.481,
+   "start": 189.259,
+   "end": 214.481,
    "label": "단어",
    "heading": "1주차 2–7일",
    "rows": [
     {
-     "t": 184.926,
+     "t": 193.926,
      "when": "아침",
      "what": "공부 시작할 때: 영단어 → 발음 → 뜻",
      "sub": "지운 단어는 빼고 읽기"
     },
     {
-     "t": 195.703,
+     "t": 204.703,
      "when": "밤",
      "what": "끝나기 20–30분 전: 똑같이 한 번 더"
     },
     {
-     "t": 204.148,
+     "t": 213.148,
      "when": "하루 2번",
      "what": "일주일 반복",
      "accent": true
@@ -227,8 +240,8 @@
   },
   {
    "type": "stat",
-   "start": 205.481,
-   "end": 216.926,
+   "start": 214.481,
+   "end": 225.926,
    "label": "단어",
    "value": "80",
    "unit": "%",
@@ -237,25 +250,25 @@
   },
   {
    "type": "plan",
-   "start": 216.926,
-   "end": 239.186,
+   "start": 225.926,
+   "end": 248.186,
    "label": "단어",
    "heading": "2주차",
    "rows": [
     {
-     "t": 217.12599999999998,
+     "t": 226.12599999999998,
      "when": "1일",
      "what": "남은 단어만 뜻 가리고 읽기",
      "sub": "2초 안에 떠오르면 또 지우기"
     },
     {
-     "t": 233.592,
+     "t": 242.592,
      "when": "왜?",
      "what": "외워진 단어를 지워 공부 시간 단축",
      "accent": true
     },
     {
-     "t": 235.592,
+     "t": 244.592,
      "when": "2–7일",
      "what": "1주차와 똑같이 반복"
     }
@@ -263,25 +276,25 @@
   },
   {
    "type": "plan",
-   "start": 239.186,
-   "end": 263.63,
+   "start": 248.186,
+   "end": 272.63,
    "label": "단어",
    "heading": "3주차 1일은 특별해요",
    "rows": [
     {
-     "t": 241.186,
+     "t": 250.186,
      "when": "1일",
      "what": "1–2000번 전부 다시 읽기",
      "sub": "지운 단어도 포함 — 누적 복습",
      "accent": true
     },
     {
-     "t": 254.074,
+     "t": 263.074,
      "when": "판정",
      "what": "안 떠오르면 다시 암기 목록, 떠오르면 지우기"
     },
     {
-     "t": 261.074,
+     "t": 270.074,
      "when": "2–7일",
      "what": "전주와 똑같이"
     }
@@ -289,28 +302,28 @@
   },
   {
    "type": "plan",
-   "start": 263.63,
-   "end": 271.074,
+   "start": 272.63,
+   "end": 280.074,
    "label": "단어",
    "heading": "한 달 루틴 정리",
    "rows": [
     {
-     "t": 263.83,
+     "t": 272.83,
      "when": "1주차",
      "what": "분류 + 하루 2번 읽기"
     },
     {
-     "t": 264.074,
+     "t": 273.074,
      "when": "2주차",
      "what": "남은 단어 재분류"
     },
     {
-     "t": 264.408,
+     "t": 273.408,
      "when": "3주차",
      "what": "전체 다시 (복습)"
     },
     {
-     "t": 265.297,
+     "t": 274.297,
      "when": "4주차",
      "what": "2주차와 똑같이",
      "accent": true
@@ -319,8 +332,8 @@
   },
   {
    "type": "stat",
-   "start": 271.074,
-   "end": 280.926,
+   "start": 280.074,
+   "end": 289.926,
    "label": "단어",
    "value": "5–10",
    "unit": "분",
@@ -328,8 +341,8 @@
   },
   {
    "type": "quote",
-   "start": 280.926,
-   "end": 292.481,
+   "start": 289.926,
+   "end": 301.481,
    "label": "단어",
    "lines": [
     "단어장은 노베이스일 때만",
@@ -338,46 +351,46 @@
    "marks": [
     "노베이스일 때만"
    ],
-   "markAt": 286.037
+   "markAt": 295.037
   },
   {
    "type": "section",
-   "start": 292.481,
-   "end": 302.148,
+   "start": 301.481,
+   "end": 311.148,
    "index": "02",
    "title": "문법",
    "sub": "첫 일주일은 문법만"
   },
   {
    "type": "list",
-   "start": 302.148,
-   "end": 323.481,
+   "start": 311.148,
+   "end": 332.481,
    "label": "문법",
    "heading": "문법은 해석을 잘하려고 배운다",
    "columns": 2,
    "items": [
     {
-     "t": 306.037,
+     "t": 315.037,
      "text": "품사",
      "badge": "1"
     },
     {
-     "t": 306.659,
+     "t": 315.659,
      "text": "구",
      "badge": "2"
     },
     {
-     "t": 307.126,
+     "t": 316.126,
      "text": "절",
      "badge": "3"
     },
     {
-     "t": 307.503,
+     "t": 316.503,
      "text": "형식",
      "badge": "4"
     },
     {
-     "t": 318.814,
+     "t": 327.814,
      "text": "이름만 아는 건 개념이 아니에요",
      "badge": "!",
      "accent": true
@@ -386,13 +399,13 @@
   },
   {
    "type": "list",
-   "start": 323.481,
-   "end": 348.667,
+   "start": 332.481,
+   "end": 357.667,
    "label": "문법",
    "heading": "셀프 테스트",
    "items": [
     {
-     "t": 325.814,
+     "t": 334.814,
      "text": "to부정사 용법이 뭐가 있죠?",
      "badge": "Q1",
      "tags": [
@@ -400,14 +413,14 @@
      ],
      "hl": [
       {
-       "t": 338.814,
-       "until": 341.481,
+       "t": 347.814,
+       "until": 350.481,
        "text": "50% 막힘"
       }
      ]
     },
     {
-     "t": 334.814,
+     "t": 343.814,
      "text": "명사 · 형용사 · 부사적 용법, 어떻게 구별해?",
      "badge": "Q2",
      "tags": [
@@ -415,14 +428,14 @@
      ],
      "hl": [
       {
-       "t": 339.481,
-       "until": 341.481,
+       "t": 348.481,
+       "until": 350.481,
        "text": "40% 막힘"
       }
      ]
     },
     {
-     "t": 343.481,
+     "t": 352.481,
      "text": "하나라도 막혔다면 → 문법 공부 필수",
      "badge": "!",
      "accent": true
@@ -431,24 +444,24 @@
   },
   {
    "type": "list",
-   "start": 348.667,
-   "end": 366.444,
+   "start": 357.667,
+   "end": 375.444,
    "label": "문법",
    "heading": "추천: EBS 정승익 쌤 영문법",
    "items": [
     {
-     "t": 355.556,
+     "t": 364.556,
      "text": "무료",
      "sub": "EBS니까",
      "badge": "1"
     },
     {
-     "t": 357.0,
+     "t": 366.0,
      "text": "15강으로 짧아요",
      "badge": "2"
     },
     {
-     "t": 361.0,
+     "t": 370.0,
      "text": "기초 영문법 위주",
      "sub": "구문책 문법 용어를 다 알아듣게 돼요",
      "badge": "3",
@@ -458,18 +471,18 @@
   },
   {
    "type": "plan",
-   "start": 366.444,
-   "end": 371.037,
+   "start": 375.444,
+   "end": 380.037,
    "label": "문법",
    "heading": "주차별 병행",
    "rows": [
     {
-     "t": 366.644,
+     "t": 375.644,
      "when": "1주차",
      "what": "단어 + 문법"
     },
     {
-     "t": 368.0,
+     "t": 377.0,
      "when": "2주차~",
      "what": "단어 + 해석",
      "accent": true
@@ -478,16 +491,16 @@
   },
   {
    "type": "section",
-   "start": 371.037,
-   "end": 377.889,
+   "start": 380.037,
+   "end": 386.889,
    "index": "03",
    "title": "해석",
    "sub": "1순위 목표 = 문장 나누기"
   },
   {
    "type": "quote",
-   "start": 377.889,
-   "end": 387.778,
+   "start": 386.889,
+   "end": 396.778,
    "label": "해석",
    "lines": [
     "해석이 어려운 건 문장이 길어서",
@@ -496,36 +509,36 @@
    "marks": [
     "쉬운 덩어리"
    ],
-   "markAt": 385.0
+   "markAt": 394.0
   },
   {
    "type": "list",
-   "start": 387.778,
-   "end": 455.148,
+   "start": 396.778,
+   "end": 464.148,
    "label": "해석",
    "heading": "문장 나누는 기준",
    "items": [
     {
-     "t": 389.889,
+     "t": 398.889,
      "text": "주어 S · 동사 V 표시",
      "sub": "주어가 길면 동사 앞에서도 /",
      "badge": "1"
     },
     {
-     "t": 405.556,
+     "t": 414.556,
      "text": "전치사 앞에서 끊기",
      "sub": "to, for, with, in, on, at, as … (of는 제외해도 OK)",
      "badge": "2",
      "hl": [
       {
-       "t": 435.0,
-       "until": 443.926,
+       "t": 444.0,
+       "until": 452.926,
        "text": "(of는 제외해도 OK)"
       }
      ]
     },
     {
-     "t": 444.926,
+     "t": 453.926,
      "text": "명사 뒤 준동사 앞에서 끊기",
      "sub": "to부정사 · ing(현재분사) · p.p.(과거분사)",
      "badge": "3",
@@ -535,57 +548,57 @@
   },
   {
    "type": "passage",
-   "start": 455.148,
-   "end": 469.481,
+   "start": 464.148,
+   "end": 478.481,
    "label": "해석",
    "heading": "p.p. + 전치사는 세트",
    "size": 60,
    "text": "an abusive measure targeted at small business owners",
    "marks": [
     {
-     "t": 457.926,
+     "t": 466.926,
      "kind": "underline",
      "from": 3,
      "to": 3,
      "color": "blue"
     },
     {
-     "t": 459.37,
+     "t": 468.37,
      "kind": "label",
      "at": 4,
      "text": "전치사",
      "color": "blue"
     },
     {
-     "t": 464.592,
+     "t": 473.592,
      "kind": "slash",
      "after": 2,
-     "markAt": 468.481
+     "markAt": 477.481
     },
     {
-     "t": 465.259,
+     "t": 474.259,
      "kind": "highlight",
      "from": 3,
      "to": 7
     },
     {
-     "t": 462.148,
+     "t": 471.148,
      "kind": "noslash",
      "after": 3,
-     "markAt": 466.148
+     "markAt": 475.148
     }
    ],
    "notes": [
     {
-     "t": 457.926,
+     "t": 466.926,
      "text": "과거분사 = 동사 + ed"
     },
     {
-     "t": 464.592,
+     "t": 473.592,
      "text": "명사 뒤 p.p. 앞에서 끊기"
     },
     {
-     "t": 466.148,
+     "t": 475.148,
      "text": "p.p.와 전치사 사이는 끊지 않기",
      "color": "red"
     }
@@ -593,19 +606,19 @@
   },
   {
    "type": "list",
-   "start": 469.481,
-   "end": 509.333,
+   "start": 478.481,
+   "end": 518.333,
    "label": "해석",
    "heading": "문장 나누는 기준 (계속)",
    "items": [
     {
-     "t": 469.681,
+     "t": 478.681,
      "text": "접속사절은 괄호 ( )",
      "sub": "that / which + 주어 + 동사 = 문장 속 문장",
      "badge": "4"
     },
     {
-     "t": 493.814,
+     "t": 502.814,
      "text": "문장 부호에서 분리",
      "sub": "콜론 : · 세미콜론 ; · 콤마 , · 하이픈 - → '즉'",
      "badge": "5",
@@ -615,40 +628,40 @@
   },
   {
    "type": "passage",
-   "start": 509.333,
-   "end": 527.926,
+   "start": 518.333,
+   "end": 536.926,
    "label": "해석",
    "heading": "단, 나열형은 끊지 않기",
    "size": 80,
    "text": "A, B, C and D",
    "marks": [
     {
-     "t": 519.0,
+     "t": 528.0,
      "kind": "circle",
      "from": 0,
      "to": 3
     },
     {
-     "t": 523.556,
+     "t": 532.556,
      "kind": "noslash",
      "after": 0,
-     "markAt": 524.852
+     "markAt": 533.852
     },
     {
-     "t": 523.556,
+     "t": 532.556,
      "kind": "noslash",
      "after": 1,
-     "markAt": 524.852,
+     "markAt": 533.852,
      "quiet": true
     }
    ],
    "notes": [
     {
-     "t": 521.222,
+     "t": 530.222,
      "text": "A, B, C 그리고 D = 세트 단어"
     },
     {
-     "t": 525.408,
+     "t": 534.408,
      "text": "한 번에 해석 → 끊지 않기",
      "color": "red"
     }
@@ -656,19 +669,19 @@
   },
   {
    "type": "passage",
-   "start": 527.926,
-   "end": 546.333,
+   "start": 536.926,
+   "end": 555.333,
    "label": "해석",
    "heading": "먼저 직접 끊어보세요",
    "text": "Despite framing the estate tax as an abusive measure targeted at small business owners and family farms, proponents of terminating the estate tax are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [],
    "notes": [
     {
-     "t": 540.667,
+     "t": 549.667,
      "text": "일시정지 → 캡처 → 스스로 끊기"
     },
     {
-     "t": 544.556,
+     "t": 553.556,
      "text": "다 끊었으면 다시 재생",
      "color": "red"
     }
@@ -676,249 +689,249 @@
   },
   {
    "type": "passage",
-   "start": 546.333,
-   "end": 656.297,
+   "start": 555.333,
+   "end": 665.297,
    "label": "해석",
    "heading": "문장 나누기 시연",
    "text": "Despite framing the estate tax as an abusive measure targeted at small business owners and family farms, proponents of terminating the estate tax are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [
     {
-     "t": 548.444,
+     "t": 557.444,
      "kind": "circle",
      "from": 0,
      "to": 0,
      "color": "blue"
     },
     {
-     "t": 555.556,
+     "t": 564.556,
      "kind": "underline",
      "from": 1,
      "to": 1,
      "color": "blue"
     },
     {
-     "t": 566.111,
+     "t": 575.111,
      "kind": "slash",
      "after": 4
     },
     {
-     "t": 566.444,
+     "t": 575.444,
      "kind": "label",
      "at": 5,
      "text": "전치사",
-     "until": 636.37
+     "until": 645.37
     },
     {
-     "t": 570.667,
+     "t": 579.667,
      "kind": "underline",
      "from": 9,
      "to": 9
     },
     {
-     "t": 578.778,
+     "t": 587.778,
      "kind": "slash",
      "after": 8
     },
     {
-     "t": 585.444,
+     "t": 594.444,
      "kind": "highlight",
      "from": 9,
      "to": 13,
-     "until": 604.889
+     "until": 613.889
     },
     {
-     "t": 607.667,
+     "t": 616.667,
      "kind": "slash",
      "after": 16
     },
     {
-     "t": 610.814,
+     "t": 619.814,
      "kind": "underline",
      "from": 18,
      "to": 18,
      "color": "blue"
     },
     {
-     "t": 614.926,
+     "t": 623.926,
      "kind": "label",
      "at": 17,
      "text": "S",
-     "until": 636.37
+     "until": 645.37
     },
     {
-     "t": 616.259,
+     "t": 625.259,
      "kind": "label",
      "at": 23,
      "text": "V",
-     "until": 636.37
+     "until": 645.37
     },
     {
-     "t": 618.481,
+     "t": 627.481,
      "kind": "slash",
      "after": 22
     },
     {
-     "t": 621.222,
+     "t": 630.222,
      "kind": "underline",
      "from": 24,
      "to": 24,
      "color": "blue"
     },
     {
-     "t": 626.0,
+     "t": 635.0,
      "kind": "underline",
      "from": 25,
      "to": 25,
      "color": "blue"
     },
     {
-     "t": 637.037,
+     "t": 646.037,
      "kind": "label",
      "at": 0,
      "text": "1",
      "color": "blue"
     },
     {
-     "t": 637.259,
+     "t": 646.259,
      "kind": "label",
      "at": 5,
      "text": "2",
      "color": "blue"
     },
     {
-     "t": 638.37,
+     "t": 647.37,
      "kind": "label",
      "at": 9,
      "text": "3",
      "color": "blue"
     },
     {
-     "t": 638.926,
+     "t": 647.926,
      "kind": "label",
      "at": 17,
      "text": "4",
      "color": "blue"
     },
     {
-     "t": 639.408,
+     "t": 648.408,
      "kind": "label",
      "at": 23,
      "text": "5",
      "color": "blue"
     },
     {
-     "t": 549.111,
-     "until": 554.222,
+     "t": 558.111,
+     "until": 563.222,
      "kind": "label",
      "at": 0,
      "text": "전치사",
      "color": "blue"
     },
     {
-     "t": 556.333,
+     "t": 565.333,
      "kind": "noslash",
      "after": 0,
-     "markAt": 558.222
+     "markAt": 567.222
     },
     {
-     "t": 561.0,
-     "until": 564.222,
+     "t": 570.0,
+     "until": 573.222,
      "kind": "highlight",
      "from": 0,
      "to": 1
     },
     {
-     "t": 576.444,
+     "t": 585.444,
      "kind": "underline",
      "from": 8,
      "to": 8,
      "color": "blue"
     },
     {
-     "t": 577.667,
-     "until": 583.556,
+     "t": 586.667,
+     "until": 592.556,
      "kind": "label",
      "at": 8,
      "text": "명사",
      "color": "blue"
     },
     {
-     "t": 582.0,
+     "t": 591.0,
      "kind": "noslash",
      "after": 9,
-     "markAt": 586.556
+     "markAt": 595.556
     },
     {
-     "t": 605.333,
-     "until": 609.074,
+     "t": 614.333,
+     "until": 618.074,
      "kind": "circle",
      "from": 16,
      "to": 16
     },
     {
-     "t": 612.037,
+     "t": 621.037,
      "kind": "underline",
      "from": 19,
      "to": 19,
      "color": "blue"
     },
     {
-     "t": 621.333,
+     "t": 630.333,
      "kind": "noslash",
      "after": 23,
-     "markAt": 622.667
+     "markAt": 631.667
     },
     {
-     "t": 626.111,
+     "t": 635.111,
      "kind": "noslash",
      "after": 24,
-     "markAt": 628.556
+     "markAt": 637.556
     },
     {
-     "t": 642.741,
-     "until": 643.408,
+     "t": 651.741,
+     "until": 652.408,
      "kind": "highlight",
      "from": 0,
      "to": 4
     },
     {
-     "t": 643.408,
-     "until": 644.297,
+     "t": 652.408,
+     "until": 653.297,
      "kind": "highlight",
      "from": 5,
      "to": 8
     },
     {
-     "t": 644.341,
-     "until": 644.963,
+     "t": 653.341,
+     "until": 653.963,
      "kind": "highlight",
      "from": 9,
      "to": 16
     },
     {
-     "t": 645.03,
-     "until": 645.741,
+     "t": 654.03,
+     "until": 654.741,
      "kind": "highlight",
      "from": 17,
      "to": 22
     },
     {
-     "t": 645.83,
-     "until": 646.963,
+     "t": 654.83,
+     "until": 655.963,
      "kind": "highlight",
      "from": 23,
      "to": 32
     },
     {
-     "t": 648.852,
-     "until": 653.408,
+     "t": 657.852,
+     "until": 662.408,
      "kind": "highlight",
      "from": 23,
      "to": 32
     },
     {
-     "t": 650.852,
-     "until": 653.408,
+     "t": 659.852,
+     "until": 662.408,
      "kind": "circle",
      "from": 25,
      "to": 25
@@ -926,31 +939,31 @@
    ],
    "notes": [
     {
-     "t": 552.222,
+     "t": 561.222,
      "text": "문장 맨 앞 전치사는 안 끊어도 OK"
     },
     {
-     "t": 561.0,
+     "t": 570.0,
      "text": "framing: 전치사 뒤 ing → 안 끊기"
     },
     {
-     "t": 566.111,
+     "t": 575.111,
      "text": "as = 전치사 → 앞에서 /"
     },
     {
-     "t": 577.667,
+     "t": 586.667,
      "text": "measure(명사) 뒤 p.p. → /"
     },
     {
-     "t": 605.333,
+     "t": 614.333,
      "text": "콤마(문장 부호) → /"
     },
     {
-     "t": 617.37,
+     "t": 626.37,
      "text": "주어가 길어서 동사 앞 /"
     },
     {
-     "t": 639.741,
+     "t": 648.741,
      "text": "5개의 덩어리로 나눠 해석",
      "color": "red"
     }
@@ -958,29 +971,29 @@
   },
   {
    "type": "list",
-   "start": 656.297,
-   "end": 680.481,
+   "start": 665.297,
+   "end": 689.481,
    "label": "해석",
    "heading": "해석 패턴을 의식하기",
    "items": [
     {
-     "t": 667.703,
+     "t": 676.703,
      "text": "전치사 + ing",
      "sub": "어떻게 해석할까?",
      "badge": "1"
     },
     {
-     "t": 670.703,
+     "t": 679.703,
      "text": "명사 + 접속사절",
      "badge": "2"
     },
     {
-     "t": 673.148,
+     "t": 682.148,
      "text": "명사 + p.p.(과거분사)",
      "badge": "3"
     },
     {
-     "t": 675.481,
+     "t": 684.481,
      "text": "의식하면 해석의 틀이 빠르게 잡혀요",
      "badge": "→",
      "accent": true
@@ -989,8 +1002,8 @@
   },
   {
    "type": "quote",
-   "start": 680.481,
-   "end": 709.889,
+   "start": 689.481,
+   "end": 718.889,
    "label": "해석",
    "lines": [
     "나오는 패턴은 계속 나온다",
@@ -1001,25 +1014,25 @@
     "2주",
     "패턴 단권화 노트"
    ],
-   "markAt": 682.037
+   "markAt": 691.037
   },
   {
    "type": "passage",
-   "start": 709.889,
-   "end": 757.814,
+   "start": 718.889,
+   "end": 766.814,
    "label": "해석",
    "heading": "덩어리 1",
    "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [
     {
-     "t": 713.556,
+     "t": 722.556,
      "kind": "highlight",
      "from": 0,
      "to": 4
     },
     {
-     "t": 739.889,
-     "until": 742.592,
+     "t": 748.889,
+     "until": 751.592,
      "kind": "underline",
      "from": 1,
      "to": 1,
@@ -1028,19 +1041,19 @@
    ],
    "notes": [
     {
-     "t": 719.186,
+     "t": 728.186,
      "text": "덩어리 마지막 단어에서 앞으로"
     },
     {
-     "t": 724.333,
+     "t": 733.333,
      "text": "패턴: 전치사 + ing → ~하는 것 + 전치사"
     },
     {
-     "t": 735.852,
+     "t": 744.852,
      "text": "Despite ~에도 불구하고 · frame 규정짓다 · estate tax 재산세"
     },
     {
-     "t": 749.186,
+     "t": 758.186,
      "text": "재산세를 규정 지음에도 불구하고",
      "color": "red"
     }
@@ -1048,14 +1061,14 @@
   },
   {
    "type": "passage",
-   "start": 757.814,
-   "end": 803.703,
+   "start": 766.814,
+   "end": 812.703,
    "label": "해석",
    "heading": "덩어리 2",
    "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [
     {
-     "t": 758.014,
+     "t": 767.014,
      "kind": "highlight",
      "from": 6,
      "to": 9
@@ -1063,49 +1076,49 @@
    ],
    "notes": [
     {
-     "t": 759.703,
+     "t": 768.703,
      "text": "앞 덩어리와 의미를 계속 연결"
     },
     {
-     "t": 773.592,
+     "t": 782.592,
      "text": "as ~로서 · abusive measure 남용적인 조치"
     },
     {
-     "t": 782.037,
+     "t": 791.037,
      "text": "남용적인 조치로서",
      "color": "red"
     },
     {
-     "t": 789.926,
+     "t": 798.926,
      "text": "→ 재산세가 안 좋은 거구나!"
     }
    ]
   },
   {
    "type": "passage",
-   "start": 803.703,
-   "end": 843.592,
+   "start": 812.703,
+   "end": 852.592,
    "label": "해석",
    "heading": "덩어리 3",
    "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [
     {
-     "t": 803.903,
+     "t": 812.903,
      "kind": "highlight",
      "from": 11,
      "to": 18
     },
     {
-     "t": 810.148,
-     "until": 814.148,
+     "t": 819.148,
+     "until": 823.148,
      "kind": "underline",
      "from": 9,
      "to": 9,
      "color": "blue"
     },
     {
-     "t": 812.37,
-     "until": 814.148,
+     "t": 821.37,
+     "until": 823.148,
      "kind": "underline",
      "from": 11,
      "to": 11,
@@ -1114,34 +1127,34 @@
    ],
    "notes": [
     {
-     "t": 806.186,
+     "t": 815.186,
      "text": "패턴: 명사 + p.p. → ~된 (명사)"
     },
     {
-     "t": 814.259,
+     "t": 823.259,
      "text": "target 목표로 하다 · small business owners 소상공인 · family farms 가족 경영 농장"
     },
     {
-     "t": 822.111,
+     "t": 831.111,
      "text": "가족 경영 농장과 소상공인에게 목표가 된",
      "color": "red"
     },
     {
-     "t": 834.481,
+     "t": 843.481,
      "text": "→ 재산세는 작은 사람들에게 안 좋다"
     }
    ]
   },
   {
    "type": "passage",
-   "start": 843.592,
-   "end": 866.186,
+   "start": 852.592,
+   "end": 875.186,
    "label": "해석",
    "heading": "덩어리 4",
    "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [
     {
-     "t": 843.792,
+     "t": 852.792,
      "kind": "highlight",
      "from": 20,
      "to": 25
@@ -1149,15 +1162,15 @@
    ],
    "notes": [
     {
-     "t": 846.074,
+     "t": 855.074,
      "text": "패턴: 전치사 + ing (덩어리 1과 같음)"
     },
     {
-     "t": 854.556,
+     "t": 863.556,
      "text": "proponent 지지자 · terminate 종결시키다"
     },
     {
-     "t": 860.703,
+     "t": 869.703,
      "text": "재산세를 종결시키는 것의 지지자들은",
      "color": "red"
     }
@@ -1165,14 +1178,14 @@
   },
   {
    "type": "passage",
-   "start": 866.186,
-   "end": 909.297,
+   "start": 875.186,
+   "end": 918.297,
    "label": "해석",
    "heading": "덩어리 5",
    "text": "Despite framing the estate tax / as an abusive measure / targeted at small business owners and family farms, / proponents of terminating the estate tax / are attempting to shelter the assets of extremely wealthy constituents.",
    "marks": [
     {
-     "t": 866.3860000000001,
+     "t": 875.3860000000001,
      "kind": "highlight",
      "from": 27,
      "to": 36
@@ -1180,28 +1193,28 @@
    ],
    "notes": [
     {
-     "t": 871.148,
+     "t": 880.148,
      "text": "패턴: 동사 + to부정사 → ~하려고 ~하다"
     },
     {
-     "t": 876.222,
+     "t": 885.222,
      "text": "attempt 시도하다 · shelter 보호하다 · assets 자산 · wealthy 부유한 · constituent 주민"
     },
     {
-     "t": 880.444,
+     "t": 889.444,
      "text": "극도로 부유한 주민들의 자산을 보호하려고 시도하는 중이다",
      "color": "red"
     },
     {
-     "t": 900.63,
+     "t": 909.63,
      "text": "→ 재산세가 없어지면 부자가 이득!"
     }
    ]
   },
   {
    "type": "quote",
-   "start": 909.297,
-   "end": 924.889,
+   "start": 918.297,
+   "end": 933.889,
    "label": "해석",
    "lines": [
     "1. 해석하기 쉬운 덩어리로 나누기",
@@ -1211,40 +1224,75 @@
     "덩어리로 나누기",
     "해석 패턴"
    ],
-   "markAt": 919.778
+   "markAt": 928.778
   },
   {
    "type": "stat",
-   "start": 924.889,
-   "end": 947.038,
+   "start": 933.889,
+   "end": 956.0,
    "label": "해석",
    "value": "1–1.5",
    "unit": "시간",
    "caption": "해석 연습 시간 (최저가 급한 고3은 2시간까지)"
   },
   {
+   "type": "plan",
+   "start": 956.0,
+   "end": 969.0,
+   "label": "",
+   "insert": 13.0,
+   "heading": "수능 D-17이라면? 압축 루틴",
+   "rows": [
+    {
+     "t": 956.6,
+     "when": "단어",
+     "what": "D-17 분류 → D-12 → D-7 전체 → D-2",
+     "sub": "재테스트 날 사이에는 아침·밤 2번 읽기 (2초 규칙 그대로)"
+    },
+    {
+     "t": 957.8,
+     "when": "문법",
+     "what": "D-17 ~ D-15 · 하루 2강",
+     "sub": "EBS 정승익의 6시간 안에 끝내는 문장 해석 (6강)"
+    },
+    {
+     "t": 959.0,
+     "when": "해석",
+     "what": "D-14 ~ D-2 · 하루 1.5~2시간",
+     "sub": "문장 나누기 + 패턴 노트 · D-4부터 기출 지문에 적용"
+    },
+    {
+     "t": 960.2,
+     "when": "D-1",
+     "what": "새로운 건 하지 않기",
+     "sub": "패턴 노트 훑기 + 남은 단어 한 번 읽기",
+     "accent": true
+    }
+   ]
+  },
+  {
    "type": "title",
-   "start": 947.038,
-   "end": 955.445,
+   "start": 969.0,
+   "end": 977.445,
    "kicker": "다음 영상",
    "title": "듣기 · 해석 · 독해 연습법",
    "sub": "구독과 좋아요 부탁드려요",
-   "subAt": 952.26
+   "subAt": 974.26
   }
  ],
  "chapters": [
   {
    "title": "01 단어",
-   "start": 38.63
+   "start": 47.63
   },
   {
    "title": "02 문법",
-   "start": 292.481
+   "start": 301.481
   },
   {
    "title": "03 해석",
-   "start": 371.037
+   "start": 380.037
   }
  ],
- "total": 955.445
+ "total": 977.445
 }

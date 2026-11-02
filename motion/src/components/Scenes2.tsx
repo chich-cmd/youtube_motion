@@ -81,6 +81,29 @@ export const WordCardScene: React.FC<P<'wordcard'>> = ({s, len}) => {
 };
 
 /** Study plan table: when → what. */
+/** Silent on-screen notice: a badge and a few centred lines, revealed one by one. */
+export const NoticeScene: React.FC<P<'notice'>> = ({s, len}) => {
+  const f = useCurrentFrame();
+  return (
+    <Frame label={s.label} len={len}>
+      <div style={{position: 'absolute', left: 200, right: 200, top: 190, bottom: 190, background: C.card, borderRadius: 32,
+        border: `3px solid ${C.line}`, boxShadow: '0 20px 50px rgba(20,30,50,0.10)', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: 34, padding: '0 80px', opacity: enter(f, 0, 14)}}>
+        <div style={{fontSize: 36, fontWeight: 800, color: '#fff', background: C.blue, borderRadius: 999, padding: '10px 34px',
+          transform: `scale(${pop(f, 4)})`}}>📌 {s.badge ?? '안내'}</div>
+        {s.lines.map((l, i) => {
+          const p = enter(f, 14 + i * 22, 16);
+          const acc = i === s.accentLine;
+          return (
+            <div key={i} style={{fontSize: acc ? 50 : 48, fontWeight: acc ? 800 : 600, color: acc ? C.blue : C.ink, textAlign: 'center',
+              lineHeight: 1.4, letterSpacing: -0.8, opacity: p, transform: `translateY(${(1 - p) * 20}px)`}}>{l}</div>
+          );
+        })}
+      </div>
+    </Frame>
+  );
+};
+
 export const PlanScene: React.FC<P<'plan'>> = ({s, len}) => {
   const f = useCurrentFrame();
   return (

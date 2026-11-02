@@ -55,9 +55,10 @@ last_word = max(w['e'] for w in words)
 pieces.append({'kind': 'src', 'a': t, 'b': snap(min(dur, last_word + 1.5))})
 pieces = [p for p in pieces if p['b'] > p['a']]
 
-holds = {}
-for sc in src['scenes']:
-    if sc['type'] != 'section': continue
+holds, inserts = {}, {}
+for j, sc in enumerate(src['scenes']):
+    ins = src['scenes'][j - 1] if j and src['scenes'][j - 1].get('insert') else None   # silent card shown before this scene
+    if sc['type'] != 'section' and not ins: continue
     k = min(range(1, len(words)), key=lambda i: abs(words[i]['s'] - sc['start']))
     gs, ge = words[k - 1]['e'], words[k]['s']
     inside = [(s, e) for s, e in sil if s <= ge and e >= gs]
@@ -66,7 +67,8 @@ for sc in src['scenes']:
     for p in pieces:
         if p['kind'] == 'src' and p['a'] < hx < p['b']: out += [{**p, 'b': hx}, {**p, 'a': hx}]
         else: out.append(p)
-    out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': HOLD})
+    if ins: out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': ins['insert'] * SPEED}); inserts[id(ins)] = hx
+    if sc['type'] == 'section': out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': HOLD})
     pieces = sorted(out, key=lambda p: (p['a'], p['kind'] != 'gap'))
     holds[id(sc)] = hx
 cut = []
@@ -97,7 +99,12 @@ def walk(o):
 scenes = []
 for sc in src['scenes']:
     m = walk(sc)
-    if id(sc) in holds: m['start'] = remap(holds[id(sc)])
+    if id(sc) in inserts:
+        m['start'] = remap(inserts[id(sc)])
+        for k, r in enumerate(m.get('rows', [])): r['t'] = round(m['start'] + 0.6 + 1.2 * k, 3)
+    if id(sc) in holds:
+        m['start'] = remap(holds[id(sc)])
+        if scenes and scenes[-1].get('insert'): m['start'] = round(m['start'] + scenes[-1]['insert'], 3)
     scenes.append(m)
 for i in range(len(scenes) - 1): scenes[i]['end'] = scenes[i + 1]['start']
 scenes[0]['start'] = 0.0; scenes[-1]['end'] = total
