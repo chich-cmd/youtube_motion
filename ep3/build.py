@@ -139,7 +139,7 @@ FIX = [('샘이', '쌤이'), ('올려드릴께요', '올려드릴게요'), ('질
 lines = []
 for a_, b_, t_ in sorted(caps, key=lambda c: float(c[0])):
     for x, y in FIX: t_ = t_.replace(x, y)
-    lines.append({'s': remap(float(a_)), 'e': remap(float(b_)), 'text': t_.strip()})
+    lines.append({'s': remap(float(a_) + 0.02), 'e': remap(float(b_)), 'text': t_.strip()})   # +0.02: a line starting at a pause shows after it
 json.dump(lines, open('motion/src/ep3/captions.json', 'w'), ensure_ascii=False, indent=1)
 print(f'pieces={len(pieces)} total={total:.1f}s (source {dur:.1f}s)')
 
