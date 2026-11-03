@@ -30,3 +30,12 @@ concat.txt
 __pycache__/
 /output/ep2_parts/
 /output/ep2_preview.mp4
+/ep3/src/
+/ep3/frames/
+/ep3/panel/*.png
+/ep3/panel/*.jpg
+/ep3/subs/
+/ep3/*.mp4
+/ep3/*.wav
+/ep3/*.f32
+/ep3/*.log
