@@ -59,7 +59,7 @@ holds, inserts = {}, {}
 for j, sc in enumerate(src['scenes']):
     ins = []                                       # silent card(s) shown right before this scene
     while j - len(ins) - 1 >= 0 and src['scenes'][j - len(ins) - 1].get('insert'): ins.insert(0, src['scenes'][j - len(ins) - 1])
-    if sc.get('insert') or (sc['type'] != 'section' and not ins): continue
+    if sc.get('insert') or (sc['type'] != 'section' and not ins and not sc.get('pause')): continue
     if sc['start'] <= 0.01: hx = 0.0                # card before the very first scene
     else:
         k = min(range(1, len(words)), key=lambda i: abs(words[i]['s'] - sc['start']))
@@ -74,6 +74,7 @@ for j, sc in enumerate(src['scenes']):
     for c in ins:
         out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': c['insert'] * SPEED}); inserts[id(c)] = (hx, off); off += c['insert']
     if sc['type'] == 'section': out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': HOLD})
+    if sc.get('pause'): out.append({'kind': 'gap', 'a': hx, 'b': hx, 'gap': sc['pause'] * SPEED})   # breathing room before this scene
     pieces = sorted(out, key=lambda p: (p['a'], p['kind'] != 'gap'))
     holds[id(sc)] = hx
 cut = []
@@ -109,6 +110,9 @@ for sc in src['scenes']:
         for k, r in enumerate(m.get('rows', [])): r['t'] = round(m['start'] + 0.6 + 1.2 * k, 3)
     if id(sc) in holds:
         m['start'] = remap(holds[id(sc)])
+        if sc.get('pause'):
+            m['start'] = round(m['start'] + sc['pause'], 3)
+            if 'clip' in m: m['clip']['from'] = holds[id(sc)]   # footage resumes where the voice does
         if scenes and scenes[-1].get('insert'): m['start'] = round(scenes[-1]['start'] + scenes[-1]['insert'], 3)
     scenes.append(m)
 for i in range(len(scenes) - 1): scenes[i]['end'] = scenes[i + 1]['start']
