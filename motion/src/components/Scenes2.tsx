@@ -87,7 +87,7 @@ export const ClipScene: React.FC<P<'clip'>> = ({s, len}) => {
   const f = useCurrentFrame();
   const c = s.clip;
   const ch0 = c.h ?? 900;
-  const H0 = 800, k = H0 / ch0, W = c.w * k;
+  const k = Math.min(800 / ch0, 960 / c.w), H0 = ch0 * k, W = c.w * k;  // fit the whole page; never crop it
   // After `shift.t` (output seconds, remapped by the build) the recording scrolled: skip a black band at the top, keep the same zoom.
   const sh = c.shift && f >= at(s, c.shift.t) ? c.shift : null;
   const cy = sh ? sh.y : c.y ?? 0, H = sh ? sh.h * k : H0;
