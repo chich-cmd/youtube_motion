@@ -99,7 +99,27 @@ const holdLines = (out: Line[]): Line[] => {
   return out.map((l, i) => ({...l, e: Math.min(Math.max(l.e, (out[i + 1]?.s ?? l.e + 0.6) - 0.02), l.e + 0.6)}));
 };
 
-export const Captions: React.FC<{segments: Segment[]; edited?: Line[]}> = ({segments, edited: ed = edited as Line[]}) => {
+export type Emph = {key?: string; warn?: string};  // regex sources: key terms → yellow, warnings → coral
+
+/** Split a caption into plain / key / warn runs. */
+const paint = (text: string, emph?: Emph): React.ReactNode => {
+  if (!emph?.key && !emph?.warn) return text;
+  const parts = [emph.key && `(${emph.key})`, emph.warn && `(${emph.warn})`].filter(Boolean).join('|');
+  const re = new RegExp(parts, 'g');
+  const out: React.ReactNode[] = [];
+  let last = 0, m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    const warn = emph.warn && new RegExp(`^(?:${emph.warn})$`).test(m[0]);
+    out.push(<span key={m.index} style={{color: warn ? '#FF8A7A' : '#FFD84D', fontWeight: 800}}>{m[0]}</span>);
+    last = m.index + m[0].length;
+    if (!m[0].length) re.lastIndex++;
+  }
+  out.push(text.slice(last));
+  return out;
+};
+
+export const Captions: React.FC<{segments: Segment[]; edited?: Line[]; emph?: Emph}> = ({segments, edited: ed = edited as Line[], emph}) => {
   const f = useCurrentFrame();
   // Hand-edited caption lines (rec2/captions_user.txt, timed by scripts/time_captions.py) win when present.
   const lines = useMemo(() => (ed.length ? holdLines(ed) : buildLines(segments)), [segments, ed]);
@@ -109,7 +129,7 @@ export const Captions: React.FC<{segments: Segment[]; edited?: Line[]}> = ({segm
   return (
     <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center', fontFamily: FONT}}>
       <div style={{background: 'rgba(21,24,30,0.88)', color: '#fff', fontSize: 44, fontWeight: 600, letterSpacing: -0.5,
-        padding: '14px 34px', borderRadius: 16, maxWidth: 1500, textAlign: 'center'}}>{line.text}</div>
+        padding: '14px 34px', borderRadius: 16, maxWidth: 1500, textAlign: 'center'}}>{paint(line.text, emph)}</div>
     </div>
   );
 };

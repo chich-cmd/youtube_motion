@@ -7,7 +7,7 @@ import {Background, Progress} from './components/Chrome';
 import {Captions} from './components/Captions';
 import * as S from './components/Scenes';
 import * as S2 from './components/Scenes2';
-import {Line} from './components/Captions';
+import {Emph, Line} from './components/Captions';
 
 const pick = (s: Scene, len: number) => {
   switch (s.type) {
@@ -34,9 +34,10 @@ export type VideoProps = {
   total: number;
   offset?: number;
   captions?: Line[];   // pre-timed caption lines; [] = build from segments
+  emph?: Emph;         // caption keyword highlighting
 };
 
-export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, captions}) => (
+export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, captions, emph}) => (
   <AbsoluteFill>
     <Background />
     {scenes.map((s, i) => {
@@ -48,6 +49,6 @@ export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, c
       );
     })}
     <Progress chapters={chapters} total={total} />
-    <Captions segments={segments} edited={captions} />
+    <Captions segments={segments} edited={captions} emph={emph} />
   </AbsoluteFill>
 );
