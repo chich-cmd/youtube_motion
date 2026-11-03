@@ -120,6 +120,11 @@ for s in scenes:                                   # keep card times inside thei
             if isinstance(it, dict) and 'until' in it: it['until'] = min(it['until'], s['end'] - 0.1)
 chapters = [{'title': c['title'], 'start': next(s['start'] for s in scenes if s['type'] == 'section' and c['title'].startswith(s['index']))}
             for c in src['chapters']]
+boxes = json.load(open('ep3/subboxes.json'))
+for m in scenes:                                   # hide the burned-in subtitle box inside the source footage
+    if m['type'] == 'clip':
+        a0, a1 = m['clip']['from'], m['clip']['from'] + (m['end'] - m['start'])
+        m['clip']['masks'] = [b for b in boxes if b['e'] > a0 and b['s'] < a1]
 json.dump({'scenes': scenes, 'chapters': chapters, 'total': total}, open('motion/src/ep3/scenes_cut.json', 'w'), ensure_ascii=False, indent=1)
 out = [{'start': remap(s['start']), 'end': remap(s['end']), 'text': s['text'],
         'words': [{'s': remap(w['s']), 'e': remap(w['e']), 'w': w['w']} for w in s['words']]} for s in tr]

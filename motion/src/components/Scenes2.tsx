@@ -100,6 +100,10 @@ export const ClipScene: React.FC<P<'clip'>> = ({s, len}) => {
         border: `3px solid ${C.line}`, boxShadow: '0 24px 60px rgba(20,30,50,0.16)', opacity: p}}>
         <OffthreadVideo src={staticFile(c.src ?? 'ep3_src.mp4')} startFrom={Math.round(c.from * 30)} muted
           style={{position: 'absolute', width: 1920 * k, height: 1080 * k, left: -c.x * k, top: -cy * k}} />
+        {(c.masks ?? []).filter((m) => c.from + f / 30 >= m.s - 0.1 && c.from + f / 30 < m.e + 0.1).map((m, i) => (
+          <div key={i} style={{position: 'absolute', left: (m.x0 - c.x) * k, top: (m.y0 - cy) * k, width: (m.x1 - m.x0) * k, height: (m.y1 - m.y0) * k,
+            background: '#fff', borderRadius: 8, boxShadow: '0 0 10px 6px #fff'}} />
+        ))}
       </div>
       <div style={{position: 'absolute', left: 70 + W + 50, right: 70, top: 120, display: 'flex', flexDirection: 'column', gap: 16}}>
         <div style={{fontSize: 54, fontWeight: 800, letterSpacing: -1.5, color: C.ink, marginBottom: 10,
