@@ -1,5 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, OffthreadVideo, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {withHl} from './Scenes';
 import {C} from '../theme';
 import {enter, pop, rise, sec} from '../anim';
 import {PassageMark, Scene} from '../types';
@@ -81,6 +82,48 @@ export const WordCardScene: React.FC<P<'wordcard'>> = ({s, len}) => {
 };
 
 /** Study plan table: when → what. */
+/** Source screen recording (cropped to the exam page) on the left, step cards on the right. */
+export const ClipScene: React.FC<P<'clip'>> = ({s, len}) => {
+  const f = useCurrentFrame();
+  const c = s.clip;
+  const cy = c.y ?? 0, ch = c.h ?? 900;
+  const H = 800, k = H / ch, W = c.w * k;
+  const p = enter(f, 2, 16);
+  const shown = s.items.filter((it) => f >= at(s, it.t));
+  const current = shown.length - 1;
+  return (
+    <Frame label={s.label} len={len}>
+      <div style={{position: 'absolute', left: 70, top: 120, width: W, height: H, borderRadius: 22, overflow: 'hidden', background: '#fff',
+        border: `3px solid ${C.line}`, boxShadow: '0 24px 60px rgba(20,30,50,0.16)', opacity: p}}>
+        <OffthreadVideo src={staticFile(c.src ?? 'ep3_src.mp4')} startFrom={Math.round(c.from * 30)} muted
+          style={{position: 'absolute', width: 1920 * k, height: 1080 * k, left: -c.x * k, top: -cy * k}} />
+      </div>
+      <div style={{position: 'absolute', left: 70 + W + 50, right: 70, top: 120, display: 'flex', flexDirection: 'column', gap: 16}}>
+        <div style={{fontSize: 54, fontWeight: 800, letterSpacing: -1.5, color: C.ink, marginBottom: 10,
+          opacity: enter(f, 0, 12), transform: `translateY(${(1 - enter(f, 0, 12)) * 16}px)`}}>{s.heading}</div>
+        {s.items.map((it, i) => {
+          const q = pop(f, at(s, it.t));
+          const hl = it.accent || i === current;
+          return (
+            <div key={i} style={{display: 'flex', gap: 18, alignItems: 'flex-start', background: C.card, borderRadius: 18, padding: '18px 22px',
+              border: `3px solid ${hl ? C.blue : C.line}`, boxShadow: hl ? '0 12px 28px rgba(43,99,217,0.14)' : '0 4px 12px rgba(0,0,0,0.04)',
+              opacity: Math.max(0, q) * (i < current && !it.accent ? 0.75 : 1), transform: `translateX(${(1 - q) * 30}px)`}}>
+              <div style={{minWidth: 54, height: 54, borderRadius: 14, background: hl ? C.blue : C.blueSoft, color: hl ? '#fff' : C.blue,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: (it.badge ?? '').length > 2 ? 20 : 28, fontWeight: 800, padding: '0 8px'}}>{it.badge ?? i + 1}</div>
+              <div style={{flex: 1}}>
+                <div style={{fontSize: 34, fontWeight: 700, letterSpacing: -0.6, lineHeight: 1.3}}>{withHl(it.text, it.hl, f, s)}
+                  {it.tags?.map((t) => <span key={t} style={{marginLeft: 12, fontSize: 22, fontWeight: 800, color: C.red, background: C.redSoft,
+                    padding: '4px 12px', borderRadius: 999, verticalAlign: 'middle'}}>{t}</span>)}</div>
+                {it.sub ? <div style={{fontSize: 24, fontWeight: 500, color: C.sub, marginTop: 6, lineHeight: 1.35}}>{withHl(it.sub, it.hl, f, s)}</div> : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Frame>
+  );
+};
+
 /** Silent on-screen notice: a badge and a few centred lines, revealed one by one. */
 export const NoticeScene: React.FC<P<'notice'>> = ({s, len}) => {
   const f = useCurrentFrame();

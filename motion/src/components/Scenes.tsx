@@ -10,7 +10,7 @@ type P<T extends Scene['type']> = {s: Extract<Scene, {type: T}>; len: number};
 const at = (s: Scene, t: number) => sec(t - s.start);
 
 /** Yellow highlighter sweep behind a phrase. */
-const Marker: React.FC<{p: number; color?: string; children: React.ReactNode}> = ({p, color = C.yellow, children}) => (
+export const Marker: React.FC<{p: number; color?: string; children: React.ReactNode}> = ({p, color = C.yellow, children}) => (
   <span style={{position: 'relative', display: 'inline-block'}}>
     <span style={{position: 'absolute', left: -6, right: -6, bottom: '0.08em', height: '0.42em', background: color,
       transformOrigin: 'left', transform: `scaleX(${p})`, borderRadius: 4, zIndex: 0}} />
@@ -56,7 +56,7 @@ export const SectionScene: React.FC<P<'section'>> = ({s, len}) => {
 };
 
 /** Wrap substrings of `str` that the item's hl list names in an animated marker. */
-const withHl = (str: string, hl: {t: number; until?: number; text: string}[] | undefined, f: number, s: Scene): React.ReactNode => {
+export const withHl = (str: string, hl: {t: number; until?: number; text: string}[] | undefined, f: number, s: Scene): React.ReactNode => {
   const h = hl?.find((x) => str.includes(x.text));
   if (!h) return str;
   const p = enter(f, at(s, h.t), 12) * (h.until === undefined ? 1 : 1 - enter(f, at(s, h.until), 10));

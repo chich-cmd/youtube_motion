@@ -288,7 +288,7 @@
    "label": ""
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 185.407,
    "end": 201.167,
    "heading": "18번 목적",
@@ -312,10 +312,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 182.54,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 201.167,
    "end": 222.267,
    "heading": "19번 심경",
@@ -343,10 +348,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 198.3,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 222.267,
    "end": 255.067,
    "heading": "20~24번 대의파악",
@@ -381,10 +391,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 219.4,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 255.067,
    "end": 277.667,
    "heading": "25~28번 도표 · 일치 불일치",
@@ -414,31 +429,42 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 252.2,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "plan",
+   "type": "clip",
    "start": 277.667,
    "end": 286.967,
    "heading": "29번 어법 — 정답 포인트",
-   "rows": [
+   "label": "",
+   "items": [
     {
      "t": 279.667,
-     "when": "1위",
-     "what": "동사 · 분사 · 관계사",
+     "text": "동사 · 분사 · 관계사",
+     "badge": "1위",
      "accent": true
     },
     {
      "t": 280.767,
-     "when": "2위",
-     "what": "형용사 vs 부사 · 지시대명사 · that",
-     "sub": "1위가 답이 아닐 때 확인"
+     "text": "형용사 vs 부사 · 지시대명사 · that",
+     "sub": "1위가 답이 아닐 때 확인",
+     "badge": "2위",
+     "accent": false
     }
    ],
-   "label": ""
+   "clip": {
+    "from": 274.8,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 286.967,
    "end": 310.067,
    "heading": "29번 어법 ① 동사",
@@ -468,10 +494,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 284.1,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 310.067,
    "end": 325.267,
    "heading": "29번 어법 ② 분사",
@@ -494,10 +525,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 307.2,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 325.267,
    "end": 342.067,
    "heading": "29번 어법 ③ 관계사",
@@ -525,10 +561,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 322.4,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 342.067,
    "end": 366.367,
    "heading": "29번 어법 — 2위 포인트",
@@ -552,10 +593,15 @@
      "badge": "6"
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 339.2,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 366.367,
    "end": 376.167,
    "heading": "30번 어휘",
@@ -578,10 +624,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 363.5,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 376.167,
    "end": 419.067,
    "heading": "21번 함축 의미 · 31~34번 빈칸",
@@ -617,25 +668,43 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 373.3,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "quote",
+   "type": "clip",
    "start": 419.067,
    "end": 429.167,
-   "lines": [
-    "단어만 보고 고르면 틀려요",
-    "이 선지가 답이려면",
-    "지문에 어떤 내용이 나와야 할까?"
+   "label": "",
+   "heading": "헷갈리는 선지가 있으면",
+   "items": [
+    {
+     "t": 419.267,
+     "text": "단어만 보고 고르면 틀려요",
+     "badge": "!",
+     "tags": [
+      "주의"
+     ]
+    },
+    {
+     "t": 423.367,
+     "text": "이 선지가 답이려면 지문에 어떤 내용이 나와야 할까?",
+     "badge": "?",
+     "accent": true
+    }
    ],
-   "marks": [
-    "어떤 내용이 나와야"
-   ],
-   "markAt": 424.367,
-   "label": ""
+   "clip": {
+    "from": 416.2,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 429.167,
    "end": 464.967,
    "heading": "35번 무관한 문장",
@@ -670,10 +739,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 426.3,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 464.967,
    "end": 491.567,
    "heading": "36, 37번 순서",
@@ -705,10 +779,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 462.1,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 491.567,
    "end": 515.267,
    "heading": "순서 연습 팁: 순서 = 구조도",
@@ -735,10 +814,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 488.7,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 515.267,
    "end": 548.967,
    "heading": "38, 39번 문장 삽입",
@@ -772,10 +856,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 512.4,
+    "x": 0,
+    "w": 940
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 548.967,
    "end": 579.167,
    "heading": "40번 요약",
@@ -803,10 +892,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 546.1,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 579.167,
    "end": 594.667,
    "heading": "41, 42번 장문",
@@ -825,10 +919,15 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 576.3,
+    "x": 860,
+    "w": 1060
+   }
   },
   {
-   "type": "list",
+   "type": "clip",
    "start": 594.667,
    "end": 630.4,
    "heading": "43~45번 스토리 장문",
@@ -857,7 +956,12 @@
      "accent": true
     }
    ],
-   "label": ""
+   "label": "",
+   "clip": {
+    "from": 591.8,
+    "x": 0,
+    "w": 850
+   }
   },
   {
    "type": "title",

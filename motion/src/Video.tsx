@@ -23,6 +23,7 @@ const pick = (s: Scene, len: number) => {
     case 'wordcard': return <S2.WordCardScene s={s} len={len} />;
     case 'plan': return <S2.PlanScene s={s} len={len} />;
     case 'notice': return <S2.NoticeScene s={s} len={len} />;
+    case 'clip': return <S2.ClipScene s={s} len={len} />;
     case 'passage': return <S2.PassageScene s={s} len={len} />;
   }
 };
