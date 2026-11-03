@@ -86,8 +86,11 @@ export const WordCardScene: React.FC<P<'wordcard'>> = ({s, len}) => {
 export const ClipScene: React.FC<P<'clip'>> = ({s, len}) => {
   const f = useCurrentFrame();
   const c = s.clip;
-  const cy = c.y ?? 0, ch = c.h ?? 900;
-  const H = 800, k = H / ch, W = c.w * k;
+  const ch0 = c.h ?? 900;
+  const H0 = 800, k = H0 / ch0, W = c.w * k;
+  // After `shift.t` (output seconds, remapped by the build) the recording scrolled: skip a black band at the top, keep the same zoom.
+  const sh = c.shift && f >= at(s, c.shift.t) ? c.shift : null;
+  const cy = sh ? sh.y : c.y ?? 0, H = sh ? sh.h * k : H0;
   const p = enter(f, 2, 16);
   const shown = s.items.filter((it) => f >= at(s, it.t));
   const current = shown.length - 1;
