@@ -16,6 +16,7 @@ export type ShortProps = {
   captions?: Line[];             // episode-timed caption lines (EP3), or …
   segments?: Segment[];          // … episode transcript to build them from (EP2)
   emph?: Emph;
+  intro?: number;                // seconds of hook-only opening (for a recorded voice-over)
 };
 
 export const END = 2.5;          // seconds of end card after the clip
@@ -27,7 +28,7 @@ const fit = (text: string, max: number, width: number) => Math.min(max, Math.flo
 
 export const shortLength = (parts: [number, number][]) => parts.reduce((a, [x, y]) => a + y - x, 0);
 
-export const Short: React.FC<ShortProps> = ({video, parts, hook, captions, segments, emph}) => {
+const ShortBody: React.FC<ShortProps> = ({video, parts, hook, captions, segments, emph}) => {
   const f = useCurrentFrame();
   const t = f / FPS;
   const len = shortLength(parts);
@@ -91,6 +92,40 @@ export const Short: React.FC<ShortProps> = ({video, parts, hook, captions, segme
           </div>
         </AbsoluteFill>
       ) : null}
+    </AbsoluteFill>
+  );
+};
+
+/** Hook alone, large and centred: room for a voice-over before the clip starts. */
+const IntroHook: React.FC<{hook: [string, string]}> = ({hook}) => {
+  const f = useCurrentFrame();
+  const h1 = fit(hook[0], 84, 980), h2 = fit(hook[1], 96, 1000);
+  return (
+    <AbsoluteFill style={{background: C.bg, fontFamily: FONT, wordBreak: 'keep-all', alignItems: 'center', justifyContent: 'center',
+      backgroundImage: 'radial-gradient(rgba(21,24,30,0.07) 1.6px, transparent 1.6px)', backgroundSize: '34px 34px'}}>
+      <div style={{textAlign: 'center', padding: '0 40px', marginTop: -120}}>
+        <div style={{display: 'inline-block', fontSize: 34, fontWeight: 800, color: C.blue, background: C.blueSoft,
+          borderRadius: 999, padding: '10px 30px', marginBottom: 46, transform: `scale(${pop(f, 0)})`}}>누보영어</div>
+        <div style={{fontSize: h1, fontWeight: 700, color: C.ink, letterSpacing: -2, lineHeight: 1.25, opacity: enter(f, 2, 12),
+          transform: `translateY(${(1 - enter(f, 2, 12)) * 24}px)`}}>{hook[0]}</div>
+        <div style={{marginTop: 22, opacity: enter(f, 10, 12), transform: `translateY(${(1 - enter(f, 10, 12)) * 24}px)`}}>
+          <span style={{position: 'relative', display: 'inline-block', fontSize: h2, fontWeight: 900, color: C.ink, letterSpacing: -2.5, lineHeight: 1.25}}>
+            <span style={{position: 'absolute', left: -12, right: -12, bottom: '0.06em', height: '0.42em', background: C.yellow, borderRadius: 8,
+              transformOrigin: 'left', transform: `scaleX(${enter(f, 20, 20)})`}} />
+            <span style={{position: 'relative'}}>{hook[1]}</span>
+          </span>
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+export const Short: React.FC<ShortProps> = (p) => {
+  const I = Math.round((p.intro ?? 0) * FPS);
+  return (
+    <AbsoluteFill>
+      {I > 0 ? <Sequence durationInFrames={I}><IntroHook hook={p.hook} /></Sequence> : null}
+      <Sequence from={I}><ShortBody {...p} /></Sequence>
     </AbsoluteFill>
   );
 };

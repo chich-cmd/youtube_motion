@@ -33,7 +33,7 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{scenes: ep2.scenes as Scene[], chapters: ep2.chapters, total: ep2.total, segments: ep2Transcript as Segment[], captions: []}} />
     {SHORTS.map((p) => (
       <Composition key={p.id} id={p.id} component={Short} fps={FPS} width={1080} height={1920}
-        durationInFrames={Math.round((shortLength(p.props.parts) + END) * FPS)} defaultProps={p.props} />
+        durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
     ))}
     <Composition id="Ep3" component={Main} fps={FPS} width={1920} height={1080}
       durationInFrames={Math.round(ep3.total * FPS)}
@@ -47,7 +47,7 @@ export const RemotionRoot: React.FC = () => (
 );
 
 const SHORTS: {id: string; props: ShortProps}[] = [
-  {id: 'Short2', props: {video: 'ep3_final.mp4', parts: [[58.98, 97.67]], hook: ['영어 듣기,', '다 안 들어도 이렇게 하면 풀립니다'],
+  {id: 'Short2', props: {video: 'ep3_final.mp4', parts: [[58.98, 97.67]], hook: ['영어 듣기,', '다 안 들려도 전략을 알면 풀립니다'], intro: 3,
     captions: ep3Captions, emph: EP3_EMPH}},
   {id: 'Short3', props: {video: 'ep2_final.mp4', parts: [[553.3, 660.2]], hook: ['영어 해석 하나도 안 되는', '핵노베이스 1등급 만든 해석법'],
     segments: ep2Transcript as Segment[], emph: EP2_EMPH}},
