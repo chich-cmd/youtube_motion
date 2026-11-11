@@ -2,6 +2,7 @@
 import subprocess, sys, numpy as np, torch
 from df.enhance import enhance, init_df
 src, dst = sys.argv[1], sys.argv[2]
+ATTEN = float(sys.argv[3]) if len(sys.argv) > 3 else 24   # max noise reduction (dB); lower = more natural
 model, state, _ = init_df()
 raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', src, '-ac', '1', '-ar', '48000', '-f', 'f32le', '-'], capture_output=True, check=True).stdout
 x = torch.from_numpy(np.frombuffer(raw, np.float32).copy())[None]
@@ -10,7 +11,7 @@ out = torch.zeros_like(x)
 w = torch.zeros_like(x)
 for a in range(0, x.shape[1], CH):
     b = min(a + CH + OV, x.shape[1])
-    y = enhance(model, state, x[:, a:b], atten_lim_db=24)
+    y = enhance(model, state, x[:, a:b], atten_lim_db=ATTEN)
     fade = torch.ones(b - a)
     if a > 0: fade[:OV] = torch.linspace(0, 1, OV)
     if b < x.shape[1]: fade[-OV:] = torch.linspace(1, 0, OV)
