@@ -12,7 +12,11 @@ sys.path.insert(0, 'scripts')
 from sfx import make_sfx
 
 FPS, SR = 30, 48000
-SRC, VOICE = 'ep2/src/original.mp4', 'ep2/src/voice_df.wav'
+import os
+SRC = 'ep2/src/original.mp4'
+VOICE = os.environ.get('VOICE', 'ep2/src/voice_df.wav')     # narration source (cleaned by default)
+STRETCH = os.environ.get('STRETCH', 'rubberband=tempo={s}:pitchq=quality')   # filter used to slow the voice
+OUT = os.environ.get('OUT', 'ep2/voice_cut.f32')
 MIN_SIL, PAD_IN, PAD_OUT = 0.45, 0.10, 0.14
 HOLD = 1.5                                         # silent beat on each chapter title card
 CUT = (880.48, 946.48)                             # listening chapter removed (source seconds)
@@ -140,10 +144,10 @@ for p in pieces:
     parts.append(seg)
 voice = np.concatenate(parts)
 if SPEED != 1:
-    st = subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-af', f'rubberband=tempo={SPEED}:pitchq=quality',
+    st = subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-af', STRETCH.format(s=SPEED),
                          '-f', 'f32le', '-'], input=voice.tobytes(), capture_output=True, check=True).stdout
     voice = np.frombuffer(st, np.float32).reshape(-1, 2)
 n = int(round(total * SR)); voice = np.concatenate([voice, np.zeros((max(0, n - len(voice)), 2), np.float32)])[:n]
-voice.tofile('ep2/voice_cut.f32')
+voice.tofile(OUT)
 make_sfx(scenes, len(voice)).tofile('ep2/sfx.f32')
 print('audio', round(len(voice) / SR, 2), 's')
