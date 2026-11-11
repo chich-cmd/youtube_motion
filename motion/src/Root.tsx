@@ -47,7 +47,7 @@ export const RemotionRoot: React.FC = () => (
 );
 
 const SHORTS: {id: string; props: ShortProps}[] = [
-  {id: 'Short2', props: {video: 'ep3_final.mp4', parts: [[58.98, 97.67]], hook: ['영어 듣기,', '다 안 들려도 전략을 알면 풀립니다'], intro: 3,
+  {id: 'Short2', props: {video: 'ep3_final.mp4', parts: [[58.98, 97.67]], hook: ['영어 듣기,', '다 안 들려도 전략을 알면 풀립니다'], intro: 3.2,
     captions: ep3Captions, emph: EP3_EMPH}},
   {id: 'Short3', props: {video: 'ep2_final.mp4', parts: [[394.68, 401.28], [403.57, 408.34], [412.48, 419.06], [451.88, 461.87], [462.1, 476.18], [476.43, 480.98], [494.3, 497.34], [500.81, 502.76], [508.06, 513.54], [516.28, 520.43], [530.06, 534.73], [553.3, 660.2]], hook: ['영어 해석 하나도 안 되는', '핵노베이스 1등급 만든 해석법'], intro: 3.6,
     segments: ep2Transcript as Segment[], emph: EP2_EMPH}},
