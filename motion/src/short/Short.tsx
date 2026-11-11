@@ -11,8 +11,7 @@ import {Emph, Line, buildLines, holdLines, paint} from '../components/Captions';
  */
 export type ShortProps = {
   video: string;                 // file in public/
-  from: number;                  // seconds in the episode
-  to: number;
+  parts: [number, number][];     // episode ranges (seconds) played back to back
   hook: [string, string];
   captions?: Line[];             // episode-timed caption lines (EP3), or …
   segments?: Segment[];          // … episode transcript to build them from (EP2)
@@ -26,14 +25,18 @@ const BOX_W = 1080;                // edge to edge: as large as the 16:9 picture
 
 const fit = (text: string, max: number, width: number) => Math.min(max, Math.floor(width / (text.length * 0.92)));
 
-export const Short: React.FC<ShortProps> = ({video, from, to, hook, captions, segments, emph}) => {
+export const shortLength = (parts: [number, number][]) => parts.reduce((a, [x, y]) => a + y - x, 0);
+
+export const Short: React.FC<ShortProps> = ({video, parts, hook, captions, segments, emph}) => {
   const f = useCurrentFrame();
   const t = f / FPS;
-  const len = to - from;
+  const len = shortLength(parts);
+  const offs = parts.map((_, i) => shortLength(parts.slice(0, i)));
   const lines = useMemo(() => {
     const all = captions?.length ? holdLines(captions) : buildLines(segments ?? []);
-    return all.filter((l) => l.e > from && l.s < to).map((l) => ({...l, s: Math.max(0, l.s - from), e: Math.min(len, l.e - from)}));
-  }, [captions, segments, from, to, len]);
+    return parts.flatMap(([a, b], i) => all.filter((l) => l.e > a + 0.05 && l.s < b - 0.05)
+      .map((l) => ({...l, s: offs[i] + Math.max(0, l.s - a), e: offs[i] + Math.min(b, l.e) - a})));
+  }, [captions, segments, parts]);
   const line = t < len ? lines.find((l) => t >= l.s && t < l.e) : undefined;
 
   const k = BOX_W / CROP.w, boxH = CROP.h * k;
@@ -61,10 +64,12 @@ export const Short: React.FC<ShortProps> = ({video, from, to, hook, captions, se
       {/* episode clip */}
       <div style={{position: 'absolute', left: (1080 - BOX_W) / 2, top: 700, width: BOX_W, height: boxH, overflow: 'hidden',
         background: C.bg, borderTop: `3px solid ${C.line}`, borderBottom: `3px solid ${C.line}`, boxShadow: '0 26px 60px rgba(20,30,50,0.12)'}}>
-        <Sequence durationInFrames={Math.round(len * FPS)}>
-          <OffthreadVideo src={staticFile(video)} startFrom={Math.round(from * FPS)}
+        {parts.map(([a, b], i) => (
+        <Sequence key={i} from={Math.round(offs[i] * FPS)} durationInFrames={Math.round((b - a) * FPS)}>
+          <OffthreadVideo src={staticFile(video)} startFrom={Math.round(a * FPS)}
             style={{position: 'absolute', width: 1920 * k, height: 1080 * k, left: -CROP.x * k, top: -CROP.y * k}} />
         </Sequence>
+        ))}
       </div>
 
       {/* captions */}

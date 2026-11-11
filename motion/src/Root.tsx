@@ -6,7 +6,7 @@ import {scenes, chapters, TOTAL} from './data/scenes';
 import transcript from './data/transcript.json';
 import {Scene, Segment} from './types';
 import {Reel, REEL_TOTAL} from './reel/Reel';
-import {Short, ShortProps, END} from './short/Short';
+import {Short, ShortProps, END, shortLength} from './short/Short';
 import {Captioned, CAPTIONED_TOTAL} from './captioned/Captioned';
 import ep2 from './ep2/scenes_cut.json';
 import ep2Transcript from './ep2/transcript.json';
@@ -33,7 +33,7 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{scenes: ep2.scenes as Scene[], chapters: ep2.chapters, total: ep2.total, segments: ep2Transcript as Segment[], captions: []}} />
     {SHORTS.map((p) => (
       <Composition key={p.id} id={p.id} component={Short} fps={FPS} width={1080} height={1920}
-        durationInFrames={Math.round((p.props.to - p.props.from + END) * FPS)} defaultProps={p.props} />
+        durationInFrames={Math.round((shortLength(p.props.parts) + END) * FPS)} defaultProps={p.props} />
     ))}
     <Composition id="Ep3" component={Main} fps={FPS} width={1920} height={1080}
       durationInFrames={Math.round(ep3.total * FPS)}
@@ -47,10 +47,10 @@ export const RemotionRoot: React.FC = () => (
 );
 
 const SHORTS: {id: string; props: ShortProps}[] = [
-  {id: 'Short2', props: {video: 'ep3_final.mp4', from: 60.75, to: 120.1, hook: ['영어 듣기,', '다 안 들어도 이렇게 하면 풀립니다'],
+  {id: 'Short2', props: {video: 'ep3_final.mp4', parts: [[58.98, 97.67]], hook: ['영어 듣기,', '다 안 들어도 이렇게 하면 풀립니다'],
     captions: ep3Captions, emph: EP3_EMPH}},
-  {id: 'Short3', props: {video: 'ep2_final.mp4', from: 553.3, to: 660.2, hook: ['영어 해석 하나도 안 되는', '핵노베이스 1등급 만든 해석법'],
+  {id: 'Short3', props: {video: 'ep2_final.mp4', parts: [[553.3, 660.2]], hook: ['영어 해석 하나도 안 되는', '핵노베이스 1등급 만든 해석법'],
     segments: ep2Transcript as Segment[], emph: EP2_EMPH}},
-  {id: 'Short4', props: {video: 'ep3_final.mp4', from: 280.77, to: 375.37, hook: ['수능 어법 10년치 분석해보니', '정답이 되는 건 정해져있었다'],
+  {id: 'Short4', props: {video: 'ep3_final.mp4', parts: [[280.77, 284.77], [291.97, 349.07]], hook: ['수능 어법 10년치 분석해보니', '정답이 되는 건 정해져있었다'],
     captions: ep3Captions, emph: EP3_EMPH}},
 ];
