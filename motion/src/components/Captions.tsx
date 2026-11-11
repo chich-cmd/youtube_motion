@@ -95,14 +95,14 @@ export const buildLines = (segs: Segment[]): Line[] => {
 };
 
 /** Hold each line until the next one starts (max +0.6s) to avoid flicker. */
-const holdLines = (out: Line[]): Line[] => {
+export const holdLines = (out: Line[]): Line[] => {
   return out.map((l, i) => ({...l, e: Math.min(Math.max(l.e, (out[i + 1]?.s ?? l.e + 0.6) - 0.02), l.e + 0.6)}));
 };
 
 export type Emph = {key?: string; warn?: string};  // regex sources: key terms → yellow, warnings → coral
 
 /** Split a caption into plain / key / warn runs. */
-const paint = (text: string, emph?: Emph): React.ReactNode => {
+export const paint = (text: string, emph?: Emph): React.ReactNode => {
   if (!emph?.key && !emph?.warn) return text;
   const parts = [emph.key && `(${emph.key})`, emph.warn && `(${emph.warn})`].filter(Boolean).join('|');
   const re = new RegExp(parts, 'g');
