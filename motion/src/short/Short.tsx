@@ -34,7 +34,9 @@ const ShortBody: React.FC<ShortProps> = ({video, parts, hook, captions, segments
   const len = shortLength(parts);
   const offs = parts.map((_, i) => shortLength(parts.slice(0, i)));
   const lines = useMemo(() => {
-    const all = captions?.length ? holdLines(captions) : buildLines(segments ?? []);
+    // Build caption lines only from transcript segments that are kept, so no cut-out words leak in.
+    const kept = (segments ?? []).filter((g) => parts.some(([a, b]) => g.start >= a - 0.1 && g.end <= b + 0.2));
+    const all = captions?.length ? holdLines(captions) : buildLines(kept);
     return parts.flatMap(([a, b], i) => all.filter((l) => l.e > a + 0.05 && l.s < b - 0.05)
       .map((l) => ({...l, s: offs[i] + Math.max(0, l.s - a), e: offs[i] + Math.min(b, l.e) - a})));
   }, [captions, segments, parts]);
