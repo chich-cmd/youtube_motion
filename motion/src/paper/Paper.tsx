@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame} from 'remotion';
 import {FONT, FPS} from '../theme';
 
 /**
@@ -13,17 +13,14 @@ export type PaperProps = {video: string; lines: PaperLine[]; title?: [string, st
 const COLORS: Record<string, string> = {'[': '#FFE14D', '{': '#FF4B4B', '<': '#5EC8FF', '(': '#6BF07A'};
 // Title: crisp dark outline + glow. Captions: soft dark glow only (as in the reference reel).
 const OUTLINE = '3px 3px 0 #111, -3px 3px 0 #111, 3px -3px 0 #111, -3px -3px 0 #111, 0 3px 0 #111, 0 -3px 0 #111, 3px 0 0 #111, -3px 0 0 #111, 0 0 18px rgba(0,0,0,0.75)';
-const GLOW = '0 0 6px rgba(0,0,0,0.85), 0 0 14px rgba(0,0,0,0.7), 0 0 28px rgba(0,0,0,0.5)';
+// Solid black outline (8 directions, two widths) + a soft shadow so captions read on white paper.
+const GLOW = [4, 2].flatMap((r) => [[r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-r, r], [r, -r], [-r, -r]].map(([x, y]) => `${x}px ${y}px 0 #000`))
+  .concat('0 6px 14px rgba(0,0,0,0.6)').join(', ');
 
-const Word: React.FC<{text: string; color?: string; f0: number}> = ({text, color, f0}) => {
-  const f = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const k = color ? spring({frame: f - f0 - 2, fps, config: {damping: 8, stiffness: 170}}) : 1;
-  return (
-    <span style={{display: 'inline-block', color: color ?? '#fff', transform: `scale(${color ? 0.55 + 0.45 * k : 1})`,
-      whiteSpace: 'pre'}}>{text}</span>
-  );
-};
+const Word: React.FC<{text: string; color?: string; f0: number}> = ({text, color}) => (
+  // Emphasis is static: colour + a larger size, no motion.
+  <span style={{color: color ?? '#fff', fontSize: color ? '1.16em' : '1em', fontWeight: color ? 800 : 700}}>{text}</span>
+);
 
 const tokens = (text: string) => text.split(/(\[[^\]]+\]|\{[^}]+\}|<[^>]+>|\(\([^)]+\)\))/).filter(Boolean).map((p) => {
   const c = COLORS[p[0]];
@@ -36,7 +33,7 @@ const tokens = (text: string) => text.split(/(\[[^\]]+\]|\{[^}]+\}|<[^>]+>|\(\([
 const groups = (text: string) => {
   const out: {t: string; c?: string}[][] = [[]];
   for (const tok of tokens(text)) {
-    tok.t.split(/( )/).forEach((piece) => {
+    (tok.c ? [tok.t.replace(/ /g, '\u00a0')] : tok.t.split(/( )/)).forEach((piece) => {   // a coloured phrase stays on one line
       if (piece === ' ') { if (out[out.length - 1].length) out.push([]); }
       else if (piece) out[out.length - 1].push({t: piece, c: tok.c});
     });
@@ -49,7 +46,6 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
   const t = f / FPS;
   const line = lines.find((l) => t >= l.s && t < l.e);
   const f0 = line ? Math.round(line.s * FPS) : 0;
-  const pop = line ? interpolate(f - f0, [0, 4], [0.88, 1], {extrapolateRight: 'clamp'}) : 1;
   return (
     <AbsoluteFill style={{background: '#000', fontFamily: FONT, wordBreak: 'keep-all'}}>
       <OffthreadVideo src={staticFile(video)} />
@@ -61,8 +57,8 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
         </div>
       ) : null}
       {line ? (
-        <div style={{position: 'absolute', left: 40, right: 40, top: 1230, textAlign: 'center', fontSize: 94, fontWeight: 600,
-          letterSpacing: -3, lineHeight: 1.25, textShadow: GLOW, transform: `scale(${pop})`}}>
+        <div style={{position: 'absolute', left: 40, right: 40, top: 1230, textAlign: 'center', fontSize: 92, fontWeight: 700,
+          letterSpacing: -3, lineHeight: 1.25, textShadow: GLOW}}>
           {groups(line.text).map((g, gi) => (
             <span key={gi} style={{display: 'inline-block', whiteSpace: 'nowrap', margin: '0 0.14em'}}>
               {g.map((w, i) => <Word key={i} text={w.t} color={w.c} f0={f0} />)}
