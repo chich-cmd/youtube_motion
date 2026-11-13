@@ -19,7 +19,8 @@ const GLOW = [4, 2].flatMap((r) => [[r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-
 
 const Word: React.FC<{text: string; color?: string; f0: number}> = ({text, color}) => (
   // Emphasis is static: colour + a larger size, no motion.
-  <span style={{color: color ?? '#fff', fontSize: color ? '1.16em' : '1em', fontWeight: color ? 800 : 700}}>{text}</span>
+  <span style={{color: color ?? '#fff', fontSize: color ? '1.16em' : '1em', fontWeight: 900,
+    WebkitTextStroke: '14px #000', paintOrder: 'stroke fill'}}>{text}</span>   // thick outline drawn under the fill
 );
 
 const tokens = (text: string) => text.split(/(\[[^\]]+\]|\{[^}]+\}|<[^>]+>|\(\([^)]+\)\))/).filter(Boolean).map((p) => {
@@ -57,8 +58,8 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
         </div>
       ) : null}
       {line ? (
-        <div style={{position: 'absolute', left: 40, right: 40, top: 1230, textAlign: 'center', fontSize: 92, fontWeight: 700,
-          letterSpacing: -3, lineHeight: 1.25, textShadow: GLOW}}>
+        <div style={{position: 'absolute', left: 40, right: 40, top: 1230, textAlign: 'center', fontSize: 96, fontWeight: 900,
+          letterSpacing: -2, lineHeight: 1.28, textShadow: '0 8px 18px rgba(0,0,0,0.55)'}}>
           {line.text.split('\n').map((row, ri) => (     // '\n' = forced line break
             <div key={ri}>
               {groups(row).map((g, gi) => (
