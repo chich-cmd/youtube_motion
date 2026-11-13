@@ -87,10 +87,9 @@ const ShortBody: React.FC<ShortProps> = ({video, parts, hook, captions, segments
       {f >= Math.round(len * FPS) ? (
         <AbsoluteFill style={{background: `rgba(245,243,238,${0.94 * endP})`, alignItems: 'center', justifyContent: 'center'}}>
           <div style={{textAlign: 'center', opacity: endP, transform: `translateY(${(1 - endP) * 30}px)`}}>
-            <div style={{fontSize: 46, fontWeight: 700, color: C.sub}}>더 자세한 풀이는</div>
-            <div style={{fontSize: 74, fontWeight: 900, color: C.ink, marginTop: 10, letterSpacing: -2}}>전체 영상에서 ▶</div>
-            <div style={{display: 'inline-block', marginTop: 40, fontSize: 36, fontWeight: 800, color: '#fff', background: C.blue,
-              borderRadius: 999, padding: '14px 40px'}}>누보영어 구독하기</div>
+            <div style={{fontSize: 50, fontWeight: 700, color: C.sub, letterSpacing: -1}}>이 외의 영어 풀이 꿀팁은</div>
+            <div style={{display: 'inline-block', marginTop: 26, fontSize: 84, fontWeight: 900, color: '#fff', background: C.blue,
+              borderRadius: 999, padding: '18px 56px', letterSpacing: -2, transform: `scale(${pop(f, Math.round(len * FPS) + 8)})`}}>누보쌤 팔로우</div>
           </div>
         </AbsoluteFill>
       ) : null}
