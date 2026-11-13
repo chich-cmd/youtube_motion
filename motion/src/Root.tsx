@@ -37,12 +37,12 @@ export const RemotionRoot: React.FC = () => (
         durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
     ))}
     <Composition id="PaperSample" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={314}
-      defaultProps={{video: 'imb_sample.mp4', lines: [
-        {s: 0.05, e: 2.41, text: '[13년차] 영어쌤인 제가'},
+      defaultProps={{video: 'imb_sample.mp4', title: ['13년차 영어쌤', '기말 역전 플래너'], lines: [
+        {s: 0.05, e: 2.41, text: '{13년차} 영어쌤인 제가'},
         {s: 2.41, e: 4.39, text: '[주차별 공부법]'},
-        {s: 4.39, e: 5.65, text: '[시험 포인트]'},
-        {s: 5.65, e: 6.6, text: '[오답 노트]'},
-        {s: 6.6, e: 7.99, text: '내용 기억하는 데 꼭 필요한'},
+        {s: 4.39, e: 5.65, text: '<시험 포인트>'},
+        {s: 5.65, e: 6.6, text: '{오답 노트}'},
+        {s: 6.6, e: 7.99, text: '내용 기억하는 데 ((꼭 필요한))'},
         {s: 7.99, e: 10.4, text: '[전개도 작성법]에다가'},
       ]}} />
     <Composition id="Ep3" component={Main} fps={FPS} width={1920} height={1080}
