@@ -47,7 +47,7 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
   const line = lines.find((l) => t >= l.s && t < l.e);
   const f0 = line ? Math.round(line.s * FPS) : 0;
   return (
-    <AbsoluteFill style={{background: '#000', fontFamily: FONT, wordBreak: 'keep-all'}}>
+    <AbsoluteFill style={{background: '#000', fontFamily: `${FONT}, 'Noto Color Emoji'`, wordBreak: 'keep-all'}}>
       <OffthreadVideo src={staticFile(video)} />
       {title ? (
         <div style={{position: 'absolute', left: 20, right: 20, top: 300, textAlign: 'center', fontSize: 78, fontWeight: 900,
@@ -59,10 +59,14 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
       {line ? (
         <div style={{position: 'absolute', left: 40, right: 40, top: 1230, textAlign: 'center', fontSize: 92, fontWeight: 700,
           letterSpacing: -3, lineHeight: 1.25, textShadow: GLOW}}>
-          {groups(line.text).map((g, gi) => (
-            <span key={gi} style={{display: 'inline-block', whiteSpace: 'nowrap', margin: '0 0.14em'}}>
-              {g.map((w, i) => <Word key={i} text={w.t} color={w.c} f0={f0} />)}
-            </span>
+          {line.text.split('\n').map((row, ri) => (     // '\n' = forced line break
+            <div key={ri}>
+              {groups(row).map((g, gi) => (
+                <span key={gi} style={{display: 'inline-block', whiteSpace: 'nowrap', margin: '0 0.14em'}}>
+                  {g.map((w, i) => <Word key={i} text={w.t} color={w.c} f0={f0} />)}
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       ) : null}
