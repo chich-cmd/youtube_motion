@@ -44,3 +44,5 @@ __pycache__/
 /motion/public/ep2_final.mp4
 /motion/public/ep3_final.mp4
 /rec3/*.wav
+/imb/
+/motion/public/imb_*.mp4
