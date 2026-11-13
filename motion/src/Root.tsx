@@ -8,6 +8,7 @@ import {Scene, Segment} from './types';
 import {Reel, REEL_TOTAL} from './reel/Reel';
 import {Short, ShortProps, END, shortLength} from './short/Short';
 import {Paper} from './paper/Paper';
+import paperLines from './paper/full_lines.json';
 import {Captioned, CAPTIONED_TOTAL} from './captioned/Captioned';
 import ep2 from './ep2/scenes_cut.json';
 import ep2Transcript from './ep2/transcript.json';
@@ -36,6 +37,8 @@ export const RemotionRoot: React.FC = () => (
       <Composition key={p.id} id={p.id} component={Short} fps={FPS} width={1080} height={1920}
         durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
     ))}
+    <Composition id="PaperFull" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={982}
+      defaultProps={{video: 'imb_full.mp4', title: ['기말 역전하는', '4주 플래너'], lines: paperLines}} />
     <Composition id="PaperSample" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={445}
       defaultProps={{video: 'imb_sample.mp4', title: ['기말 역전하는', '4주 플래너'], lines: [
         {s: 0.0, e: 1.7, text: '{기말 역전}하고 싶은데'},

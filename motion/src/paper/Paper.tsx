@@ -32,6 +32,18 @@ const tokens = (text: string) => text.split(/(\[[^\]]+\]|\{[^}]+\}|<[^>]+>|\(\([
   return {t: p, c: undefined};
 });
 
+/** Words (split on spaces) as groups of coloured/plain runs, so a keyword and its particle never wrap apart. */
+const groups = (text: string) => {
+  const out: {t: string; c?: string}[][] = [[]];
+  for (const tok of tokens(text)) {
+    tok.t.split(/( )/).forEach((piece) => {
+      if (piece === ' ') { if (out[out.length - 1].length) out.push([]); }
+      else if (piece) out[out.length - 1].push({t: piece, c: tok.c});
+    });
+  }
+  return out.filter((g) => g.length);
+};
+
 export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
   const f = useCurrentFrame();
   const t = f / FPS;
@@ -49,9 +61,13 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
         </div>
       ) : null}
       {line ? (
-        <div style={{position: 'absolute', left: 40, right: 40, top: 1420, textAlign: 'center', fontSize: 82, fontWeight: 600,
+        <div style={{position: 'absolute', left: 40, right: 40, top: 1230, textAlign: 'center', fontSize: 94, fontWeight: 600,
           letterSpacing: -3, lineHeight: 1.25, textShadow: GLOW, transform: `scale(${pop})`}}>
-          {tokens(line.text).map((w, i) => <Word key={i} text={w.t} color={w.c} f0={f0} />)}
+          {groups(line.text).map((g, gi) => (
+            <span key={gi} style={{display: 'inline-block', whiteSpace: 'nowrap', margin: '0 0.14em'}}>
+              {g.map((w, i) => <Word key={i} text={w.t} color={w.c} f0={f0} />)}
+            </span>
+          ))}
         </div>
       ) : null}
     </AbsoluteFill>
