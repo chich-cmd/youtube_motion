@@ -36,14 +36,17 @@ export const RemotionRoot: React.FC = () => (
       <Composition key={p.id} id={p.id} component={Short} fps={FPS} width={1080} height={1920}
         durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
     ))}
-    <Composition id="PaperSample" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={314}
-      defaultProps={{video: 'imb_sample.mp4', title: ['13년차 영어쌤', '기말 역전 플래너'], lines: [
-        {s: 0.05, e: 2.41, text: '{13년차} 영어쌤인 제가'},
-        {s: 2.41, e: 4.39, text: '[주차별 공부법]'},
-        {s: 4.39, e: 5.65, text: '<시험 포인트>'},
-        {s: 5.65, e: 6.6, text: '{오답 노트}'},
-        {s: 6.6, e: 7.99, text: '내용 기억하는 데 ((꼭 필요한))'},
-        {s: 7.99, e: 10.4, text: '[전개도 작성법]에다가'},
+    <Composition id="PaperSample" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={445}
+      defaultProps={{video: 'imb_sample.mp4', title: ['기말 역전하는', '4주 플래너'], lines: [
+        {s: 0.0, e: 1.7, text: '{기말 역전}하고 싶은데'},
+        {s: 1.7, e: 3.34, text: '어떻게 공부해야 되는지 모르겠는'},
+        {s: 3.34, e: 4.35, text: '학생들 [주목!]'},
+        {s: 4.4, e: 6.76, text: '{13년차} 영어쌤인 제가'},
+        {s: 6.76, e: 8.74, text: '[주차별 공부법]'},
+        {s: 8.74, e: 10.0, text: '<시험 포인트>'},
+        {s: 10.0, e: 10.95, text: '{오답 노트}'},
+        {s: 10.95, e: 12.34, text: '내용 기억하는 데 ((꼭 필요한))'},
+        {s: 12.34, e: 14.8, text: '[전개도 작성법]에다가'},
       ]}} />
     <Composition id="Ep3" component={Main} fps={FPS} width={1920} height={1080}
       durationInFrames={Math.round(ep3.total * FPS)}

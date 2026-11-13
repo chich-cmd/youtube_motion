@@ -11,7 +11,9 @@ export type PaperLine = {s: number; e: number; text: string};
 export type PaperProps = {video: string; lines: PaperLine[]; title?: [string, string]};
 
 const COLORS: Record<string, string> = {'[': '#FFE14D', '{': '#FF4B4B', '<': '#5EC8FF', '(': '#6BF07A'};
-const STROKE = '0 0 2px #000, 0 0 2px #000, 3px 3px 0 #000, -3px 3px 0 #000, 3px -3px 0 #000, -3px -3px 0 #000, 0 5px 12px rgba(0,0,0,0.5)';
+// Title: crisp dark outline + glow. Captions: soft dark glow only (as in the reference reel).
+const OUTLINE = '3px 3px 0 #111, -3px 3px 0 #111, 3px -3px 0 #111, -3px -3px 0 #111, 0 3px 0 #111, 0 -3px 0 #111, 3px 0 0 #111, -3px 0 0 #111, 0 0 18px rgba(0,0,0,0.75)';
+const GLOW = '0 0 6px rgba(0,0,0,0.85), 0 0 14px rgba(0,0,0,0.7), 0 0 28px rgba(0,0,0,0.5)';
 
 const Word: React.FC<{text: string; color?: string; f0: number}> = ({text, color, f0}) => {
   const f = useCurrentFrame();
@@ -40,16 +42,15 @@ export const Paper: React.FC<PaperProps> = ({video, lines, title}) => {
     <AbsoluteFill style={{background: '#000', fontFamily: FONT, wordBreak: 'keep-all'}}>
       <OffthreadVideo src={staticFile(video)} />
       {title ? (
-        <div style={{position: 'absolute', left: 30, right: 30, top: 380, textAlign: 'center', fontSize: 70, fontWeight: 900,
-          letterSpacing: -2.5, lineHeight: 1.2}}>
-          <span style={{background: '#E8231F', color: '#fff', padding: '2px 14px', borderRadius: 6,
-            boxShadow: '0 0 0 3px #111'}}>{title[0]}</span>
-          <span style={{color: '#111', marginLeft: 10, textShadow: '0 0 6px #fff, 0 0 3px #fff, 0 0 2px #fff'}}>{title[1]}</span>
+        <div style={{position: 'absolute', left: 20, right: 20, top: 300, textAlign: 'center', fontSize: 78, fontWeight: 900,
+          letterSpacing: -2.5, lineHeight: 1.2, textShadow: OUTLINE}}>
+          <span style={{color: '#FF2A23'}}>{title[0]}</span>
+          <span style={{color: '#fff', marginLeft: 16}}>{title[1]}</span>
         </div>
       ) : null}
       {line ? (
-        <div style={{position: 'absolute', left: 40, right: 40, top: 1420, textAlign: 'center', fontSize: 84, fontWeight: 900,
-          letterSpacing: -2.5, lineHeight: 1.25, textShadow: STROKE, transform: `scale(${pop})`}}>
+        <div style={{position: 'absolute', left: 40, right: 40, top: 1420, textAlign: 'center', fontSize: 82, fontWeight: 600,
+          letterSpacing: -3, lineHeight: 1.25, textShadow: GLOW, transform: `scale(${pop})`}}>
           {tokens(line.text).map((w, i) => <Word key={i} text={w.t} color={w.c} f0={f0} />)}
         </div>
       ) : null}
