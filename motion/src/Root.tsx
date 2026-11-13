@@ -53,6 +53,6 @@ const SHORTS: {id: string; props: ShortProps}[] = [
     segments: ep2Transcript as Segment[], emph: EP2_EMPH}},
   {id: 'Short3b', props: {video: 'ep2_final.mp4', parts: [[720.47, 726.16], [726.13, 730.94], [755.55, 758.89], [787.27, 791.4], [793.01, 799.98], [827.16, 833.43], [836.47, 843.18], [867.18, 871.45], [887.36, 891.54], [906.68, 916.16]], hook: ['영어 해석 하나도 안 되는', '핵노베이스 1등급 만든 해석법'],
     segments: ep2Transcript as Segment[], emph: EP2_EMPH}},
-  {id: 'Short4', props: {video: 'ep3_final.mp4', parts: [[280.77, 284.77], [291.97, 349.07]], hook: ['수능 어법 10년치 분석해봤더니', '정답 선지는 이거였습니다'], intro: 3,
+  {id: 'Short4', props: {video: 'ep3_final.mp4', parts: [[280.77, 284.77], [291.97, 349.07]], hook: ['수능 어법 10년치 분석해봤더니', '정답 선지는 이거였습니다'], intro: 3, endCard: 'follow',
     captions: ep3Captions, emph: EP3_EMPH}},
 ];

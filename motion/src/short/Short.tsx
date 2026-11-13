@@ -16,7 +16,8 @@ export type ShortProps = {
   captions?: Line[];             // episode-timed caption lines (EP3), or …
   segments?: Segment[];          // … episode transcript to build them from (EP2)
   emph?: Emph;
-  intro?: number;                // seconds of hook-only opening (for a recorded voice-over)
+  intro?: number;
+  endCard?: 'follow';            // 'follow': "이 외의 영어 풀이 꿀팁은 / 누보쌤 팔로우"; default: full-video card                // seconds of hook-only opening (for a recorded voice-over)
 };
 
 export const END = 2.5;          // seconds of end card after the clip
@@ -28,7 +29,7 @@ const fit = (text: string, max: number, width: number) => Math.min(max, Math.flo
 
 export const shortLength = (parts: [number, number][]) => parts.reduce((a, [x, y]) => a + y - x, 0);
 
-const ShortBody: React.FC<ShortProps> = ({video, parts, hook, captions, segments, emph}) => {
+const ShortBody: React.FC<ShortProps> = ({video, parts, hook, captions, segments, emph, endCard}) => {
   const f = useCurrentFrame();
   const t = f / FPS;
   const len = shortLength(parts);
@@ -87,9 +88,16 @@ const ShortBody: React.FC<ShortProps> = ({video, parts, hook, captions, segments
       {f >= Math.round(len * FPS) ? (
         <AbsoluteFill style={{background: `rgba(245,243,238,${0.94 * endP})`, alignItems: 'center', justifyContent: 'center'}}>
           <div style={{textAlign: 'center', opacity: endP, transform: `translateY(${(1 - endP) * 30}px)`}}>
+            {endCard === 'follow' ? (<>
             <div style={{fontSize: 50, fontWeight: 700, color: C.sub, letterSpacing: -1}}>이 외의 영어 풀이 꿀팁은</div>
             <div style={{display: 'inline-block', marginTop: 26, fontSize: 84, fontWeight: 900, color: '#fff', background: C.blue,
               borderRadius: 999, padding: '18px 56px', letterSpacing: -2, transform: `scale(${pop(f, Math.round(len * FPS) + 8)})`}}>누보쌤 팔로우</div>
+            </>) : (<>
+            <div style={{fontSize: 46, fontWeight: 700, color: C.sub}}>더 자세한 풀이는</div>
+            <div style={{fontSize: 74, fontWeight: 900, color: C.ink, marginTop: 10, letterSpacing: -2}}>전체 영상에서 ▶</div>
+            <div style={{display: 'inline-block', marginTop: 40, fontSize: 36, fontWeight: 800, color: '#fff', background: C.blue,
+              borderRadius: 999, padding: '14px 40px'}}>누보영어 구독하기</div>
+            </>)}
           </div>
         </AbsoluteFill>
       ) : null}
