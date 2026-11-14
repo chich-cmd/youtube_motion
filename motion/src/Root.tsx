@@ -76,7 +76,7 @@ export const RemotionRoot: React.FC = () => (
         {from: 42.8, to: 48.97, pdf: {first: 7, every: 1.0}, x: 540, y: 1265, size: 480},
         {from: 48.97, to: 54.43, pdf: {first: 5, every: 1.0}, x: 540, y: 930, size: 400},
         // 8b 쌤도 수많은 사람들도 우리 수험생들을 응원하고 있으니 수능 대박나자
-        {from: 54.53, to: 60.63, mood: 'excited', x: 540, y: 1300, size: 600},
+        {from: 54.53, to: 60.63, mood: 'win', x: 540, y: 1330, size: 640},
         // 9 자료 받을 친구들은 쌤 팔로우하고 댓글에 선지완성 적어줘
         {from: 60.73, to: 66.73, mood: 'look', x: 540, y: 1330, size: 600},
       ]}} />

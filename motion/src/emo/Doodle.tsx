@@ -5,7 +5,7 @@ import {useCurrentFrame, useVideoConfig} from 'remotion';
  * Black line-art student at a desk, drawn in SVG and animated per mood.
  * A turbulence displacement that re-seeds every few frames gives the hand-drawn "line boil".
  */
-export type Mood = 'think' | 'look' | 'excited' | 'study' | 'sweat' | 'dizzy' | 'cry';
+export type Mood = 'think' | 'look' | 'excited' | 'study' | 'sweat' | 'dizzy' | 'cry' | 'win';
 
 const S = {fill: 'none', stroke: '#111', strokeWidth: 7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const};
 
@@ -18,7 +18,7 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
   const writing = mood === 'study' || mood === 'sweat';
   const pen = writing ? Math.sin(t * Math.PI * 4) * 14 : 0;                 // pencil scribbles back and forth
   const headTilt = mood === 'think' ? -8 + Math.sin(t * 2) * 3 : mood === 'dizzy' ? Math.sin(t * 7) * 10 : Math.sin(t * 2.4) * 3;
-  const bounce = mood === 'excited' ? -Math.abs(Math.sin(t * Math.PI * 2.2)) * 18 : 0;
+  const bounce = mood === 'excited' || mood === 'win' ? -Math.abs(Math.sin(t * Math.PI * 2.2)) * 18 : 0;
 
   // eyes / mouth per mood (head centre 200,120 in a 400x360 box)
   const eyes = (() => {
@@ -30,6 +30,7 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
           <circle cx={172 + dx} cy={106} r={7} fill="#111" /><circle cx={228 + dx} cy={106} r={7} fill="#111" />
         </>);
       }
+      case 'win':
       case 'excited': {
         const star = (cx: number) => <path d={`M${cx} ${98} l5 12 13 1 -10 8 4 13 -12 -7 -12 7 4 -13 -10 -8 13 -1z`} {...S} strokeWidth={4} />;
         return <>{star(172)}{star(228)}</>;
@@ -61,6 +62,7 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
     think: <path d="M188 150 q12 -6 24 2" {...S} />,
     look: <ellipse cx={200} cy={152} rx={8} ry={10} {...S} />,
     excited: <path d="M176 142 q24 34 48 0 z" {...S} />,
+    win: <path d="M172 140 q28 40 56 0 z" {...S} />,
     study: <path d="M190 154 q10 6 20 0" {...S} />,
     sweat: <path d="M180 150 q20 14 40 0 M184 152 h32" {...S} />,
     dizzy: <path d="M182 154 q6 -8 12 0 q6 8 12 0 q6 -8 12 0" {...S} />,
@@ -70,7 +72,10 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
     : mood === 'sweat' || mood === 'cry' ? <path d="M160 88 l22 6 M240 88 l-22 6" {...S} strokeWidth={5} /> : null;
 
   // arms: left hand on chin (think), both up (excited), right hand writing otherwise
-  const arms = mood === 'think'
+  const wave = Math.sin(t * Math.PI * 3) * 10;
+  const arms = mood === 'win'
+    ? <><path d={`M150 228 q-44 -36 ${-58 + wave} -100`} {...S} /><path d="M250 228 q44 -30 92 -86" {...S} /></>
+    : mood === 'think'
     ? <><path d="M150 230 q-30 -10 -8 -56 q10 -18 30 -16" {...S} /><path d="M250 230 q40 40 60 74" {...S} /></>
     : mood === 'excited'
       ? <><path d="M150 228 q-40 -40 -50 -96" {...S} /><path d="M250 228 q40 -40 50 -96" {...S} /></>
@@ -88,6 +93,22 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
       })}</>;
       case 'sweat': return <path d={`M262 ${80 + (f % 20)} q10 16 0 22 q-10 -6 0 -22z`} {...S} strokeWidth={4} />;
       case 'dizzy': return <path d={`M150 34 q50 -26 100 0`} {...S} strokeWidth={4} strokeDasharray="10 12" strokeDashoffset={-f * 3} />;
+      case 'win': {
+        const sw = Math.sin(t * Math.PI * 2) * 6;
+        return (<g>
+          {/* 100-point test paper held up in the right hand */}
+          <g transform={`translate(44 -10) rotate(${8 + sw} 318 120)`}>
+            <rect x={262} y={20} width={120} height={150} rx={6} {...S} fill="#fff" strokeWidth={6} />
+            {[0, 1, 2, 3].map((i) => <path key={i} d={`M278 ${108 + i * 14} h${88 - i * 12}`} {...S} strokeWidth={3} />)}
+            <ellipse cx={322} cy={62} rx={44} ry={30} fill="none" stroke="#E0322B" strokeWidth={6} />
+            <text x={322} y={78} textAnchor="middle" fontSize={44} fontWeight={900} fill="#E0322B" fontFamily="sans-serif">100</text>
+          </g>
+          {[0, 1, 2].map((i) => {
+            const a = t * 2.4 + i * 2.1, x = 200 + Math.cos(a) * 170, y = 110 + Math.sin(a) * 80;
+            return <path key={i} d={`M${x} ${y - 14} l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z`} {...S} strokeWidth={4} />;
+          })}
+        </g>);
+      }
       case 'cry': return <><path d="M60 330 l24 -24 M60 306 l24 24" {...S} strokeWidth={5} /><path d="M330 330 l24 -24 M330 306 l24 24" {...S} strokeWidth={5} /></>;
       default: return null;
     }
@@ -112,6 +133,11 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
           <circle cx={200} cy={120} r={84} {...S} />
           <path d="M126 92 q30 -60 92 -50 q46 8 62 50" {...S} strokeWidth={5} />
           {eyes}{brows}{mouth}
+          {mood === 'win' ? (<g>
+            <path d="M118 84 q82 -30 164 0 l-4 26 q-78 -28 -156 0 z" {...S} fill="#fff" strokeWidth={5} />
+            <text x={200} y={86} textAnchor="middle" fontSize={31} fontWeight={900} fill="#E0322B" fontFamily="Pretendard, sans-serif">수능대박</text>
+            <path d="M282 92 l26 -8 l-6 22 z M282 92 l24 18" {...S} strokeWidth={4} />
+          </g>) : null}
         </g>
         {extras}
       </g>
