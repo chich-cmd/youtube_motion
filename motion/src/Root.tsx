@@ -52,7 +52,7 @@ export const RemotionRoot: React.FC = () => (
         {from: 13.33, to: 15.7, code: '1f635_200d_1f4ab', x: 540, y: 1260, size: 380},
         {from: 15.7, to: 18.93, code: '1f62d', x: 540, y: 1260, size: 400},
       ]}} />
-    <Composition id="DoodleReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={1723}
+    <Composition id="DoodleReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={1908}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // 1 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
         {from: 0.1, to: 3.3, mood: 'think', x: 540, y: 1420, size: 640, next: true},
@@ -74,8 +74,10 @@ export const RemotionRoot: React.FC = () => (
         {from: 32.8, to: 39.87, pdf: {first: 0, every: 1.0}, x: 540, y: 1140, size: 580},
         {from: 39.87, to: 45.97, pdf: {first: 7, every: 1.0}, x: 540, y: 1265, size: 480},
         {from: 45.97, to: 51.37, pdf: {first: 5, every: 1.0}, x: 540, y: 930, size: 400},
+        // 8b 쌤도 수많은 사람들도 우리 수험생들 응원! 수능 대박!!
+        {from: 51.47, to: 57.53, mood: 'excited', x: 540, y: 1300, size: 600},
         // 9 자료 받을 친구들은 쌤 팔로우 + 댓글
-        {from: 51.47, to: 57.43, mood: 'excited', x: 540, y: 1330, size: 600},
+        {from: 57.63, to: 63.6, mood: 'look', x: 540, y: 1330, size: 600},
       ]}} />
     <Composition id="PaperFull" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={982}
       defaultProps={{video: 'imb_full.mp4', title: ['기말 역전하는', '4주 플래너'], lines: paperLines}} />
