@@ -46,3 +46,5 @@ __pycache__/
 /rec3/*.wav
 /imb/
 /motion/public/imb_*.mp4
+/rp/
+/motion/public/rp_base.mp4

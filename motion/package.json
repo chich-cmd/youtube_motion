@@ -12,7 +12,9 @@
   "dependencies": {
     "@remotion/cli": "^4.0.533",
     "@remotion/google-fonts": "^4.0.533",
+    "@remotion/lottie": "^4.0.533",
     "@types/react": "^18.3.31",
+    "lottie-web": "^5.13.0",
     "pretendard": "^1.3.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

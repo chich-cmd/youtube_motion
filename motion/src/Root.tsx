@@ -8,6 +8,7 @@ import {Scene, Segment} from './types';
 import {Reel, REEL_TOTAL} from './reel/Reel';
 import {Short, ShortProps, END, shortLength} from './short/Short';
 import {Paper} from './paper/Paper';
+import {Emo} from './emo/Emo';
 import paperLines from './paper/full_lines.json';
 import {Captioned, CAPTIONED_TOTAL} from './captioned/Captioned';
 import ep2 from './ep2/scenes_cut.json';
@@ -37,6 +38,20 @@ export const RemotionRoot: React.FC = () => (
       <Composition key={p.id} id={p.id} component={Short} fps={FPS} width={1080} height={1920}
         durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
     ))}
+    <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
+      defaultProps={{video: 'rp_base.mp4', cues: [
+        // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
+        {from: 0.1, to: 3.3, code: '1f914', x: 540, y: 1370, size: 380},
+        {from: 3.3, to: 5.3, code: '1f440', x: 540, y: 1370, size: 380},
+        {from: 5.3, to: 8.17, code: '1f929', x: 540, y: 1370, size: 400},
+        {from: 6.3, to: 8.17, code: '2728', x: 930, y: 380, size: 170, tilt: 12},
+        // clip 2: 영어 모고 풀 때 / 지문 대충 알겠는데도
+        {from: 8.27, to: 10.8, code: '1f913', x: 540, y: 1230, size: 380},
+        {from: 10.8, to: 13.23, code: '1f605', x: 540, y: 1230, size: 380},
+        // clip 3: 선지 해석 어렵거나 / 이해 안 돼서 / 틀린 적 있지?!
+        {from: 13.33, to: 15.7, code: '1f635_200d_1f4ab', x: 540, y: 1260, size: 380},
+        {from: 15.7, to: 18.93, code: '1f62d', x: 540, y: 1260, size: 400},
+      ]}} />
     <Composition id="PaperFull" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={982}
       defaultProps={{video: 'imb_full.mp4', title: ['기말 역전하는', '4주 플래너'], lines: paperLines}} />
     <Composition id="PaperSample" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={445}
