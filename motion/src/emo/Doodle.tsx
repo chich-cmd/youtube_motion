@@ -133,13 +133,15 @@ export const Doodle: React.FC<{mood: Mood; size: number}> = ({mood, size}) => {
           <circle cx={200} cy={120} r={84} {...S} />
           <path d="M126 92 q30 -60 92 -50 q46 8 62 50" {...S} strokeWidth={5} />
           {eyes}{brows}{mouth}
-          {mood === 'win' ? (<g>
-            <path d="M118 84 q82 -30 164 0 l-4 26 q-78 -28 -156 0 z" {...S} fill="#fff" strokeWidth={5} />
-            <text x={200} y={86} textAnchor="middle" fontSize={31} fontWeight={900} fill="#E0322B" fontFamily="Pretendard, sans-serif">수능대박</text>
-            <path d="M282 92 l26 -8 l-6 22 z M282 92 l24 18" {...S} strokeWidth={4} />
-          </g>) : null}
+
         </g>
         {extras}
+        {mood === 'win' ? (
+          <g transform={`translate(0 ${Math.sin(t * Math.PI * 2) * 4}) rotate(${Math.sin(t * 3) * 2} 200 -20)`}>
+            <path d="M92 -52 h216 l-14 32 l14 32 h-216 l14 -32 z" {...S} fill="#fff" strokeWidth={6} />
+            <path d="M92 -52 l-34 10 l14 22 l-14 22 l34 -2 M308 -52 l34 10 l-14 22 l14 22 l-34 -2" {...S} strokeWidth={5} />
+            <text x={200} y={-8} textAnchor="middle" fontSize={44} fontWeight={900} fill="#E0322B" fontFamily="Pretendard, sans-serif">수능 대박!</text>
+          </g>) : null}
       </g>
     </svg>
   );
