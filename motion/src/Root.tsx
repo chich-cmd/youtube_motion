@@ -52,15 +52,30 @@ export const RemotionRoot: React.FC = () => (
         {from: 13.33, to: 15.7, code: '1f635_200d_1f4ab', x: 540, y: 1260, size: 380},
         {from: 15.7, to: 18.93, code: '1f62d', x: 540, y: 1260, size: 400},
       ]}} />
-    <Composition id="DoodleReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
+    <Composition id="DoodleReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={1723}
       defaultProps={{video: 'rp_base.mp4', cues: [
+        // 1 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
         {from: 0.1, to: 3.3, mood: 'think', x: 540, y: 1420, size: 640, next: true},
         {from: 3.3, to: 5.3, mood: 'look', x: 540, y: 1420, size: 640, cont: true, next: true},
         {from: 5.3, to: 8.17, mood: 'excited', x: 540, y: 1420, size: 640, cont: true},
+        // 2 영어 모고 풀 때 / 지문 대충 알겠는데도
         {from: 8.27, to: 10.8, mood: 'study', x: 540, y: 1300, size: 640, next: true},
         {from: 10.8, to: 13.23, mood: 'sweat', x: 540, y: 1300, size: 640, cont: true},
+        // 3 선지 해석 어렵거나 이해 안 돼서 / 틀린 적 있지?!
         {from: 13.33, to: 15.7, mood: 'dizzy', x: 540, y: 1330, size: 640, next: true},
         {from: 15.7, to: 18.93, mood: 'cry', x: 540, y: 1330, size: 640, cont: true},
+        // 4 그게 다.. 선지 비유적 의미 / 선지 관용구 몰라서 그래
+        {from: 19.03, to: 21.4, mood: 'look', x: 540, y: 1420, size: 600, next: true},
+        {from: 21.4, to: 24.1, mood: 'sweat', x: 540, y: 1420, size: 600, cont: true},
+        // 5 영어 선지는 이게 답이려면 지문에 나와야 하는 내용 → 역추적
+        {from: 24.2, to: 29.6, mood: 'study', x: 540, y: 1390, size: 600, next: true},
+        {from: 29.6, to: 32.7, mood: 'excited', x: 540, y: 1390, size: 600, cont: true},
+        // 6-8 13년차 영쌤인 누보쌤이 ... 문제 훨씬 쉽고 빠르게 풀릴 거야: the booklet flips
+        {from: 32.8, to: 39.87, pdf: {first: 0, every: 1.0}, x: 540, y: 1140, size: 580},
+        {from: 39.87, to: 45.97, pdf: {first: 7, every: 1.0}, x: 540, y: 1265, size: 480},
+        {from: 45.97, to: 51.37, pdf: {first: 5, every: 1.0}, x: 540, y: 930, size: 400},
+        // 9 자료 받을 친구들은 쌤 팔로우 + 댓글
+        {from: 51.47, to: 57.43, mood: 'excited', x: 540, y: 1330, size: 600},
       ]}} />
     <Composition id="PaperFull" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={982}
       defaultProps={{video: 'imb_full.mp4', title: ['기말 역전하는', '4주 플래너'], lines: paperLines}} />
