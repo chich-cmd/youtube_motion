@@ -52,6 +52,16 @@ export const RemotionRoot: React.FC = () => (
         {from: 13.33, to: 15.7, code: '1f635_200d_1f4ab', x: 540, y: 1260, size: 380},
         {from: 15.7, to: 18.93, code: '1f62d', x: 540, y: 1260, size: 400},
       ]}} />
+    <Composition id="DoodleReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
+      defaultProps={{video: 'rp_base.mp4', cues: [
+        {from: 0.1, to: 3.3, mood: 'think', x: 540, y: 1420, size: 640, next: true},
+        {from: 3.3, to: 5.3, mood: 'look', x: 540, y: 1420, size: 640, cont: true, next: true},
+        {from: 5.3, to: 8.17, mood: 'excited', x: 540, y: 1420, size: 640, cont: true},
+        {from: 8.27, to: 10.8, mood: 'study', x: 540, y: 1300, size: 640, next: true},
+        {from: 10.8, to: 13.23, mood: 'sweat', x: 540, y: 1300, size: 640, cont: true},
+        {from: 13.33, to: 15.7, mood: 'dizzy', x: 540, y: 1330, size: 640, next: true},
+        {from: 15.7, to: 18.93, mood: 'cry', x: 540, y: 1330, size: 640, cont: true},
+      ]}} />
     <Composition id="PaperFull" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={982}
       defaultProps={{video: 'imb_full.mp4', title: ['기말 역전하는', '4주 플래너'], lines: paperLines}} />
     <Composition id="PaperSample" component={Paper} fps={FPS} width={1080} height={1920} durationInFrames={445}

@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {AbsoluteFill, OffthreadVideo, Sequence, cancelRender, continueRender, delayRender, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Lottie, LottieAnimationData} from '@remotion/lottie';
+import {Doodle, Mood} from './Doodle';
 
 /** Animated (Noto, Lottie) emoji characters placed around hand-written lines, never over them. */
-export type EmoCue = {from: number; to: number; code: string; x: number; y: number; size: number; tilt?: number};
+export type EmoCue = {from: number; to: number; code?: string; mood?: Mood; x: number; y: number; size: number; tilt?: number; cont?: boolean; next?: boolean};  // next: the following cue continues the same character  // cont: same character continues, no pop-in
 export type EmoProps = {video: string; cues: EmoCue[]};
 
 const Anim: React.FC<{code: string}> = ({code}) => {
@@ -19,13 +20,13 @@ const Anim: React.FC<{code: string}> = ({code}) => {
 const Cue: React.FC<{c: EmoCue; len: number}> = ({c, len}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const inn = spring({frame: f, fps, config: {damping: 11, stiffness: 180}});
-  const out = interpolate(f, [len - 6, len], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const inn = c.cont ? 1 : spring({frame: f, fps, config: {damping: 11, stiffness: 180}});
+  const out = c.next ? 1 : interpolate(f, [len - 6, len], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const bob = Math.sin((f / fps) * Math.PI * 1.6) * 10;          // gentle float so the character feels alive
   return (
     <div style={{position: 'absolute', left: c.x - c.size / 2, top: c.y - c.size / 2 + bob, width: c.size, height: c.size,
-      transform: `scale(${inn * out}) rotate(${(c.tilt ?? 0) * inn}deg)`, filter: 'drop-shadow(0 10px 14px rgba(0,0,0,0.18))'}}>
-      <Anim code={c.code} />
+      transform: `scale(${inn * out}) rotate(${(c.tilt ?? 0) * inn}deg)`, filter: c.mood ? undefined : 'drop-shadow(0 10px 14px rgba(0,0,0,0.18))'}}>
+      {c.mood ? <Doodle mood={c.mood} size={c.size} /> : <Anim code={c.code!} />}
     </div>
   );
 };
