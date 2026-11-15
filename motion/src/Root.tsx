@@ -21,6 +21,8 @@ import ep4Transcript from './ep4/transcript.json';
 import ep4Captions from './ep4/captions.json';
 import ep4Fx from './ep4/fx.json';
 import {Fx} from './components/Fx';
+import {Tip} from './tip/Tip';
+import tipLines from './tip/lines.json';
 
 const EP2_EMPH = {
   key: '덩어리|전치사|명사|주어|동사|준동사|접속사|슬래시|콤마|문장 부호|ing|-ed|\\bto\\b|\\bof\\b|\\bas\\b|measure|Despite',
@@ -42,6 +44,10 @@ export const RemotionRoot: React.FC = () => (
     {SHORTS.map((p) => (
       <Composition key={p.id} id={p.id} component={Short} fps={FPS} width={1080} height={1920}
         durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
+    ))}
+    {(['A', 'B', 'C'] as const).map((look) => (
+      <Composition key={look} id={`Tip${look}`} component={Tip} fps={30} width={1440} height={1920} durationInFrames={3990}
+        defaultProps={{video: 'cut3.mp4', lines: tipLines, look}} />
     ))}
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
