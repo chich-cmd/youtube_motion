@@ -46,8 +46,8 @@ export const RemotionRoot: React.FC = () => (
         durationInFrames={Math.round((shortLength(p.props.parts) + END + (p.props.intro ?? 0)) * FPS)} defaultProps={p.props} />
     ))}
     {(['A', 'B', 'C'] as const).map((look) => (
-      <Composition key={look} id={`Tip${look}`} component={Tip} fps={30} width={1440} height={1920} durationInFrames={3990}
-        defaultProps={{video: 'cut3.mp4', lines: tipLines, look}} />
+      <Composition key={look} id={`Tip${look}`} component={Tip} fps={30} width={1080} height={1920} durationInFrames={3990}
+        defaultProps={{video: 'cut3.mp4', lines: tipLines, look, reel: true, title: '해석 약해도\n{주제·제목} 맞추는 법'}} />
     ))}
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
