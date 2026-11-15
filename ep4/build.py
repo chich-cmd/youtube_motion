@@ -17,10 +17,11 @@ lines = [{'s': float(a), 'e': float(b), 't': t.strip()} for a, b, t in caps]
 json.dump([{'s': l['s'], 'e': l['e'], 'text': l['t']} for l in lines], open('motion/src/ep4/captions.json', 'w'), ensure_ascii=False, indent=0)
 fx = json.load(open('motion/src/ep4/fx.json'))
 
-def frame(t, x1):
+def frame(t, x1, rgb=False):
     x1 = x1 // 2 * 2
-    raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', f'{t:.2f}', '-i', SRC, '-frames:v', '1', '-vf', f'crop={x1}:220:0:860', '-f', 'rawvideo', '-pix_fmt', 'gray', '-'], capture_output=True).stdout
-    return np.frombuffer(raw, np.uint8).reshape(220, x1).astype(int)
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', f'{t:.2f}', '-i', SRC, '-frames:v', '1', '-vf', f'crop={x1}:220:0:860', '-f', 'rawvideo', '-pix_fmt', 'rgb24' if rgb else 'gray', '-'], capture_output=True).stdout
+    a = np.frombuffer(raw, np.uint8).astype(int)
+    return a.reshape(220, x1, 3) if rgb else a.reshape(220, x1)
 
 # Mask the subtitle/effect text that the original burned over the exam page: compare each frame's bottom band
 # with a per-section median "clean plate" and box the large differences.
@@ -28,18 +29,23 @@ for s in sc:
     if s['type'] != 'clip': continue
     a, b, x1 = s['start'], s['end'], s['clip']['w'] // 2 * 2
     plate = np.median(np.stack([frame(t, x1) for t in np.linspace(a + 0.3, b - 0.3, 24)]), 0)
-    events = [(l['s'], l['e']) for l in lines if l['e'] > a and l['s'] < b] + [(f['s'], f['e']) for f in fx if f['e'] > a and f['s'] < b and f['style'] != 'sfx' and f['style'] != 'bubble']
+    # Dense scan: every 0.25 s, box the new near-black pixels (subtitle outline / box) in the bottom band.
+    samples = []
+    for t in np.arange(a + 0.1, b - 0.05, 0.25):
+        fr = frame(t, x1, rgb=True)
+        # neutral (grey/black) dark pixels only: subtitle outlines and boxes, not the blue/red pen loops
+        d = (fr.max(2) < 100) & (fr.max(2) - fr.min(2) < 35) & (plate >= 150)
+        cols = np.where(d.sum(0) > 3)[0]; rows = np.where(d.sum(1) > 8)[0]
+        samples.append((t, (cols.min(), cols.max(), rows.min() + 860, rows.max() + 860) if len(cols) > 40 and len(rows) else None))
     masks = []
-    for (e0, e1) in events:
-        boxes = []
-        for t in (max(a, e0) + 0.15, (max(a, e0) + min(b, e1)) / 2, min(b, e1) - 0.15):
-            d = np.abs(frame(t, x1) - plate) > 60
-            cols = np.where(d.sum(0) > 4)[0]; rows = np.where(d.sum(1) > 6)[0]
-            if len(cols) > 30 and len(rows): boxes.append((cols.min(), cols.max(), rows.min() + 860, rows.max() + 860))
-        if boxes:
-            bx = np.array(boxes)
-            masks.append({'s': round(max(a, e0) - 0.05, 2), 'e': round(min(b, e1) + 0.05, 2), 'x0': int(bx[:, 0].min()) - 12, 'x1': int(bx[:, 1].max()) + 12,
-                          'y0': int(bx[:, 2].min()) - 10, 'y1': int(bx[:, 3].max()) + 10})
+    for t, bx in samples:
+        if bx is None: continue
+        x0_, x1_, y0_, y1_ = bx
+        if masks and t - masks[-1]['e'] < 0.3 and abs(x0_ - masks[-1]['x0'] - 12) < 160:
+            m = masks[-1]; m['e'] = round(t + 0.2, 2)
+            m['x0'] = min(m['x0'], int(x0_) - 12); m['x1'] = max(m['x1'], int(x1_) + 12); m['y0'] = min(m['y0'], int(y0_) - 10); m['y1'] = max(m['y1'], int(y1_) + 10)
+        else:
+            masks.append({'s': round(t - 0.15, 2), 'e': round(t + 0.2, 2), 'x0': int(x0_) - 12, 'x1': int(x1_) + 12, 'y0': int(y0_) - 10, 'y1': int(y1_) + 10})
     s['clip']['masks'] = masks
     s['clip']['src'] = 'ep4_src.mp4'
     print(s['heading'], len(masks))
