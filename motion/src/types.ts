@@ -16,6 +16,7 @@ export type Scene = {start: number; end: number; chapter?: number} & (
   | {type: 'wordcard'; label?: string; heading: string; cards: WordCard[]; note?: {t: number; text: string}}
   | {type: 'clip'; label?: string; heading: string; items: ListItem[]; clip: {from: number; x: number; y?: number; w: number; h?: number; src?: string; shift?: {t: number; y: number; h: number};
     masks?: {s: number; e: number; x0: number; x1: number; y0: number; y1: number}[]}}  // masks: source-time boxes to paint over (burned-in subtitles)
+  | {type: 'slide'; label?: string; lines: {t: number; text: string; color?: string; small?: boolean}[]; boxed?: boolean}
   | {type: 'notice'; label?: string; badge?: string; lines: string[]; accentLine?: number}
   | {type: 'plan'; label?: string; heading: string; badge?: string; rows: {t: number; when: string; what: string; sub?: string; tag?: string; accent?: boolean}[]}
   | {type: 'passage'; label?: string; heading?: string; text: string; size?: number; marks: PassageMark[]; notes?: {t: number; text: string; color?: 'blue' | 'red'}[]}

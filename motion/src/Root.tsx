@@ -16,6 +16,11 @@ import ep2Transcript from './ep2/transcript.json';
 import ep3 from './ep3/scenes_cut.json';
 import ep3Transcript from './ep3/transcript.json';
 import ep3Captions from './ep3/captions.json';
+import ep4 from './ep4/scenes_cut.json';
+import ep4Transcript from './ep4/transcript.json';
+import ep4Captions from './ep4/captions.json';
+import ep4Fx from './ep4/fx.json';
+import {Fx} from './components/Fx';
 
 const EP2_EMPH = {
   key: '덩어리|전치사|명사|주어|동사|준동사|접속사|슬래시|콤마|문장 부호|ing|-ed|\\bto\\b|\\bof\\b|\\bas\\b|measure|Despite',
@@ -94,6 +99,10 @@ export const RemotionRoot: React.FC = () => (
         {s: 10.95, e: 12.34, text: '내용 기억하는 데 ((꼭 필요한))'},
         {s: 12.34, e: 14.8, text: '[전개도 작성법]에다가'},
       ]}} />
+    <Composition id="Ep4" component={Main} fps={FPS} width={1920} height={1080}
+      durationInFrames={Math.round(ep4.total * FPS)}
+      defaultProps={{scenes: ep4.scenes as Scene[], chapters: ep4.chapters, total: ep4.total, segments: ep4Transcript as Segment[],
+        captions: ep4Captions, fx: ep4Fx as Fx[]}} />
     <Composition id="Ep3" component={Main} fps={FPS} width={1920} height={1080}
       durationInFrames={Math.round(ep3.total * FPS)}
       defaultProps={{scenes: ep3.scenes as Scene[], chapters: ep3.chapters, total: ep3.total, segments: ep3Transcript as Segment[],

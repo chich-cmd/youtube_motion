@@ -8,6 +8,7 @@ import {Captions} from './components/Captions';
 import * as S from './components/Scenes';
 import * as S2 from './components/Scenes2';
 import {Emph, Line} from './components/Captions';
+import {Fx, FxLayer} from './components/Fx';
 
 const pick = (s: Scene, len: number) => {
   switch (s.type) {
@@ -24,6 +25,7 @@ const pick = (s: Scene, len: number) => {
     case 'plan': return <S2.PlanScene s={s} len={len} />;
     case 'notice': return <S2.NoticeScene s={s} len={len} />;
     case 'clip': return <S2.ClipScene s={s} len={len} />;
+    case 'slide': return <S2.SlideScene s={s} len={len} />;
     case 'passage': return <S2.PassageScene s={s} len={len} />;
   }
 };
@@ -36,9 +38,10 @@ export type VideoProps = {
   offset?: number;
   captions?: Line[];   // pre-timed caption lines; [] = build from segments
   emph?: Emph;         // caption keyword highlighting
+  fx?: Fx[];           // stylised one-off captions
 };
 
-export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, captions, emph}) => (
+export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, captions, emph, fx}) => (
   <AbsoluteFill>
     <Background />
     {scenes.map((s, i) => {
@@ -50,6 +53,8 @@ export const Main: React.FC<VideoProps> = ({scenes, segments, chapters, total, c
       );
     })}
     <Progress chapters={chapters} total={total} />
-    <Captions segments={segments} edited={captions} emph={emph} />
+    <Captions segments={segments} edited={captions} emph={emph}
+      hide={fx?.filter((x) => !['sfx', 'bubble', 'smallYellow'].includes(x.style) && !(x.x !== undefined)).map((x) => [x.s, x.e] as [number, number])} />
+    {fx?.length ? <FxLayer fx={fx} /> : null}
   </AbsoluteFill>
 );

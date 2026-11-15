@@ -131,6 +131,29 @@ export const ClipScene: React.FC<P<'clip'>> = ({s, len}) => {
   );
 };
 
+/** Big centred statement slide ("1단계. 한 줄 읽고 생각하기"), lines revealed at their times; optional outlined box. */
+export const SlideScene: React.FC<P<'slide'>> = ({s, len}) => {
+  const f = useCurrentFrame();
+  const box = s.boxed ? enter(f, 0, 14) : 0;
+  return (
+    <Frame label={s.label} len={len}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 200, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{padding: s.boxed ? '50px 110px' : 0, border: s.boxed ? `6px solid ${C.ink}` : 'none', borderRadius: 18,
+          clipPath: s.boxed ? `inset(0 ${(1 - box) * 100}% 0 0)` : undefined, textAlign: 'center'}}>
+          {s.lines.map((l, i) => {
+            const p = enter(f, at(s, l.t), 12);
+            return (
+              <div key={i} style={{fontSize: l.small ? 46 : s.boxed ? 150 : 92, fontWeight: 900, letterSpacing: -2, lineHeight: 1.25,
+                color: l.color ?? C.ink, opacity: p, transform: `translateY(${(1 - p) * 22}px)`, marginTop: l.small ? 4 : 10}}
+                dangerouslySetInnerHTML={undefined}>{l.text}</div>
+            );
+          })}
+        </div>
+      </div>
+    </Frame>
+  );
+};
+
 /** Silent on-screen notice: a badge and a few centred lines, revealed one by one. */
 export const NoticeScene: React.FC<P<'notice'>> = ({s, len}) => {
   const f = useCurrentFrame();

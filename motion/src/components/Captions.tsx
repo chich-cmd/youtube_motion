@@ -102,7 +102,16 @@ export const holdLines = (out: Line[]): Line[] => {
 export type Emph = {key?: string; warn?: string};  // regex sources: key terms → yellow, warnings → coral
 
 /** Split a caption into plain / key / warn runs. */
+const TAG_COLORS: Record<string, string> = {red: '#FF5A4E', green: '#7CE07A', blue: '#5EC8FF', orange: '#FFA23A', yellow: '#FFD84D', pink: '#FF7BB0'};
+
 export const paint = (text: string, emph?: Emph): React.ReactNode => {
+  // Inline colour tags copied from the original subtitles: {blue:핵심}
+  if (/\{(red|green|blue|orange|yellow|pink):/.test(text)) {
+    return text.split(/(\{(?:red|green|blue|orange|yellow|pink):[^}]*\})/).filter(Boolean).map((p, i) => {
+      const m = p.match(/^\{(\w+):([^}]*)\}$/);
+      return m ? <span key={i} style={{color: TAG_COLORS[m[1]], fontWeight: 800}}>{m[2]}</span> : <React.Fragment key={i}>{p}</React.Fragment>;
+    });
+  }
   if (!emph?.key && !emph?.warn) return text;
   const parts = [emph.key && `(${emph.key})`, emph.warn && `(${emph.warn})`].filter(Boolean).join('|');
   const re = new RegExp(parts, 'g');
@@ -119,13 +128,13 @@ export const paint = (text: string, emph?: Emph): React.ReactNode => {
   return out;
 };
 
-export const Captions: React.FC<{segments: Segment[]; edited?: Line[]; emph?: Emph}> = ({segments, edited: ed = edited as Line[], emph}) => {
+export const Captions: React.FC<{segments: Segment[]; edited?: Line[]; emph?: Emph; hide?: [number, number][]}> = ({segments, edited: ed = edited as Line[], emph, hide}) => {
   const f = useCurrentFrame();
   // Hand-edited caption lines (rec2/captions_user.txt, timed by scripts/time_captions.py) win when present.
   const lines = useMemo(() => (ed.length ? holdLines(ed) : buildLines(segments)), [segments, ed]);
   const t = f / FPS;
   const line = lines.find((l) => t >= l.s && t < l.e);
-  if (!line) return null;
+  if (!line || hide?.some(([a, b]) => t >= a && t < b)) return null;   // a stylised effect caption owns the bottom
   return (
     <div style={{position: 'absolute', left: 0, right: 0, bottom: 64, display: 'flex', justifyContent: 'center', fontFamily: FONT}}>
       <div style={{background: 'rgba(21,24,30,0.88)', color: '#fff', fontSize: 44, fontWeight: 600, letterSpacing: -0.5,

@@ -55,3 +55,6 @@ __pycache__/
 /ep4/*.png
 /ep4/*.jpg
 /ep4/*.log
+/motion/public/kfonts/
+/ep4/*.f32
+/motion/public/ep4_src.mp4
