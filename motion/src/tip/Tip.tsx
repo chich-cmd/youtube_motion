@@ -20,12 +20,19 @@ const runs = (t: string, key: string) => t.split(/(\{[^}]+\})/).filter(Boolean).
   p.startsWith('{') ? <span key={i} style={{color: key}}>{p.slice(1, -1)}</span> : <React.Fragment key={i}>{p}</React.Fragment>);
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => <div key={i}>{runs(r, key)}</div>);
 
-const Bottom: React.FC<{l: TipLine; reel?: boolean}> = ({l, reel}) => (
-  <div style={{position: 'absolute', left: 40, right: 40, bottom: reel ? 60 : 70, textAlign: 'center', fontFamily: FONT, fontWeight: 800, fontSize: 64,
-    lineHeight: 1.3, color: '#fff', letterSpacing: -0.5, WebkitTextStroke: '9px #111', paintOrder: 'stroke fill', wordBreak: 'keep-all'}}>
-    {rows(l.text, '#FFD84D')}
-  </div>
-);
+// Rough rendered width in em, used to keep every caption on a single line.
+const em = (t: string) => [...t.replace(/[{}]/g, '')].reduce((w, c) => w + (c === ' ' ? 0.28 : /[가-힣]/.test(c) ? 0.94 : /[①-⑤→]/.test(c) ? 0.9 : 0.56), 0);
+
+const Bottom: React.FC<{l: TipLine; reel?: boolean}> = ({l, reel}) => {
+  const text = l.text.replace(/[{}]/g, '');
+  const size = Math.min(60, 940 / em(text));
+  return (
+    <div style={{position: 'absolute', left: 0, right: 0, top: reel ? 1594 : 1700, height: reel ? 326 : 160, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div style={{background: '#111', color: '#fff', fontFamily: FONT, fontWeight: 700, fontSize: size, letterSpacing: -1, lineHeight: 1.3,
+        padding: '14px 30px', borderRadius: 14, whiteSpace: 'nowrap'}}>{text}</div>
+    </div>
+  );
+};
 
 const Step: React.FC<{l: TipLine; look: TipStyle; k: number}> = ({l, look, k}) => {
   if (look === 'A') return (     // yellow highlighter band, heavy black type, red STEP tag
@@ -39,7 +46,7 @@ const Step: React.FC<{l: TipLine; look: TipStyle; k: number}> = ({l, look, k}) =
     <div style={{position: 'absolute', left: 40, right: 40, top: 760, background: 'rgba(17,17,17,0.88)', borderRadius: 40, padding: '44px 40px 50px',
       textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.35)', transform: `translateY(${(1 - k) * 60}px)`, opacity: k}}>
       {l.step ? <div style={{fontFamily: DISPLAY.round, fontSize: 54, color: '#111', background: '#FFD84D', display: 'inline-block', padding: '4px 28px', borderRadius: 999, marginBottom: 22}}>{l.step}</div> : null}
-      <div style={{fontFamily: DISPLAY.round, fontSize: 82, lineHeight: 1.25, color: '#fff'}}>{rows(l.text, '#FFD84D')}</div>
+      <div style={{fontFamily: DISPLAY.round, fontSize: Math.min(82, 900 / Math.max(...l.text.split('\n').map(em))), lineHeight: 1.25, color: '#fff', whiteSpace: 'nowrap'}}>{rows(l.text, '#FFD84D')}</div>
     </div>
   );
   return (                       // handwritten sticky note, slightly tilted, red keywords
