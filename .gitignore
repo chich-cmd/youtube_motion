@@ -49,3 +49,8 @@ __pycache__/
 /rp/
 /motion/public/rp_base.mp4
 /motion/public/pdfpages/
+/ep4/src/
+/ep4/*.mp4
+/ep4/*.wav
+/ep4/*.png
+/ep4/*.jpg
