@@ -54,3 +54,4 @@ __pycache__/
 /ep4/*.wav
 /ep4/*.png
 /ep4/*.jpg
+/ep4/*.log
