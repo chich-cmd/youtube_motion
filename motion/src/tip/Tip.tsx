@@ -72,6 +72,14 @@ export const Tip: React.FC<TipProps> = ({video, lines, look, reel, title}) => {
         </div>
         {title ? <div style={{position: 'absolute', left: 30, right: 30, top: 0, height: R.top, display: 'flex', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, '#E8352B')}</div></div> : null}
+        {/* channel wordmark in the empty band under the page */}
+        <div style={{position: 'absolute', left: 0, right: 0, top: R.top + R.h + 4, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
+            <div style={{width: 74, height: 74, borderRadius: 20, background: '#E8352B', color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 50,
+              display: 'flex', alignItems: 'center', justifyContent: 'center'}}>N</div>
+            <div style={{fontFamily: DISPLAY.heavy, fontSize: 70, color: '#111', letterSpacing: 1}}>누보<span style={{color: '#E8352B'}}>영어</span></div>
+          </div>
+        </div>
       </>) : <OffthreadVideo src={staticFile(video)} />}
       {l ? (l.step !== undefined ? <Step l={l} look={look} k={k} /> : <Bottom l={l} reel={reel} />) : null}
     </AbsoluteFill>
