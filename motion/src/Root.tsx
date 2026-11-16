@@ -49,7 +49,7 @@ export const RemotionRoot: React.FC = () => (
     ))}
     {(['A', 'B', 'C'] as const).map((look) => (
       <Composition key={look} id={`Tip${look}`} component={Tip} fps={30} width={1080} height={1920} durationInFrames={3990}
-        defaultProps={{video: 'cut3hi.mp4', lines: tipLines, look, reel: true, zooms: tipZooms, title: '해석 약해도\n{주제·제목} 맞추는 법'}} />
+        defaultProps={{video: 'cut3hi.mp4', lines: tipLines, look, reel: true, zooms: tipZooms, title: '해석 약해도\n{주제·제목} 맞히는 법'}} />
     ))}
     <Composition id="CoverLight" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1} defaultProps={{dark: false}} />
     <Composition id="CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1} defaultProps={{dark: true}} />
