@@ -76,8 +76,6 @@ export const Tip: React.FC<TipProps> = ({video, lines, look, reel, title}) => {
         {/* channel wordmark in the empty band under the page */}
         <div style={{position: 'absolute', left: 0, right: 0, top: R.top + R.h + 4, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
-            <div style={{width: 76, height: 76, borderRadius: '50%', background: BLUE, color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 54,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 4}}>P</div>
             <div style={{fontFamily: DISPLAY.heavy, fontSize: 74, color: BLUE, letterSpacing: 1}}>누보영어</div>
           </div>
         </div>
