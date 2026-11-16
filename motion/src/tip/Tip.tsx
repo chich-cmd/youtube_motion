@@ -25,11 +25,11 @@ const em = (t: string) => [...t.replace(/[{}]/g, '')].reduce((w, c) => w + (c ==
 
 const Bottom: React.FC<{l: TipLine; reel?: boolean}> = ({l, reel}) => {
   const text = l.text.replace(/[{}]/g, '');
-  const size = Math.min(60, 940 / em(text));
+  const size = Math.min(84, 960 / em(text));
   return (
-    <div style={{position: 'absolute', left: 0, right: 0, top: reel ? 1594 : 1700, height: reel ? 326 : 160, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-      <div style={{background: '#111', color: '#fff', fontFamily: FONT, fontWeight: 700, fontSize: size, letterSpacing: -1, lineHeight: 1.3,
-        padding: '14px 30px', borderRadius: 14, whiteSpace: 'nowrap'}}>{text}</div>
+    <div style={{position: 'absolute', left: 0, right: 0, top: reel ? 1250 : 1700, height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      <div style={{background: '#111', color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: size, letterSpacing: -1.5, lineHeight: 1.25,
+        padding: '16px 40px', borderRadius: 26, boxShadow: '0 10px 30px rgba(0,0,0,0.25)', whiteSpace: 'nowrap'}}>{text}</div>
     </div>
   );
 };

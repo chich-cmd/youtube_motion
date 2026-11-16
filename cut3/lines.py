@@ -5,9 +5,9 @@ L = [
  (6.84, '핵심 키워드로 정답 맞추는 법'), (8.96, '알려드릴게요!'),
  (9.78, ('STEP 1', '처음 2~3문장에서\n{반복되는 단어} 잡기')),
  (14.68, '처음 문장에서는 시간 얘기,'), (17.56, '사이즈 얘기를 하고 있는데요'), (19.06, '두 번째 문장에서도'),
- (20.32, '사이즈 관련 단어 small'), (22.9, '그리고 시간과 관련되어 보이는'), (25.12, 'quick, rapid가 나옵니다'),
- (28.62, '그러면 이 지문의 키워드는'), (31.06, '시간과 사이즈라는 생각이 들죠'),
- (36.46, '자, 공통 키워드를 잡았으면'), (38.52, '지문을 마저 읽는 게 아니라'),
+ (20.32, '사이즈 관련 단어 small'), (22.9, '그리고 시간과 관련되어 보이는'), (25.12, 'quick, rapid가|나옵니다'),
+ (28.62, '그러면|이 지문의 키워드는'), (31.06, '시간과 사이즈라는 생각이 들죠'),
+ (36.46, '자,|공통 키워드를 잡았으면'), (38.52, '지문을 마저 읽는 게 아니라'),
  (40.44, ('STEP 2', '공통점을 토대로\n{가능한 선지} 미리 추출')),
  (46.4, '왜? 해석이 약하니까'), (48.08, '선지의 도움을 받아'), (49.38, '내용을 좁혀서 유추하기 위함이에요'),
  (54.32, '공통 키워드로 선지를 추출해보면'), (56.46, '시간이 나오는 1번'), (57.96, '사이즈가 나오는 2번과 4번이'),
@@ -31,5 +31,16 @@ out = []
 for i, (s, x) in enumerate(L):
     e = L[i + 1][0] if i + 1 < len(L) else END
     out.append({'s': s, 'e': e, 'step': x[0], 'text': x[1]} if isinstance(x, tuple) else {'s': s, 'e': e, 'text': x})
+# Big captions: anything longer than ~12 chars becomes two consecutive captions, split at the space nearest the middle.
+big = []
+for o in out:
+    t = o['text']
+    if 'step' in o or (len(t) <= 12 and '|' not in t): big.append(o); continue
+    sp = [i for i, c in enumerate(t) if c == ' ']
+    k = t.index('|') if '|' in t else min(sp, key=lambda i: abs(i - len(t) / 2))   # '|' forces the split point
+    a, b = t[:k], t[k + 1:]
+    m = round(o['s'] + (o['e'] - o['s']) * len(a) / (len(a) + len(b)), 2)
+    big += [{'s': o['s'], 'e': m, 'text': a}, {'s': m, 'e': o['e'], 'text': b}]
+out = big
 json.dump(out, open('../motion/src/tip/lines.json', 'w'), ensure_ascii=False, indent=0)
 print(len(out), max(len(o['text']) for o in out if 'step' not in o))
