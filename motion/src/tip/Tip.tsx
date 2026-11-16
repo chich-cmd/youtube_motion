@@ -14,6 +14,7 @@ export type TipStyle = 'A' | 'B' | 'C';
 export type TipProps = {video: string; lines: TipLine[]; look: TipStyle; reel?: boolean; title?: string};
 // 9:16 layout: the iPad toolbar (top 240px of the 1440x1920 source) is cropped off, the page fills the width between a title band and a caption band.
 const R = {top: 330, h: 1260, cut: 240};
+const BLUE = '#2352E8';   // 누보영어 brand colour
 
 const OUT = (c: string, w: number) => [[w, 0], [-w, 0], [0, w], [0, -w], [w, w], [-w, w], [w, -w], [-w, -w]].map(([x, y]) => `${x}px ${y}px 0 ${c}`).join(', ');
 const runs = (t: string, key: string) => t.split(/(\{[^}]+\})/).filter(Boolean).map((p, i) =>
@@ -71,13 +72,13 @@ export const Tip: React.FC<TipProps> = ({video, lines, look, reel, title}) => {
           <OffthreadVideo src={staticFile(video)} style={{position: 'absolute', left: 0, top: -R.cut * 0.75, width: 1080, height: 1440}} />
         </div>
         {title ? <div style={{position: 'absolute', left: 30, right: 30, top: 0, height: R.top, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, '#E8352B')}</div></div> : null}
+          textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, BLUE)}</div></div> : null}
         {/* channel wordmark in the empty band under the page */}
         <div style={{position: 'absolute', left: 0, right: 0, top: R.top + R.h + 4, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
-            <div style={{width: 74, height: 74, borderRadius: 20, background: '#E8352B', color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 50,
-              display: 'flex', alignItems: 'center', justifyContent: 'center'}}>N</div>
-            <div style={{fontFamily: DISPLAY.heavy, fontSize: 70, color: '#111', letterSpacing: 1}}>누보<span style={{color: '#E8352B'}}>영어</span></div>
+            <div style={{width: 76, height: 76, borderRadius: '50%', background: BLUE, color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 54,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 4}}>P</div>
+            <div style={{fontFamily: DISPLAY.heavy, fontSize: 74, color: BLUE, letterSpacing: 1}}>누보영어</div>
           </div>
         </div>
       </>) : <OffthreadVideo src={staticFile(video)} />}
