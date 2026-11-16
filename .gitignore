@@ -62,3 +62,4 @@ motion/public/original*.mp4
 node_modules/
 output/cut3_preview.mp4
 sfx_events.json
+cut3/pieces_hi/

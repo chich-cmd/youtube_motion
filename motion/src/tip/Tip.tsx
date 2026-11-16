@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {AbsoluteFill, OffthreadVideo, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {FONT} from '../theme';
 import {DISPLAY} from '../fonts';
@@ -11,7 +11,25 @@ import '../fonts';
  */
 export type TipLine = {s: number; e: number; text: string; step?: string};
 export type TipStyle = 'A' | 'B' | 'C';
-export type TipProps = {video: string; lines: TipLine[]; look: TipStyle; reel?: boolean; title?: string};
+export type Zoom = {s: number; e: number; cx: number; cy: number; z: number; then?: Zoom[]};
+export type TipProps = {video: string; lines: TipLine[]; look: TipStyle; reel?: boolean; title?: string; zooms?: Zoom[]};
+
+/** Camera path (centre + zoom in the 1080x1440 video space), eased toward each shot's target frame by frame. */
+const cameraPath = (zooms: Zoom[], n: number, fps: number) => {
+  const home = {cx: 540, cy: 180 + 630, z: 1};
+  const out: {cx: number; cy: number; z: number}[] = [];
+  let c = {...home};
+  for (let i = 0; i < n; i++) {
+    const t = i / fps;
+    const sh = zooms.find((x) => t >= x.s && t < x.e);
+    const sub = sh ? [...(sh.then ?? [])].reverse().find((x) => t >= x.s) ?? sh : null;
+    const g = sub ? {cx: sub.cx, cy: sub.cy, z: sh!.z === sub.z ? sub.z : Math.min(sh!.z, sub.z)} : home;
+    const a = 0.12;                        // smoothing per frame (~0.6s settle)
+    c = {cx: c.cx + (g.cx - c.cx) * a, cy: c.cy + (g.cy - c.cy) * a, z: c.z + (g.z - c.z) * a};
+    out.push(c);
+  }
+  return out;
+};
 // 9:16 layout: the iPad toolbar (top 240px of the 1440x1920 source) is cropped off, the page fills the width between a title band and a caption band.
 const R = {top: 330, h: 1260, cut: 240};
 const BLUE = '#2352E8';   // 누보영어 brand colour
@@ -59,9 +77,14 @@ const Step: React.FC<{l: TipLine; look: TipStyle; k: number}> = ({l, look, k}) =
   );
 };
 
-export const Tip: React.FC<TipProps> = ({video, lines, look, reel, title}) => {
+export const Tip: React.FC<TipProps> = ({video, lines, look, reel, title, zooms}) => {
   const f = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const {fps, durationInFrames} = useVideoConfig();
+  const path = useMemo(() => cameraPath(zooms ?? [], durationInFrames, fps), [zooms, durationInFrames, fps]);
+  const cam = path[Math.min(f, path.length - 1)];
+  // place the camera centre at the middle of the 1080x1260 window, never showing past the page edges or the toolbar
+  const tx = Math.min(0, Math.max(1080 - 1080 * cam.z, 540 - cam.cx * cam.z));
+  const ty = Math.min(-R.cut * 0.75 * cam.z, Math.max(R.h - 1440 * cam.z, R.h / 2 - cam.cy * cam.z));
   const t = f / fps;
   const l = lines.find((x) => t >= x.s && t < x.e);
   const k = l ? spring({frame: f - Math.round(l.s * fps), fps, config: {damping: 14, stiffness: 170}}) : 0;
@@ -69,7 +92,7 @@ export const Tip: React.FC<TipProps> = ({video, lines, look, reel, title}) => {
     <AbsoluteFill style={{background: '#fff'}}>
       {reel ? (<>
         <div style={{position: 'absolute', left: 0, top: R.top, width: 1080, height: R.h, overflow: 'hidden', borderTop: '4px solid #111', borderBottom: '4px solid #111'}}>
-          <OffthreadVideo src={staticFile(video)} style={{position: 'absolute', left: 0, top: -R.cut * 0.75, width: 1080, height: 1440}} />
+          <OffthreadVideo src={staticFile(video)} style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1440, transformOrigin: '0 0', transform: `translate(${tx}px, ${ty}px) scale(${cam.z})`}} />
         </div>
         {title ? <div style={{position: 'absolute', left: 30, right: 30, top: 0, height: R.top, display: 'flex', alignItems: 'center', justifyContent: 'center',
           textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, BLUE)}</div></div> : null}
