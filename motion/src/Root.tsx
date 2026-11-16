@@ -22,6 +22,7 @@ import ep4Captions from './ep4/captions.json';
 import ep4Fx from './ep4/fx.json';
 import {Fx} from './components/Fx';
 import {Tip} from './tip/Tip';
+import {Cover} from './tip/Cover';
 import tipLines from './tip/lines.json';
 import tipZooms from './tip/zooms.json';
 
@@ -50,6 +51,8 @@ export const RemotionRoot: React.FC = () => (
       <Composition key={look} id={`Tip${look}`} component={Tip} fps={30} width={1080} height={1920} durationInFrames={3990}
         defaultProps={{video: 'cut3hi.mp4', lines: tipLines, look, reel: true, zooms: tipZooms, title: '해석 약해도\n{주제·제목} 맞추는 법'}} />
     ))}
+    <Composition id="CoverLight" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1} defaultProps={{dark: false}} />
+    <Composition id="CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1} defaultProps={{dark: true}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
