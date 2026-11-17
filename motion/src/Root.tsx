@@ -24,6 +24,8 @@ import {Fx} from './components/Fx';
 import {Tip} from './tip/Tip';
 import {Cover} from './tip/Cover';
 import {Listen} from './tip/Listen';
+import {Annot, Mark} from './tip/Annot';
+import annotSample from './tip/annot_sample.json';
 import listenLines from './tip/listen_lines.json';
 import listenZooms from './tip/listen_zooms.json';
 import tipLines from './tip/lines.json';
@@ -63,6 +65,11 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{dark: false, lines: ['듣기 {11~15번}', '이렇게 들어야', '안 틀립니다']}} />
     <Composition id="ListenCoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['듣기 {11~15번}', '이렇게 들어야', '안 틀립니다'], bg: 'cover_listen_bg.jpg'}} />
+    {(['A', 'B', 'C'] as const).map((look) => (
+      <Composition key={look} id={`Annot${look}`} component={Annot} fps={30} width={1080} height={1920} durationInFrames={338}
+        defaultProps={{video: 'rp4_v3.mp4', look, title: '순서 문제\n{전개도}로 푸는 법', lines: annotSample.lines,
+          marks: (annotSample.marks as Mark[]).filter((m) => look === 'A' ? m.kind === 'hl' : look === 'B' ? m.kind !== 'hl' && m.kind !== 'spot' : m.kind === 'hl' || m.kind === 'spot')}} />
+    ))}
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
