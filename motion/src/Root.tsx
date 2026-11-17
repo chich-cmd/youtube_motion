@@ -71,7 +71,7 @@ export const RemotionRoot: React.FC = () => (
         defaultProps={{video: 'rp4_v3.mp4', look, title: '순서 문제\n{전개도}로 푸는 법', lines: annotSample.lines,
           marks: (annotSample.marks as Mark[]).filter((m) => look === 'A' ? m.kind === 'hl' : look === 'B' ? m.kind !== 'hl' && m.kind !== 'spot' : m.kind === 'hl' || m.kind === 'spot')}} />
     ))}
-    <Composition id="Rp4Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={3730}
+    <Composition id="Rp4Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={3690}
       defaultProps={{video: 'rp4full.mp4', look: 'C', title: '순서 문제 {전개도}로\n짱 쉽게 푸는 법', marks: rp4.marks as Mark[], lines: rp4.lines, cards: rp4.cards, notes: rp4.notes, cams: rp4.cams}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
