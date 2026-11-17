@@ -27,6 +27,7 @@ import {Listen} from './tip/Listen';
 import {Annot, Mark} from './tip/Annot';
 import annotSample from './tip/annot_sample.json';
 import rp4 from './tip/rp4.json';
+import rp4hook from './tip/rp4hook.json';
 import listenLines from './tip/listen_lines.json';
 import listenZooms from './tip/listen_zooms.json';
 import tipLines from './tip/lines.json';
@@ -73,6 +74,12 @@ export const RemotionRoot: React.FC = () => (
     ))}
     <Composition id="Rp4Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={3690}
       defaultProps={{video: 'rp4full.mp4', look: 'C', title: '순서 문제 {전개도}로\n짱 쉽게 푸는 법', marks: rp4.marks as Mark[], lines: rp4.lines, cards: rp4.cards, notes: rp4.notes, cams: rp4.cams}} />
+    <Composition id="Rp4Hook" component={Annot} fps={30} width={1080} height={1920} durationInFrames={148}
+      defaultProps={{video: 'rp4hook.mp4', look: 'C', title: '순서 문제 {전개도}로\n짱 쉽게 푸는 법', marks: rp4hook.marks as Mark[], lines: rp4hook.lines, cards: rp4hook.cards, notes: [], cams: rp4hook.cams}} />
+    <Composition id="Rp4CoverLight" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{dark: false, lines: ['순서 문제', '{전개도}로', '짱 쉽게 푸는 법']}} />
+    <Composition id="Rp4CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{dark: true, lines: ['순서 문제', '{전개도}로', '짱 쉽게 푸는 법'], bg: 'cover_rp4_bg.jpg'}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
