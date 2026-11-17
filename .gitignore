@@ -63,3 +63,6 @@ node_modules/
 output/cut3_preview.mp4
 sfx_events.json
 cut3/pieces_hi/
+listen/src/
+listen/pieces/
+motion/public/listen.mp4

@@ -42,18 +42,18 @@ const rows = (t: string, key: string) => t.split('\n').map((r, i) => <div key={i
 // Rough rendered width in em, used to keep every caption on a single line.
 const em = (t: string) => [...t.replace(/[{}]/g, '')].reduce((w, c) => w + (c === ' ' ? 0.28 : /[가-힣]/.test(c) ? 0.94 : /[①-⑤→]/.test(c) ? 0.9 : 0.56), 0);
 
-const Bottom: React.FC<{l: TipLine; reel?: boolean}> = ({l, reel}) => {
+export const Bottom: React.FC<{l: TipLine; reel?: boolean; top?: number}> = ({l, reel, top}) => {
   const text = l.text.replace(/[{}]/g, '');
   const size = Math.min(66, 960 / em(text));
   return (
-    <div style={{position: 'absolute', left: 0, right: 0, top: reel ? 1250 : 1700, height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    <div style={{position: 'absolute', left: 0, right: 0, top: top ?? (reel ? 1250 : 1700), height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
       <div style={{background: '#111', color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: size, letterSpacing: -1.5, lineHeight: 1.25,
         padding: '14px 34px', borderRadius: 22, boxShadow: '0 10px 30px rgba(0,0,0,0.25)', whiteSpace: 'nowrap'}}>{text}</div>
     </div>
   );
 };
 
-const Step: React.FC<{l: TipLine; look: TipStyle; k: number}> = ({l, look, k}) => {
+export const Step: React.FC<{l: TipLine; look: TipStyle; k: number; top?: number}> = ({l, look, k, top}) => {
   if (look === 'A') return (     // yellow highlighter band, heavy black type, red STEP tag
     <div style={{position: 'absolute', left: 0, right: 0, top: 780, display: 'flex', flexDirection: 'column', alignItems: 'center', transform: `scale(${0.8 + 0.2 * k})`, opacity: k}}>
       {l.step ? <div style={{fontFamily: DISPLAY.heavy, fontSize: 64, color: '#fff', background: '#E8352B', padding: '6px 30px', borderRadius: 14, transform: 'rotate(-3deg)', marginBottom: 18}}>{l.step}</div> : null}
@@ -62,7 +62,7 @@ const Step: React.FC<{l: TipLine; look: TipStyle; k: number}> = ({l, look, k}) =
     </div>
   );
   if (look === 'B') return (     // dark rounded card, white rounded type, yellow keywords
-    <div style={{position: 'absolute', left: 40, right: 40, top: 760, background: 'rgba(17,17,17,0.88)', borderRadius: 40, padding: '44px 40px 50px',
+    <div style={{position: 'absolute', left: 40, right: 40, top: top ?? 760, background: 'rgba(17,17,17,0.88)', borderRadius: 40, padding: '44px 40px 50px',
       textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.35)', transform: `translateY(${(1 - k) * 60}px)`, opacity: k}}>
       {l.step ? <div style={{fontFamily: DISPLAY.round, fontSize: 54, color: '#111', background: '#FFD84D', display: 'inline-block', padding: '4px 28px', borderRadius: 999, marginBottom: 22}}>{l.step}</div> : null}
       <div style={{fontFamily: DISPLAY.round, fontSize: Math.min(82, 900 / Math.max(...l.text.split('\n').map(em))), lineHeight: 1.25, color: '#fff', whiteSpace: 'nowrap'}}>{rows(l.text, '#FFD84D')}</div>

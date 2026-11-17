@@ -23,6 +23,9 @@ import ep4Fx from './ep4/fx.json';
 import {Fx} from './components/Fx';
 import {Tip} from './tip/Tip';
 import {Cover} from './tip/Cover';
+import {Listen} from './tip/Listen';
+import listenLines from './tip/listen_lines.json';
+import listenZooms from './tip/listen_zooms.json';
 import tipLines from './tip/lines.json';
 import tipZooms from './tip/zooms.json';
 
@@ -53,6 +56,13 @@ export const RemotionRoot: React.FC = () => (
     ))}
     <Composition id="CoverLight" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1} defaultProps={{dark: false}} />
     <Composition id="CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1} defaultProps={{dark: true}} />
+    <Composition id="ListenReel" component={Listen} fps={30} width={1080} height={1920} durationInFrames={4017}
+      defaultProps={{video: 'listen.mp4', lines: listenLines, zooms: listenZooms, title: '수능 영어 듣기\n{11~15번} 안 틀리는 법',
+        crop: {x: 290, y: 0, w: 1340, h: 905}, winTop: 420}} />
+    <Composition id="ListenCoverLight" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{dark: false, lines: ['수능 영어 듣기', '{11~15번}', '안 틀리는 법']}} />
+    <Composition id="ListenCoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{dark: true, lines: ['수능 영어 듣기', '{11~15번}', '안 틀리는 법'], bg: 'cover_listen_bg.jpg'}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
