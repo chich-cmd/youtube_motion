@@ -8,10 +8,15 @@ const BLUE = '#2352E8', RED = '#E8352B';
 export type CoverProps = {dark?: boolean; lines?: string[]; bg?: string};
 const DEFAULT = ['해석 못해도', '{주제 1분컷}', '하는 법'];
 
+// A line that is entirely {..} is the big red accent line; {..} inside a line colours just that part.
 const Line: React.FC<{t: string; dark?: boolean}> = ({t, dark}) => {
-  const accent = t.startsWith('{');
-  const text = t.replace(/[{}]/g, '');
-  return <div style={{fontSize: accent ? 172 : 150, color: accent ? RED : dark ? '#fff' : BLUE, whiteSpace: 'nowrap'}}>{text}</div>;
+  const whole = /^\{[^}]*\}$/.test(t);
+  const base = dark ? '#fff' : BLUE;
+  return (
+    <div style={{fontSize: whole ? 172 : 150, color: whole ? RED : base, whiteSpace: 'nowrap'}}>
+      {t.split(/(\{[^}]+\})/).filter(Boolean).map((p, i) => p.startsWith('{') ? <span key={i} style={{color: RED}}>{p.slice(1, -1)}</span> : <React.Fragment key={i}>{p}</React.Fragment>)}
+    </div>
+  );
 };
 
 export const Cover: React.FC<CoverProps> = ({dark, lines = DEFAULT, bg = 'cover_bg.jpg'}) => (
