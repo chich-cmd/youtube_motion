@@ -52,7 +52,7 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
     ? {background: '#111', color: '#fff', borderRadius: 22, padding: '14px 34px'}
     : look === 'B'
       ? {background: '#FFE14D', color: '#111', borderRadius: 10, padding: '12px 32px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)'}
-      : {background: '#111', color: '#fff', borderRadius: 18, padding: '14px 34px 14px 30px', borderLeft: `12px solid ${BLUE}`, boxShadow: '0 10px 30px rgba(0,0,0,0.25)'};
+      : {background: '#111', color: '#fff', borderRadius: 0, padding: '14px 34px'};
   return (
     <div style={{position: 'absolute', left: 0, right: 0, top: 1250, height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
       <div style={{fontFamily: FONT, fontWeight: 800, fontSize: Math.min(62, 930 / em(text)), letterSpacing: -1.5, lineHeight: 1.25, whiteSpace: 'nowrap', ...box}}>
