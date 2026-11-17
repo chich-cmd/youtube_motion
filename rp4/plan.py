@@ -8,7 +8,7 @@ def env(i):
     n = len(x) // 320
     return 20 * np.log10(np.sqrt((x[:n * 320].reshape(n, 320) ** 2).mean(1)) + 1e-9), len(x) / 16000
 plan, tot = [], 0
-for i in range(1, 5):
+for i in range(1, 10):
     db, dur = env(i)
     loud = db > -34
     words = [w for s in tr[str(i)] for w in s['w']]

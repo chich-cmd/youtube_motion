@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {AbsoluteFill, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {FONT} from '../theme';
 import {DISPLAY} from '../fonts';
@@ -10,9 +10,9 @@ import '../fonts';
  */
 export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot'; x: number; y: number; w: number; h: number};
 export type AnnotLine = {s: number; e: number; text: string};
-export type Note = {s: number; x: number; y: number; text: string; size: number};
+export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
-export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]};
+export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]};
 const BLUE = '#2352E8', RED = '#E8352B';
 const K = 1080 / 2064, TOP = 330, CUT = 236, WIN = 1260;
 const P = (x: number, y: number) => [x * K, (y - CUT) * K + TOP];
@@ -52,32 +52,50 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
     ? {background: '#111', color: '#fff', borderRadius: 22, padding: '14px 34px'}
     : look === 'B'
       ? {background: '#FFE14D', color: '#111', borderRadius: 10, padding: '12px 32px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)'}
-      : {background: '#fff', color: '#111', borderRadius: 18, padding: '14px 34px 14px 30px', borderLeft: `12px solid ${BLUE}`, boxShadow: '0 10px 30px rgba(0,0,0,0.25)'};
+      : {background: '#111', color: '#fff', borderRadius: 18, padding: '14px 34px 14px 30px', borderLeft: `12px solid ${BLUE}`, boxShadow: '0 10px 30px rgba(0,0,0,0.25)'};
   return (
     <div style={{position: 'absolute', left: 0, right: 0, top: 1250, height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
       <div style={{fontFamily: FONT, fontWeight: 800, fontSize: Math.min(62, 930 / em(text)), letterSpacing: -1.5, lineHeight: 1.25, whiteSpace: 'nowrap', ...box}}>
-        {rows(text, look === 'C' ? BLUE : look === 'B' ? RED : '#FFD84D')}
+        {rows(text, look === 'B' ? RED : '#FFD84D')}
       </div>
     </div>
   );
 };
 
-export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes}) => {
+export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams}) => {
   const f = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const {fps, durationInFrames} = useVideoConfig();
+  // camera (source px centre + zoom), eased frame by frame toward the active shot
+  const path = useMemo(() => {
+    const home = {cx: 1032, cy: CUT + WIN / K / 2, z: 1};
+    let c = {...home};
+    const out: typeof home[] = [];
+    for (let i = 0; i < durationInFrames; i++) {
+      const tt = i / fps, g = cams?.find((x) => tt >= x.s && tt < x.e) ?? home;
+      c = {cx: c.cx + (g.cx - c.cx) * 0.15, cy: c.cy + (g.cy - c.cy) * 0.15, z: c.z + (g.z - c.z) * 0.15};
+      out.push(c);
+    }
+    return out;
+  }, [cams, durationInFrames, fps]);
+  const cam = path[Math.min(f, path.length - 1)];
+  const fx = cam.cx * K, fy = (cam.cy - CUT) * K;
+  const tx = Math.min(0, Math.max(1080 - 1080 * cam.z, 540 - fx * cam.z));
+  const ty = Math.min(0, Math.max(WIN - WIN * cam.z, WIN / 2 - fy * cam.z));
   const t = f / fps;
   const l = lines.find((x) => t >= x.s && t < x.e);
   return (
     <AbsoluteFill style={{background: '#fff'}}>
       <div style={{position: 'absolute', left: 0, top: TOP, width: 1080, height: WIN, overflow: 'hidden', borderTop: '4px solid #111', borderBottom: '4px solid #111'}}>
-        <OffthreadVideo src={staticFile(video)} style={{position: 'absolute', left: 0, top: -CUT * K, width: 1080, height: 2752 * K}} />
-        <div style={{position: 'absolute', left: 0, top: -TOP, width: 1080, height: 1920}}>
-          {marks.map((m, i) => <MarkView key={i} m={m} look={look} t={t} />)}
+        <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: WIN, transformOrigin: '0 0', transform: `translate(${tx}px, ${ty}px) scale(${cam.z})`}}>
+          <OffthreadVideo src={staticFile(video)} style={{position: 'absolute', left: 0, top: -CUT * K, width: 1080, height: 2752 * K}} />
+          <div style={{position: 'absolute', left: 0, top: -TOP, width: 1080, height: 1920}}>
+            {marks.map((m, i) => <MarkView key={i} m={m} look={look} t={t} />)}
+          </div>
         </div>
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: TOP, display: 'flex', alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, BLUE)}</div></div>
-      {notes?.filter((n) => t >= n.s).map((n, i) => {
+      {notes?.filter((n) => t >= n.s && (n.e === undefined || t < n.e)).map((n, i) => {
         // hand-written note revealed left to right like pen writing
         const p = interpolate(t, [n.s, n.s + 1.4], [0, 100], {extrapolateRight: 'clamp'});
         return <div key={i} style={{position: 'absolute', left: n.x, top: n.y, fontFamily: DISPLAY.hand, fontSize: n.size, color: BLUE, whiteSpace: 'nowrap', WebkitTextStroke: '0.8px ' + BLUE,
@@ -91,7 +109,7 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
             <div style={{background: '#fff', borderRadius: 34, padding: '40px 70px 50px', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
               transform: `scale(${0.85 + 0.15 * k})`, opacity: Math.min(1, k)}}>
               <div style={{display: 'inline-block', background: BLUE, color: '#fff', fontFamily: DISPLAY.round, fontSize: 50, padding: '6px 30px', borderRadius: 999, marginBottom: 18}}>{c.label}</div>
-              <div style={{fontFamily: DISPLAY.heavy, fontSize: 120, color: '#111', lineHeight: 1.15}}>{rows(c.text, BLUE)}</div>
+              <div style={{fontFamily: DISPLAY.heavy, fontSize: c.text.includes('\n') ? 92 : 120, color: '#111', lineHeight: 1.15, whiteSpace: 'nowrap'}}>{rows(c.text, BLUE)}</div>
             </div>
           </div>);
       })}
