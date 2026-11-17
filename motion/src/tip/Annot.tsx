@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, OffthreadVideo, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {FONT} from '../theme';
 import {DISPLAY} from '../fonts';
 import '../fonts';
@@ -8,9 +8,10 @@ import '../fonts';
  * Portrait iPad recording (2064x2752 source px) in a 9:16 reel with narration-timed marks:
  * highlighter sweeps, hand-drawn underlines/circles, or a spotlight on one region. Three looks for sampling.
  */
-export type Mark = {s: number; kind: 'hl' | 'ul' | 'circle' | 'spot'; x: number; y: number; w: number; h: number};
+export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot'; x: number; y: number; w: number; h: number};
 export type AnnotLine = {s: number; e: number; text: string};
-export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string};
+export type Card = {s: number; e: number; label: string; text: string};
+export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]};
 const BLUE = '#2352E8', RED = '#E8352B';
 const K = 1080 / 2064, TOP = 330, CUT = 236, WIN = 1260;
 const P = (x: number, y: number) => [x * K, (y - CUT) * K + TOP];
@@ -19,8 +20,9 @@ const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
   <div key={i}>{r.split(/(\{[^}]+\})/).filter(Boolean).map((p, j) => p.startsWith('{') ? <span key={j} style={{color: key}}>{p.slice(1, -1)}</span> : <React.Fragment key={j}>{p}</React.Fragment>)}</div>));
 
 const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, look, t}) => {
-  const p = interpolate(t, [m.s, m.s + 0.45], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  if (p <= 0) return null;
+  const out = m.e === undefined ? 1 : interpolate(t, [m.e - 0.25, m.e], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const p = interpolate(t, [m.s, m.s + 0.45], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) * (m.kind === 'spot' ? out : 1);
+  if (p <= 0 || out <= 0) return null;
   const [x, y] = P(m.x, m.y), w = m.w * K, h = m.h * K;
   if (m.kind === 'hl') return (   // marker sweep, multiply so the print stays crisp
     <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: look === 'C' ? 'rgba(35,82,232,0.22)' : 'rgba(255,221,0,0.55)',
@@ -59,7 +61,7 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
   );
 };
 
-export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title}) => {
+export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = f / fps;
@@ -74,6 +76,18 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title}) 
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: TOP, display: 'flex', alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, BLUE)}</div></div>
+      {cards?.filter((c) => t >= c.s && t < c.e).map((c, i) => {
+        const k = spring({frame: f - Math.round(c.s * fps), fps, config: {damping: 14, stiffness: 170}});
+        return (
+          <div key={i} style={{position: 'absolute', left: 0, top: TOP, width: 1080, height: WIN, background: `rgba(10,14,30,${0.55 * Math.min(1, k)})`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+            <div style={{background: '#fff', borderRadius: 34, padding: '40px 70px 50px', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
+              transform: `scale(${0.85 + 0.15 * k})`, opacity: Math.min(1, k)}}>
+              <div style={{display: 'inline-block', background: BLUE, color: '#fff', fontFamily: DISPLAY.round, fontSize: 50, padding: '6px 30px', borderRadius: 999, marginBottom: 18}}>{c.label}</div>
+              <div style={{fontFamily: DISPLAY.heavy, fontSize: 120, color: '#111', lineHeight: 1.15}}>{rows(c.text, BLUE)}</div>
+            </div>
+          </div>);
+      })}
       {l ? <Caption l={l} look={look} /> : null}
       <div style={{position: 'absolute', left: 0, right: 0, top: 1600, height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: DISPLAY.heavy, fontSize: 74, color: BLUE}}>누보영어</div>

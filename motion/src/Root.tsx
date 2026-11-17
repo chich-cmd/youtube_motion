@@ -26,6 +26,7 @@ import {Cover} from './tip/Cover';
 import {Listen} from './tip/Listen';
 import {Annot, Mark} from './tip/Annot';
 import annotSample from './tip/annot_sample.json';
+import rp4 from './tip/rp4.json';
 import listenLines from './tip/listen_lines.json';
 import listenZooms from './tip/listen_zooms.json';
 import tipLines from './tip/lines.json';
@@ -70,6 +71,8 @@ export const RemotionRoot: React.FC = () => (
         defaultProps={{video: 'rp4_v3.mp4', look, title: '순서 문제\n{전개도}로 푸는 법', lines: annotSample.lines,
           marks: (annotSample.marks as Mark[]).filter((m) => look === 'A' ? m.kind === 'hl' : look === 'B' ? m.kind !== 'hl' && m.kind !== 'spot' : m.kind === 'hl' || m.kind === 'spot')}} />
     ))}
+    <Composition id="Rp4Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={1570}
+      defaultProps={{video: 'rp4.mp4', look: 'C', title: '순서 문제 {전개도}로\n짱 쉽게 푸는 법', marks: rp4.marks as Mark[], lines: rp4.lines, cards: rp4.cards}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
