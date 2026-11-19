@@ -8,7 +8,7 @@ import '../fonts';
  * Portrait iPad recording (2064x2752 source px) in a 9:16 reel with narration-timed marks:
  * highlighter sweeps, hand-drawn underlines/circles, or a spotlight on one region. Three looks for sampling.
  */
-export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot'; x: number; y: number; w: number; h: number};
+export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot' | 'tag' | 'slash' | 'yhl'; x: number; y: number; w: number; h: number; text?: string};
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
@@ -25,6 +25,15 @@ const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, 
   const p = interpolate(t, [m.s, m.s + 0.45], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) * (m.kind === 'spot' ? out : 1);
   if (p <= 0 || out <= 0) return null;
   const [x, y] = P(m.x, m.y), w = m.w * K, h = m.h * K;
+  if (m.kind === 'yhl') return (
+    <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: 'rgba(255,221,0,0.6)', mixBlendMode: 'multiply', borderRadius: 4}} />);
+  if (m.kind === 'tag') return (   // Korean gloss pill under a chunk
+    <div style={{position: 'absolute', left: x - 60, top: m.text?.startsWith('^') ? y - 52 : y + h + 8, width: w + 120, display: 'flex', justifyContent: 'center', opacity: p, transform: `translateY(${(1 - p) * 10}px)`}}>
+      <div style={{background: BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^\^/, '')}</div>
+    </div>);
+  if (m.kind === 'slash') return (
+    <svg style={{position: 'absolute', left: x - 12, top: y - 6, overflow: 'visible'}} width={24} height={h + 12}>
+      <path d={`M20 0 L4 ${h + 12}`} stroke={RED} strokeWidth={5} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} fill="none" /></svg>);
   if (m.kind === 'hl') return (   // marker sweep, multiply so the print stays crisp
     <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: look === 'C' ? 'rgba(35,82,232,0.22)' : 'rgba(255,221,0,0.55)',
       mixBlendMode: 'multiply', borderRadius: 4}} />);
@@ -34,9 +43,9 @@ const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, 
       <path d={d} fill="none" stroke={RED} strokeWidth={5} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} /></svg>);
   }
   if (m.kind === 'circle') {
-    const rx = w / 2 + 16, ry = h / 2 + 12;
+    const rx = w / 2 + 8, ry = h / 2 + 10;
     const d = `M ${rx * 2} ${ry + 4} A ${rx} ${ry} 0 1 1 ${rx * 2 - 6} ${ry - 14}`;   // hand-drawn loop, ends just past the start
-    return (<svg style={{position: 'absolute', left: x - 14, top: y - 10, overflow: 'visible'}} width={rx * 2} height={ry * 2}>
+    return (<svg style={{position: 'absolute', left: x + w / 2 - rx, top: y + h / 2 - ry, overflow: 'visible'}} width={rx * 2} height={ry * 2}>
       <path d={d} fill="none" stroke={RED} strokeWidth={5} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} /></svg>);
   }
   // spotlight: dim the page window except this box
