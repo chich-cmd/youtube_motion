@@ -29,7 +29,7 @@ const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, 
     <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: 'rgba(255,221,0,0.6)', mixBlendMode: 'multiply', borderRadius: 4}} />);
   if (m.kind === 'tag') return (   // Korean gloss pill under a chunk
     <div style={{position: 'absolute', left: x - 60, top: m.text?.startsWith('^') ? y - 52 : y + h + 8, width: w + 120, display: 'flex', justifyContent: 'center', opacity: p, transform: `translateY(${(1 - p) * 10}px)`}}>
-      <div style={{background: BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^\^/, '')}</div>
+      <div style={{background: m.text?.replace(/^\^/, '').startsWith('!') ? RED : BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^\^/, '').replace(/^!/, '')}</div>
     </div>);
   if (m.kind === 'slash') return (
     <svg style={{position: 'absolute', left: x - 12, top: y - 6, overflow: 'visible'}} width={24} height={h + 12}>
@@ -119,7 +119,7 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
             <div style={{background: '#fff', borderRadius: 34, padding: '40px 70px 50px', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
               transform: `scale(${0.85 + 0.15 * k})`, opacity: Math.min(1, k)}}>
               <div style={{display: 'inline-block', background: BLUE, color: '#fff', fontFamily: DISPLAY.round, fontSize: 50, padding: '6px 30px', borderRadius: 999, marginBottom: 18}}>{c.label}</div>
-              <div style={{fontFamily: DISPLAY.heavy, fontSize: c.text.includes('\n') ? 92 : 120, color: '#111', lineHeight: 1.15, whiteSpace: 'nowrap'}}>{rows(c.text, BLUE)}</div>
+              <div style={{fontFamily: `${DISPLAY.heavy}, 'Noto Sans Symbols 2', sans-serif`, fontSize: c.text.includes('\n') ? 92 : 120, color: '#111', lineHeight: 1.15, whiteSpace: 'nowrap'}}>{rows(c.text, BLUE)}</div>
             </div>
           </div>);
       })}

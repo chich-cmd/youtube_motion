@@ -30,6 +30,7 @@ import rp4 from './tip/rp4.json';
 import rp4hook from './tip/rp4hook.json';
 import rp5s from './tip/rp5_sample.json';
 import rp5 from './tip/rp5.json';
+import rp5short from './tip/rp5short.json';
 import listenLines from './tip/listen_lines.json';
 import listenZooms from './tip/listen_zooms.json';
 import tipLines from './tip/lines.json';
@@ -92,6 +93,8 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{dark: false, lines: ['이 방법으로', '영어 문장', '{한글처럼} 읽음'], uniform: true, badge: '1'}} />
     <Composition id="Rp5CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['이 방법으로', '영어 문장', '{한글처럼} 읽음'], uniform: true, badge: '1', bg: 'cover_rp5_bg.jpg'}} />
+    <Composition id="Rp5Short" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp5short.total * 30)}
+      defaultProps={{video: 'rp5short.mp4', look: 'C', title: '영어 지문\n{한 번에} 읽는 법', marks: rp5short.marks as Mark[], lines: rp5short.lines, cards: rp5short.cards, notes: [], cams: rp5short.cams}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
