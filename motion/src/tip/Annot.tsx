@@ -77,7 +77,8 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
   // camera (source px centre + zoom), eased frame by frame toward the active shot
   const path = useMemo(() => {
     const home = {cx: 1032, cy: CUT + WIN / K / 2, z: 1};
-    let c = {...home};
+    const first = cams?.find((x) => x.s <= 0);
+    let c = first ? {cx: first.cx, cy: first.cy, z: first.z} : {...home};
     const out: typeof home[] = [];
     for (let i = 0; i < durationInFrames; i++) {
       const tt = i / fps, g = cams?.find((x) => tt >= x.s && tt < x.e) ?? home;

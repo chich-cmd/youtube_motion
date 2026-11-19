@@ -29,6 +29,7 @@ import annotSample from './tip/annot_sample.json';
 import rp4 from './tip/rp4.json';
 import rp4hook from './tip/rp4hook.json';
 import rp5s from './tip/rp5_sample.json';
+import rp5 from './tip/rp5.json';
 import listenLines from './tip/listen_lines.json';
 import listenZooms from './tip/listen_zooms.json';
 import tipLines from './tip/lines.json';
@@ -85,6 +86,8 @@ export const RemotionRoot: React.FC = () => (
       <Composition key={k} id={`Rp5${k}`} component={Annot} fps={30} width={1080} height={1920} durationInFrames={3925}
         defaultProps={{video: 'rp5.mp4', look: 'C', title: '영어 해석\n{되돌아가지 않는} 법', marks: rp5s[k] as Mark[], lines: rp5s.lines, cards: [], notes: [], cams: rp5s.cams}} />
     ))}
+    <Composition id="Rp5Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={3948}
+      defaultProps={{video: 'rp5.mp4', look: 'C', title: '영어 해석\n{되돌아가지 않는} 법', marks: rp5.marks as Mark[], lines: rp5.lines, cards: [], notes: [], cams: rp5.cams}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회

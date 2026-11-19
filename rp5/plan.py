@@ -9,12 +9,12 @@ def env(i):
     return 20 * np.log10(np.sqrt((x[:n * 320].reshape(n, 320) ** 2).mean(1)) + 1e-9), len(x) / 16000
 plan, tot = [], 0
 ORDER = [1, 3, 2, 5, 6, 7, 8, 10, 11, 12]
-MAXT = {10: 23.7}                      # drop the cut-off retake at the end of clip 10
+MAXT = {10: 24.05}                      # drop the cut-off retake at the end of clip 10
 for i in ORDER:
     db, dur = env(i)
     dur = min(dur, MAXT.get(i, dur) + 0.3)
     loud = db > -34
-    words = [w for s in tr[str(i)] for w in s['w'] if w[1] <= MAXT.get(i, 1e9)]
+    words = [w for s in tr[str(i)] for w in s['w'] if w[0] < MAXT.get(i, 1e9) - 0.3]
     # speech frames = inside a word span and loud; merge gaps < 0.3s
     sp = np.zeros(len(db), bool)
     for s, e, _ in words: sp[int(max(0, s - 0.05) * 50):int((e + 0.05) * 50)] = True
