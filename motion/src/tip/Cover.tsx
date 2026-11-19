@@ -5,7 +5,7 @@ import '../fonts';
 
 /** Reel cover. Text stays inside the centre 3:4 area so the profile-grid crop keeps it. Line markup: {accent}. */
 const BLUE = '#2352E8', RED = '#E8352B';
-export type CoverProps = {dark?: boolean; lines?: string[]; bg?: string; uniform?: boolean};
+export type CoverProps = {dark?: boolean; lines?: string[]; bg?: string; uniform?: boolean; badge?: string};
 const DEFAULT = ['해석 못해도', '{주제 1분컷}', '하는 법'];
 
 const em = (t: string) => [...t.replace(/[{}_]/g, '')].reduce((w, c) => w + (c === ' ' ? 0.3 : /[가-힣]/.test(c) ? 0.98 : 0.6), 0);
@@ -28,7 +28,7 @@ const Line: React.FC<{t: string; dark?: boolean; size?: number}> = ({t: raw, dar
   );
 };
 
-export const Cover: React.FC<CoverProps> = ({dark, lines = DEFAULT, bg = 'cover_bg.jpg', uniform}) => {
+export const Cover: React.FC<CoverProps> = ({dark, lines = DEFAULT, bg = 'cover_bg.jpg', uniform, badge}) => {
   const same = uniform ? Math.min(150, ...lines.map((l) => 990 / em(l))) : undefined;
   return (
   <AbsoluteFill style={{background: dark ? '#111' : '#F2F3F5', fontFamily: DISPLAY.heavy, alignItems: 'center', justifyContent: 'center'}}>
@@ -37,6 +37,8 @@ export const Cover: React.FC<CoverProps> = ({dark, lines = DEFAULT, bg = 'cover_
       <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.15), rgba(0,0,0,0.6))'}} />
     </>) : null}
     <div style={{position: 'relative', textAlign: 'center', lineHeight: 1.18, letterSpacing: -2}}>
+      {badge ? <div style={{width: 130, height: 130, borderRadius: '50%', background: dark ? '#fff' : BLUE, color: dark ? BLUE : '#fff', fontSize: 92,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 36px', letterSpacing: 0}}>{badge}</div> : null}
       {lines.map((t, i) => <Line key={i} t={t} dark={dark} size={same} />)}
       <div style={{marginTop: 70, fontSize: 76, color: dark ? '#fff' : BLUE, letterSpacing: 2}}>
         {dark ? <span style={{background: BLUE, padding: '6px 34px', borderRadius: 999}}>누보영어</span> : '누보영어'}
