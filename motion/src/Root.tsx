@@ -111,6 +111,8 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{video: 'rp6.mp4', look: 'C', title: '영어 해석\n{2배 빨리} 하는 법', titleSize: 116, marks: rp6.marks as Mark[], lines: rp6.lines, cards: rp6.cards, notes: [], cams: rp6.cams}} />
     <Composition id="Rp6TitleBand" component={Annot} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{video: 'rp6.mp4', look: 'C', title: '영어 해석\n{2배 빨리} 하는 법', titleSize: 116, marks: [], lines: [], cards: [], notes: [], cams: []}} />
+    <Composition id="Rp6CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{dark: true, lines: ['영어 해석', '{2배 빨리}하는', '꿀팁'], uniform: true, bg: 'cover_rp6_bg.jpg'}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
