@@ -22,7 +22,7 @@ const Line: React.FC<{t: string; dark?: boolean; size?: number}> = ({t: raw, dar
   return (
     <div style={{fontSize: size, color: whole ? RED : base, whiteSpace: 'nowrap', marginTop: small && !forced ? 24 : 0}}>
       {t.split(/(\{[^}]+\})/).filter(Boolean).map((p, i) => p.startsWith('{')
-        ? <span key={i} style={{color: RED, background: 'linear-gradient(transparent 52%, #FFE14D 52%, #FFE14D 92%, transparent 92%)', padding: '0 6px'}}>{p.slice(1, -1)}</span>
+        ? <span key={i} style={{color: RED}}>{p.slice(1, -1)}</span>
         : <React.Fragment key={i}>{p}</React.Fragment>)}
     </div>
   );
