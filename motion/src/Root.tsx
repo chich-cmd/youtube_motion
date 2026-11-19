@@ -104,7 +104,7 @@ export const RemotionRoot: React.FC = () => (
         defaultProps={{video: 'rp5short.mp4', look: 'C', title: v.title, marks: v.marks as Mark[], lines: v.lines, cards: v.cards, notes: [], cams: v.cams}} />
     ))}
     <Composition id="StudyCard1" component={StudyCard} fps={30} width={1080} height={1920} durationInFrames={1}
-      defaultProps={{series: '영어 해석 2배 빨리 하는 법', no: '01', head: ['노베이스의 문제 :', '했던 해석 또 함'], label: '예문',
+      defaultProps={{no: '01', head: ['노베이스의 문제 :', '했던 해석 또 함'], label: '예문',
         example: 'I met a friendly woman who speaks three different languages very well.'}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
