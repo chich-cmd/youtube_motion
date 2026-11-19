@@ -118,8 +118,8 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
             display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
             <div style={{background: '#fff', borderRadius: 34, padding: '40px 70px 50px', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
               transform: `scale(${0.85 + 0.15 * k})`, opacity: Math.min(1, k)}}>
-              <div style={{display: 'inline-block', background: BLUE, color: '#fff', fontFamily: DISPLAY.round, fontSize: 50, padding: '6px 30px', borderRadius: 999, marginBottom: 18}}>{c.label}</div>
-              <div style={{fontFamily: `${DISPLAY.heavy}, 'Noto Sans Symbols 2', sans-serif`, fontSize: c.text.includes('\n') ? 92 : 120, color: '#111', lineHeight: 1.15, whiteSpace: 'nowrap'}}>{rows(c.text, BLUE)}</div>
+              <div style={{display: 'inline-block', background: BLUE, color: '#fff', fontFamily: DISPLAY.round, fontSize: 58, padding: '6px 34px', borderRadius: 999, marginBottom: 20}}>{c.label}</div>
+              <div style={{fontFamily: `${DISPLAY.heavy}, 'Noto Sans Symbols 2', sans-serif`, fontSize: c.text.includes('\n') ? 112 : 120, color: '#111', lineHeight: 1.15, whiteSpace: 'nowrap'}}>{rows(c.text, BLUE)}</div>
             </div>
           </div>);
       })}
