@@ -32,6 +32,7 @@ import rp4hook from './tip/rp4hook.json';
 import rp5s from './tip/rp5_sample.json';
 import rp5 from './tip/rp5.json';
 import rp5short from './tip/rp5short.json';
+import rp6 from './tip/rp6.json';
 import rp5sA from './tip/rp5short_A.json';
 import rp5sB from './tip/rp5short_B.json';
 import rp5sC from './tip/rp5short_C.json';
@@ -106,6 +107,10 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="StudyCard1" component={StudyCard} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{no: '01', head: ['노베이스의 문제 :', '했던 해석 또 함'], label: '예문',
         example: 'I met a friendly woman who speaks three different languages very well.'}} />
+    <Composition id="Rp6Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp6.total * 30)}
+      defaultProps={{video: 'rp6.mp4', look: 'C', title: '영어 해석\n{2배 빨리} 하는 법', titleSize: 116, marks: rp6.marks as Mark[], lines: rp6.lines, cards: rp6.cards, notes: [], cams: rp6.cams}} />
+    <Composition id="Rp6TitleBand" component={Annot} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{video: 'rp6.mp4', look: 'C', title: '영어 해석\n{2배 빨리} 하는 법', titleSize: 116, marks: [], lines: [], cards: [], notes: [], cams: []}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회

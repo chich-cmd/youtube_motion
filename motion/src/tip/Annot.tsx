@@ -12,7 +12,7 @@ export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot'
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
-export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]};
+export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]; titleSize?: number};
 const BLUE = '#2352E8', RED = '#E8352B';
 const K = 1080 / 2064, TOP = 330, CUT = 236, WIN = 1260;
 const P = (x: number, y: number) => [x * K, (y - CUT) * K + TOP];
@@ -71,7 +71,7 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
   );
 };
 
-export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams}) => {
+export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams, titleSize}) => {
   const f = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   // camera (source px centre + zoom), eased frame by frame toward the active shot
@@ -104,7 +104,7 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
         </div>
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: TOP, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 92, lineHeight: 1.15, color: '#111'}}><div>{rows(title, BLUE)}</div></div>
+        textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: titleSize ?? 92, lineHeight: 1.12, color: '#111'}}><div>{rows(title, BLUE)}</div></div>
       {notes?.filter((n) => t >= n.s && (n.e === undefined || t < n.e)).map((n, i) => {
         // hand-written note revealed left to right like pen writing
         const p = interpolate(t, [n.s, n.s + 1.4], [0, 100], {extrapolateRight: 'clamp'});
