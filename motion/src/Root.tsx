@@ -89,9 +89,9 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp5Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={3948}
       defaultProps={{video: 'rp5.mp4', look: 'C', title: '영어 해석\n{되돌아가지 않는} 법', marks: rp5.marks as Mark[], lines: rp5.lines, cards: [], notes: [], cams: rp5.cams}} />
     <Composition id="Rp5CoverLight" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
-      defaultProps={{dark: false, lines: ['영어 해석', '{되돌아가지}', '않는 법']}} />
+      defaultProps={{dark: false, lines: ['영어 문장', '{한글처럼} 읽는 법', '_- 관계사 -']}} />
     <Composition id="Rp5CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
-      defaultProps={{dark: true, lines: ['영어 해석', '{되돌아가지}', '않는 법'], bg: 'cover_rp5_bg.jpg'}} />
+      defaultProps={{dark: true, lines: ['영어 문장', '{한글처럼} 읽는 법', '_- 관계사 -'], bg: 'cover_rp5_bg.jpg'}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회

@@ -9,11 +9,16 @@ export type CoverProps = {dark?: boolean; lines?: string[]; bg?: string};
 const DEFAULT = ['해석 못해도', '{주제 1분컷}', '하는 법'];
 
 // A line that is entirely {..} is the big red accent line; {..} inside a line colours just that part.
-const Line: React.FC<{t: string; dark?: boolean}> = ({t, dark}) => {
+const Line: React.FC<{t: string; dark?: boolean}> = ({t: raw, dark}) => {
+  let t = raw;
+  const small = t.startsWith('_');            // '_text' = smaller sub-line
+  if (small) t = t.slice(1);
   const whole = /^\{[^}]*\}$/.test(t);
   const base = dark ? '#fff' : BLUE;
+  const em = [...t.replace(/[{}]/g, '')].reduce((w, c) => w + (c === ' ' ? 0.3 : /[가-힣]/.test(c) ? 0.98 : 0.6), 0);
+  const size = Math.min(small ? 100 : whole ? 172 : 150, 990 / em);   // never wider than the frame
   return (
-    <div style={{fontSize: whole ? 172 : 150, color: whole ? RED : base, whiteSpace: 'nowrap'}}>
+    <div style={{fontSize: size, color: whole ? RED : base, whiteSpace: 'nowrap', marginTop: small ? 24 : 0}}>
       {t.split(/(\{[^}]+\})/).filter(Boolean).map((p, i) => p.startsWith('{') ? <span key={i} style={{color: RED}}>{p.slice(1, -1)}</span> : <React.Fragment key={i}>{p}</React.Fragment>)}
     </div>
   );
