@@ -13,8 +13,9 @@ for a in range(0, x.shape[1], CH):
     b = min(a + CH + OV, x.shape[1])
     y = enhance(model, state, x[:, a:b], atten_lim_db=ATTEN)
     fade = torch.ones(b - a)
-    if a > 0: fade[:OV] = torch.linspace(0, 1, OV)
-    if b < x.shape[1]: fade[-OV:] = torch.linspace(1, 0, OV)
+    ov = min(OV, (b - a) // 2)                     # a short last chunk gets a shorter cross-fade
+    if a > 0: fade[:ov] = torch.linspace(0, 1, ov)
+    if b < x.shape[1]: fade[-ov:] = torch.linspace(1, 0, ov)
     out[:, a:b] += y * fade; w[:, a:b] += fade
     print(f'{b / 48000:.0f}s', flush=True)
 out = (out / w.clamp(min=1e-6)).numpy()[0].astype(np.float32)

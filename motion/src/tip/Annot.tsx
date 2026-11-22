@@ -9,7 +9,7 @@ import '../fonts';
  * highlighter sweeps, hand-drawn underlines/circles, or a spotlight on one region. Three looks for sampling.
  */
 export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot' | 'tag' | 'slash' | 'yhl' | 'link' | 'hand' | 'big'; x: number; y: number; w: number; h: number; text?: string;
-  x2?: number; y2?: number; color?: string; size?: number; dash?: boolean; bulge?: number};
+  x2?: number; y2?: number; color?: string; tagColor?: string; size?: number; dash?: boolean; bulge?: number};
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
@@ -49,13 +49,13 @@ const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, 
     <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: 'rgba(255,221,0,0.6)', mixBlendMode: 'multiply', borderRadius: 4}} />);
   if (m.kind === 'tag') return (   // Korean gloss pill under a chunk
     <div style={{position: 'absolute', left: x - 60, top: m.text?.startsWith('^') ? y - 52 : m.text?.startsWith('=') ? y + h / 2 - 22 : y + h + 8, width: w + 120, display: 'flex', justifyContent: 'center', opacity: p, transform: `translateY(${(1 - p) * 10}px)`}}>
-      <div style={{background: m.text?.replace(/^[\^=]/, '').startsWith('!') ? RED : m.text?.replace(/^[\^=]/, '').startsWith('#') ? '#111' : BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^[\^=]/, '').replace(/^[!#]/, '')}</div>
+      <div style={{background: m.text?.replace(/^[\^=]/, '').startsWith('!') ? RED : m.tagColor ? m.tagColor : m.text?.replace(/^[\^=]/, '').startsWith('#') ? '#111' : BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^[\^=]/, '').replace(/^[!#]/, '')}</div>
     </div>);
   if (m.kind === 'slash') return (
     <svg style={{position: 'absolute', left: x - 12, top: y - 6, overflow: 'visible'}} width={24} height={h + 12}>
       <path d={`M20 0 L4 ${h + 12}`} stroke={RED} strokeWidth={5} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - p} fill="none" /></svg>);
   if (m.kind === 'hl') return (   // marker sweep, multiply so the print stays crisp
-    <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: look === 'C' ? 'rgba(35,82,232,0.22)' : 'rgba(255,221,0,0.55)',
+    <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: m.color ?? (look === 'C' ? 'rgba(35,82,232,0.22)' : 'rgba(255,221,0,0.55)'),
       mixBlendMode: 'multiply', borderRadius: 4}} />);
   if (m.kind === 'ul') {          // slightly wobbly pen line drawn left to right
     const d = `M0 6 C ${w * 0.25} 2, ${w * 0.5} 10, ${w * 0.75} 4 S ${w} 6, ${w} 6`;
