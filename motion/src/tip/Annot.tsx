@@ -13,7 +13,7 @@ export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot'
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
-export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]; titleSize?: number};
+export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]; titleSize?: number; chips?: {s: number; e: number; text: string}[]};
 const BLUE = '#2352E8', RED = '#E8352B';
 const K = 1080 / 2064, TOP = 330, CUT = 236, WIN = 1260;
 const P = (x: number, y: number) => [x * K, (y - CUT) * K + TOP];
@@ -77,6 +77,9 @@ const em = (t: string) => [...t.replace(/[{}]/g, '')].reduce((w, c) => w + (c ==
 
 const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) => {
   const text = l.text;
+  const f = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const pop = spring({frame: f - Math.round(l.s * fps), fps, config: {damping: 11, stiffness: 220}});
   const box: React.CSSProperties = look === 'A'
     ? {background: '#111', color: '#fff', borderRadius: 22, padding: '14px 34px'}
     : look === 'B'
@@ -84,14 +87,14 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
       : {background: '#111', color: '#fff', borderRadius: 0, padding: '14px 34px'};
   return (
     <div style={{position: 'absolute', left: 0, right: 0, top: 1250, height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-      <div style={{fontFamily: FONT, fontWeight: 800, fontSize: Math.min(62, 930 / em(text)), letterSpacing: -1.5, lineHeight: 1.25, whiteSpace: 'nowrap', ...box}}>
+      <div style={{transform: `scale(${0.82 + 0.18 * pop})`, fontFamily: FONT, fontWeight: 800, fontSize: Math.min(62, 930 / em(text)), letterSpacing: -1.5, lineHeight: 1.25, whiteSpace: 'nowrap', ...box}}>
         {rows(text, look === 'B' ? RED : '#FFD84D')}
       </div>
     </div>
   );
 };
 
-export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams, titleSize}) => {
+export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams, titleSize, chips}) => {
   const f = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   // camera (source px centre + zoom), eased frame by frame toward the active shot
@@ -102,7 +105,7 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
     const out: typeof home[] = [];
     for (let i = 0; i < durationInFrames; i++) {
       const tt = i / fps, g = cams?.find((x) => tt >= x.s && tt < x.e) ?? home;
-      c = {cx: c.cx + (g.cx - c.cx) * 0.15, cy: c.cy + (g.cy - c.cy) * 0.15, z: c.z + (g.z - c.z) * 0.15};
+      c = {cx: c.cx + (g.cx - c.cx) * 0.18, cy: c.cy + (g.cy - c.cy) * 0.18, z: c.z + (g.z - c.z) * 0.18};
       out.push(c);
     }
     return out;
@@ -142,6 +145,12 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
               <div style={{fontFamily: `${DISPLAY.heavy}, 'Noto Sans Symbols 2', sans-serif`, fontSize: c.text.includes('\n') ? 112 : 120, color: '#111', lineHeight: 1.15, whiteSpace: 'nowrap'}}>{rows(c.text, BLUE)}</div>
             </div>
           </div>);
+      })}
+      {chips?.filter((c) => t >= c.s && t < c.e).map((c, i) => {
+        const k = spring({frame: f - Math.round(c.s * fps), fps, config: {damping: 13, stiffness: 180}});
+        return <div key={i} style={{position: 'absolute', left: 24, top: TOP + 22, transform: `translateX(${(1 - k) * -40}px)`, opacity: Math.min(1, k),
+          background: '#111', color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 34, padding: '8px 20px', borderRadius: 999, boxShadow: '0 6px 18px rgba(0,0,0,0.3)'}}>
+          {c.text.split(/(STEP \d)/).filter(Boolean).map((x, j) => x.startsWith('STEP') ? <span key={j} style={{color: '#7FA2FF', marginRight: 10}}>{x}</span> : <React.Fragment key={j}>{x}</React.Fragment>)}</div>;
       })}
       {l ? <Caption l={l} look={look} /> : null}
       <div style={{position: 'absolute', left: 0, right: 0, top: 1600, height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center',
