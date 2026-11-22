@@ -8,7 +8,7 @@ import '../fonts';
  * Portrait iPad recording (2064x2752 source px) in a 9:16 reel with narration-timed marks:
  * highlighter sweeps, hand-drawn underlines/circles, or a spotlight on one region. Three looks for sampling.
  */
-export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot' | 'tag' | 'slash' | 'yhl' | 'link' | 'hand'; x: number; y: number; w: number; h: number; text?: string;
+export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot' | 'tag' | 'slash' | 'yhl' | 'link' | 'hand' | 'big'; x: number; y: number; w: number; h: number; text?: string;
   x2?: number; y2?: number; color?: string; size?: number; dash?: boolean; bulge?: number};
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
@@ -39,6 +39,9 @@ const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, 
         <div style={{background: col, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 24, padding: '3px 12px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text}</div></div> : null}
     </>);
   }
+  if (m.kind === 'big') return (   // large brand-blue text written into a margin
+    <div style={{position: 'absolute', left: x, top: y, fontFamily: DISPLAY.heavy, fontSize: m.size ?? 70, color: m.color ?? BLUE, whiteSpace: 'nowrap', lineHeight: 1,
+      clipPath: `inset(-20px ${100 - p * 100}% -20px -20px)`}}>{m.text}</div>);
   if (m.kind === 'hand') return (  // hand-written note revealed left to right
     <div style={{position: 'absolute', left: x, top: y, fontFamily: DISPLAY.hand, fontSize: m.size ?? 40, color: m.color ?? RED, whiteSpace: 'nowrap', lineHeight: 1,
       WebkitTextStroke: `0.6px ${m.color ?? RED}`, clipPath: `inset(-20px ${100 - p * 100}% -20px -20px)`}}>{m.text}</div>);
