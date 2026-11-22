@@ -87,7 +87,7 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
       : {background: '#111', color: '#fff', borderRadius: 0, padding: '14px 34px'};
   return (
     <div style={{position: 'absolute', left: 0, right: 0, top: 1250, height: 170, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-      <div style={{transform: `scale(${0.82 + 0.18 * pop})`, fontFamily: FONT, fontWeight: 800, fontSize: Math.min(62, 930 / em(text)), letterSpacing: -1.5, lineHeight: 1.25, whiteSpace: 'nowrap', ...box}}>
+      <div style={{fontFamily: FONT, fontWeight: 800, fontSize: Math.min(62, 930 / em(text)), letterSpacing: -1.5, lineHeight: 1.25, whiteSpace: 'nowrap', ...box}}>
         {rows(text, look === 'B' ? RED : '#FFD84D')}
       </div>
     </div>
