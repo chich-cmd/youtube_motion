@@ -8,7 +8,8 @@ import '../fonts';
  * Portrait iPad recording (2064x2752 source px) in a 9:16 reel with narration-timed marks:
  * highlighter sweeps, hand-drawn underlines/circles, or a spotlight on one region. Three looks for sampling.
  */
-export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot' | 'tag' | 'slash' | 'yhl'; x: number; y: number; w: number; h: number; text?: string};
+export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot' | 'tag' | 'slash' | 'yhl' | 'link' | 'hand'; x: number; y: number; w: number; h: number; text?: string;
+  x2?: number; y2?: number; color?: string; size?: number; dash?: boolean; bulge?: number};
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
@@ -25,11 +26,27 @@ const MarkView: React.FC<{m: Mark; look: AnnotProps['look']; t: number}> = ({m, 
   const p = interpolate(t, [m.s, m.s + 0.45], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) * (m.kind === 'spot' ? out : 1);
   if (p <= 0 || out <= 0) return null;
   const [x, y] = P(m.x, m.y), w = m.w * K, h = m.h * K;
+  if (m.kind === 'link') {        // curved connector between two points, optional label at the bulge
+    const [x2, y2] = P(m.x2 ?? m.x, m.y2 ?? m.y), col = m.color ?? RED, bx = (m.bulge ?? -60);
+    const mx = (x + x2) / 2 + bx, my = (y + y2) / 2;
+    return (<>
+      <svg style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}} width={1} height={1}>
+        <path d={`M${x} ${y} Q ${mx} ${my} ${x2} ${y2}`} fill="none" stroke={col} strokeWidth={4} strokeLinecap="round" strokeDasharray={m.dash ? '10 8' : undefined}
+          pathLength={m.dash ? undefined : 1} style={m.dash ? {opacity: p} : {strokeDasharray: 1, strokeDashoffset: 1 - p}} />
+        <path d={`M${x2} ${y2} l -9 -12 M${x2} ${y2} l 10 -10`} stroke={col} strokeWidth={4} strokeLinecap="round" opacity={p > 0.9 ? 1 : 0} />
+      </svg>
+      {m.text ? <div style={{position: 'absolute', left: (x + x2) / 2 + bx * 0.5 - 100, top: my - 20, width: 200, display: 'flex', justifyContent: 'center', opacity: p}}>
+        <div style={{background: col, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 24, padding: '3px 12px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text}</div></div> : null}
+    </>);
+  }
+  if (m.kind === 'hand') return (  // hand-written note revealed left to right
+    <div style={{position: 'absolute', left: x, top: y, fontFamily: DISPLAY.hand, fontSize: m.size ?? 40, color: m.color ?? RED, whiteSpace: 'nowrap', lineHeight: 1,
+      WebkitTextStroke: `0.6px ${m.color ?? RED}`, clipPath: `inset(-20px ${100 - p * 100}% -20px -20px)`}}>{m.text}</div>);
   if (m.kind === 'yhl') return (
     <div style={{position: 'absolute', left: x - 4, top: y - 2, width: (w + 8) * p, height: h + 4, background: 'rgba(255,221,0,0.6)', mixBlendMode: 'multiply', borderRadius: 4}} />);
   if (m.kind === 'tag') return (   // Korean gloss pill under a chunk
-    <div style={{position: 'absolute', left: x - 60, top: m.text?.startsWith('^') ? y - 52 : y + h + 8, width: w + 120, display: 'flex', justifyContent: 'center', opacity: p, transform: `translateY(${(1 - p) * 10}px)`}}>
-      <div style={{background: m.text?.replace(/^\^/, '').startsWith('!') ? RED : BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^\^/, '').replace(/^!/, '')}</div>
+    <div style={{position: 'absolute', left: x - 60, top: m.text?.startsWith('^') ? y - 52 : m.text?.startsWith('=') ? y + h / 2 - 22 : y + h + 8, width: w + 120, display: 'flex', justifyContent: 'center', opacity: p, transform: `translateY(${(1 - p) * 10}px)`}}>
+      <div style={{background: m.text?.replace(/^[\^=]/, '').startsWith('!') ? RED : m.text?.replace(/^[\^=]/, '').startsWith('#') ? '#111' : BLUE, color: '#fff', fontFamily: FONT, fontWeight: 800, fontSize: 30, padding: '4px 16px', borderRadius: 999, whiteSpace: 'nowrap'}}>{m.text?.replace(/^[\^=]/, '').replace(/^[!#]/, '')}</div>
     </div>);
   if (m.kind === 'slash') return (
     <svg style={{position: 'absolute', left: x - 12, top: y - 6, overflow: 'visible'}} width={24} height={h + 12}>

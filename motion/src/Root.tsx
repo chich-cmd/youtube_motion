@@ -33,6 +33,7 @@ import rp5s from './tip/rp5_sample.json';
 import rp5 from './tip/rp5.json';
 import rp5short from './tip/rp5short.json';
 import rp6 from './tip/rp6.json';
+import rp7s from './tip/rp7_sample.json';
 import rp5sA from './tip/rp5short_A.json';
 import rp5sB from './tip/rp5short_B.json';
 import rp5sC from './tip/rp5short_C.json';
@@ -113,6 +114,10 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{video: 'rp6.mp4', look: 'C', title: '영어 해석\n{2배 빨리} 하는 법', titleSize: 116, marks: [], lines: [], cards: [], notes: [], cams: []}} />
     <Composition id="Rp6CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['영어 해석', '{2배 빨리}하는', '꿀팁'], uniform: true, bg: 'cover_rp6_bg.jpg'}} />
+    {(['P', 'C', 'Y'] as const).map((k) => (
+      <Composition key={k} id={`Rp7S${k}`} component={Annot} fps={30} width={1080} height={1920} durationInFrames={300}
+        defaultProps={{video: 'rp7_v6.mp4', look: 'C', title: '순서 문제\n{추상 → 구체} 전개도', titleSize: 104, marks: rp7s.looks[k] as Mark[], lines: rp7s.lines, cards: [], notes: [], cams: rp7s.cams}} />
+    ))}
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
