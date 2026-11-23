@@ -36,6 +36,7 @@ import rp5short from './tip/rp5short.json';
 import rp6 from './tip/rp6.json';
 import rp7s from './tip/rp7_sample.json';
 import rp7 from './tip/rp7.json';
+import rp7hook from './tip/rp7hook.json';
 import rp5sA from './tip/rp5short_A.json';
 import rp5sB from './tip/rp5short_B.json';
 import rp5sC from './tip/rp5short_C.json';
@@ -127,6 +128,8 @@ export const RemotionRoot: React.FC = () => (
     {['해석', '문풀', '독해', '내신', '공부법'].map((t, i) => (
       <Composition key={t} id={`Series${i + 1}`} component={SeriesCover} fps={30} width={1080} height={1440} durationInFrames={1} defaultProps={{topic: t}} />
     ))}
+    <Composition id="Rp7Hook" component={Annot} fps={30} width={1080} height={1920} durationInFrames={351}
+      defaultProps={{video: 'rp7hookfx.mp4', look: 'C', title: '순서 1분컷 꿀팁\n{추상 → 구체} 전개도', titleSize: 104, marks: rp7hook.marks as Mark[], lines: rp7hook.lines, cards: rp7hook.cards, notes: [], cams: rp7hook.cams}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
