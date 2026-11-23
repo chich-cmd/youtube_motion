@@ -132,7 +132,7 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp7Hook" component={Annot} fps={30} width={1080} height={1920} durationInFrames={351}
       defaultProps={{video: 'rp7hookfx.mp4', look: 'C', title: '순서 1분컷 꿀팁\n{추상 → 구체} 전개도', titleSize: 104, marks: rp7hook.marks as Mark[], lines: rp7hook.lines, cards: rp7hook.cards, notes: [], cams: rp7hook.cams}} />
     <Composition id="Rp8Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp8.total * 30)}
-      defaultProps={{video: 'rp8fx.mp4', look: 'C', title: '순서 1분컷 꿀팁\n{추상 → 구체} 전개도', titleSize: 104, marks: rp8.marks as Mark[], lines: rp8.lines, cards: rp8.cards, notes: [], cams: rp8.cams, chips: rp8.chips}} />
+      defaultProps={{video: 'rp8bfx.mp4', look: 'C', title: '순서 {추상 구체}로\n1분컷 하는 법', titleSize: 104, marks: rp8.marks as Mark[], lines: rp8.lines, cards: rp8.cards, notes: [], cams: rp8.cams, chips: rp8.chips}} />
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
