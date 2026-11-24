@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Easing, Img, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {FONT} from '../theme';
 import '../fonts';
 
@@ -11,7 +11,7 @@ import '../fonts';
  */
 export type Crop = {s: number; x: number; y: number; size: number};
 export type WScene = {kind: string; s: number; at: number[]};
-export type YTWordProps = {video: string; crops: Crop[]; scenes: WScene[]};
+export type YTWordProps = {video: string; sfx?: string; crops: Crop[]; scenes: WScene[]};
 
 const SRC_W = 1440, SRC_H = 1080;
 const CIRCLE = {d: 320, right: 56, bottom: 48, ring: 6};
@@ -28,7 +28,27 @@ const In: React.FC<{at: number; style?: React.CSSProperties; children: React.Rea
   const k = usePop(at);
   return <div style={{opacity: k, transform: `translateY(${(1 - k) * 18}px)`, ...style}}>{children}</div>;
 };
-/** text that turns blue (or red) at a moment — no swipes, no scribbles */
+/** highlighter swipe behind text (yellow = key point, blue = nuance, red = wrong) */
+const HL: React.FC<{at: number; color?: string; children: React.ReactNode}> = ({at, color = 'rgba(255,212,59,0.55)', children}) => {
+  const {t} = useT();
+  const p = prog(t, at, 0.45);
+  return (
+    <span style={{position: 'relative', display: 'inline-block'}}>
+      <span style={{position: 'absolute', left: -6, right: -6, bottom: '2%', height: '46%', background: color, borderRadius: 6,
+        clipPath: `inset(0 ${(1 - p) * 100}% 0 0)`}} />
+      <span style={{position: 'relative'}}>{children}</span>
+    </span>);
+};
+const HL_BLUE = 'rgba(43,99,217,0.18)', HL_RED = 'rgba(224,69,58,0.2)';
+/** underline that draws left → right */
+const UL: React.FC<{at: number; color?: string; children: React.ReactNode}> = ({at, color = BLUE, children}) => {
+  const {t} = useT();
+  const p = prog(t, at, 0.4);
+  return (
+    <span style={{position: 'relative', display: 'inline-block'}}>{children}
+      <span style={{position: 'absolute', left: 0, bottom: -6, height: 5, width: `${p * 100}%`, background: color, borderRadius: 3}} /></span>);
+};
+/** text that turns blue (or red) at a moment */
 const Em: React.FC<{at: number; color?: string; children: React.ReactNode}> = ({at, color = BLUE, children}) => {
   const {t} = useT();
   return <span style={{color: t >= at ? color : 'inherit'}}>{children}</span>;
@@ -48,7 +68,7 @@ const Num: React.FC<{n: number | string; on?: boolean}> = ({n, on}) => (
 const Row: React.FC<{at: number; n: number | string; left: React.ReactNode; right?: React.ReactNode; last?: boolean; rightAt?: number}> = ({at, n, left, right, last, rightAt}) => (
   <In at={at}><div style={{display: 'flex', alignItems: 'center', padding: '20px 0', borderBottom: last ? undefined : `2px solid ${LINE}`}}>
     <Num n={n} /><div style={{fontSize: 38, fontWeight: 500, color: SUB, flex: 1, marginLeft: 28}}>{left}</div>
-    {right ? <In at={rightAt ?? at}><div style={{fontSize: 50, fontWeight: 800, color: INK}}>{right}</div></In> : null}
+    {right ? <In at={rightAt ?? at}><div style={{fontSize: 50, fontWeight: 800, color: INK}}><UL at={(rightAt ?? at) + 0.3}>{right}</UL></div></In> : null}
   </div></In>);
 
 /* ---------------- scenes ---------------- */
@@ -58,7 +78,7 @@ const Chapter: React.FC<SP> = ({s}) => (
   <Card at={s + 0.1} style={{width: 900}}>
     <Pill>STEP 1</Pill>
     <div style={{fontSize: 140, fontWeight: 800, letterSpacing: -4, marginTop: 26}}>단어</div>
-    <div style={{fontSize: 40, fontWeight: 500, color: SUB, marginTop: 8}}>뜻만 외우지 말고, 뉘앙스로</div>
+    <div style={{fontSize: 40, fontWeight: 500, color: SUB, marginTop: 8}}>뜻만 외우지 말고, <UL at={s + 1.2}>뉘앙스로</UL></div>
   </Card>);
 
 const Pairs: React.FC<SP> = ({s, at: [address, issue, done, forget, apply, why]}) => (
@@ -74,17 +94,17 @@ const Pairs: React.FC<SP> = ({s, at: [address, issue, done, forget, apply, why]}
     <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
       <In at={forget}><Pill tone="red" size={34}>금방 까먹음</Pill></In>
       <In at={apply}><Pill tone="red" size={34}>해석에 적용 안 됨</Pill></In>
-      <In at={why}><div style={{fontSize: 44, fontWeight: 800, marginLeft: 20}}>왜 그럴까요?</div></In>
+      <In at={why}><div style={{fontSize: 44, fontWeight: 800, marginLeft: 20}}><HL at={why + 0.3}>왜 그럴까요?</HL></div></In>
     </div>
   </Card>);
 
 const Sentence: React.FC<SP> = ({s, at: [en, ko, nope]}) => (
   <Card at={s + 0.1}>
     <Label>address = 주소 로만 외웠다면</Label>
-    <In at={en}><div style={{fontSize: 80, fontWeight: 800, letterSpacing: -2}}>He <Em at={en + 0.6}>addressed</Em> the problem.</div></In>
+    <In at={en}><div style={{fontSize: 80, fontWeight: 800, letterSpacing: -2}}>He <HL at={en + 0.6}>addressed</HL> the problem.</div></In>
     <Rule />
     <In at={ko}><div style={{display: 'flex', alignItems: 'center', gap: 26}}>
-      <div style={{fontSize: 56, fontWeight: 600, color: SUB}}>그가 <Em at={nope} color={RED}>주소했다</Em> 문제를</div>
+      <div style={{fontSize: 56, fontWeight: 600, color: SUB}}>그가 <HL at={nope} color={HL_RED}><Em at={nope} color={RED}>주소했다</Em></HL> 문제를</div>
       <In at={nope + 0.4}><Pill tone="red" size={32}>말이 안 돼요</Pill></In>
     </div></In>
   </Card>);
@@ -94,7 +114,7 @@ const Formula: React.FC<SP> = ({s, at: [meaning, nuance]}) => {
     <In at={at}><div style={{background: on ? BLUE : BG, color: on ? '#fff' : INK, borderRadius: 28, padding: '34px 52px', fontSize: 64, fontWeight: 800}}>{text}</div></In>);
   return (
     <Card at={s + 0.1}>
-      <Label>단어는 이렇게 알아야 해요</Label>
+      <Label>단어는 <UL at={nuance + 0.5}>이렇게</UL> 알아야 해요</Label>
       <div style={{display: 'flex', alignItems: 'center', gap: 28}}>
         {box(s + 0.4, '단어')}<In at={s + 0.6}><div style={{fontSize: 56, color: MUTE, fontWeight: 700}}>=</div></In>
         {box(meaning, '한글 뜻')}<In at={nuance - 0.2}><div style={{fontSize: 56, color: MUTE, fontWeight: 700}}>+</div></In>
@@ -109,8 +129,9 @@ const Tree: React.FC<SP & {word: string; core: string; branches: [string, string
     <Card at={s + 0.1} style={{width: 1180}}>
       <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
         <div style={{fontSize: 92, fontWeight: 800, letterSpacing: -2}}>{word}</div>
-        <In at={coreAt}><Pill size={32}>뉘앙스 · {core}</Pill></In>
       </div>
+      <In at={coreAt}><div style={{display: 'flex', alignItems: 'center', gap: 18, marginTop: 14}}>
+        <Pill size={28}>뉘앙스</Pill><div style={{fontSize: 52, fontWeight: 800}}><HL at={coreAt + 0.4}>{core}</HL></div></div></In>
       <Rule />
       {branches.map(([why, mean], i) => (
         <Row key={i} at={rest[i * 2]} rightAt={rest[i * 2 + 1]} n={i + 1} left={why} right={mean} last={i === branches.length - 1} />))}
@@ -132,7 +153,7 @@ const Market: React.FC<SP> = ({s, at: [list, onlyKo, noNuance]}) => {
       <Rule />
       {rows.map(([en, ko], i) => (
         <In key={i} at={list + i * 0.15}><div style={{display: 'flex', alignItems: 'baseline', padding: '18px 0', borderBottom: i < 3 ? `2px solid ${LINE}` : undefined}}>
-          <div style={{width: 280, fontSize: 44, fontWeight: 800}}>{en}</div><div style={{fontSize: 40, fontWeight: 500, color: SUB}}>{ko}</div></div></In>))}
+          <div style={{width: 280, fontSize: 44, fontWeight: 800}}>{en}</div><div style={{fontSize: 40, fontWeight: 500, color: SUB}}><HL at={onlyKo + i * 0.12} color={HL_RED}>{ko}</HL></div></div></In>))}
     </Card>);
 };
 
@@ -140,7 +161,7 @@ const MyBook: React.FC<SP> = ({s, at: [rep, repNote, nuance, boxes, check]}) => 
   const {t} = useT();
   const W = 1124, k = W / 1992; // crop image is 1992x280
   const mark = (x: number, y: number, w: number, h: number, a: number, color: string) => (
-    <div style={{position: 'absolute', left: x * k - 6, top: y * k - 4, width: w * k + 12, height: h * k + 8, border: `4px solid ${color}`, borderRadius: 12, opacity: prog(t, a, 0.4)}} />);
+    <div style={{position: 'absolute', left: x * k - 4, top: y * k - 2, width: (w * k + 8) * prog(t, a, 0.5), height: h * k + 4, background: color, borderRadius: 6, mixBlendMode: 'multiply'}} />);
   const checks = Math.floor(interpolate(t, [check, check + 2.5], [0, 5], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}));
   return (
     <Card at={s + 0.1}>
@@ -150,16 +171,16 @@ const MyBook: React.FC<SP> = ({s, at: [rep, repNote, nuance, boxes, check]}) => 
       </div>
       <In at={s + 0.5} style={{marginTop: 34}}><div style={{position: 'relative', width: W, height: 280 * k, borderRadius: 16, overflow: 'hidden', border: `2px solid ${LINE}`}}>
         <Img src={staticFile('yt1/entry_perpetual.png')} style={{width: W}} />
-        {mark(465, 36, 1490, 42, rep, BLUE)}
-        {mark(465, 96, 1490, 44, nuance, BLUE)}
-        {mark(166, 12, 176, 38, boxes, RED)}
+        {mark(600, 36, 300, 42, rep, 'rgba(255,212,59,0.6)')}
+        {mark(600, 96, 830, 44, nuance, 'rgba(43,99,217,0.25)')}
+        {mark(166, 12, 176, 38, boxes, 'rgba(224,69,58,0.25)')}
         {Array.from({length: checks}).map((_, i) => (
           <div key={i} style={{position: 'absolute', left: (171 + i * 34.4) * k, top: 14 * k, width: 26 * k, height: 26 * k, background: RED, borderRadius: 3}} />))}
       </div></In>
       <div style={{marginTop: 26}}>
-        <Row at={rep} n={1} left={<><b style={{color: INK}}>대표뜻</b> · <span style={{opacity: prog(t, repNote)}}>고3 시험에 나오는 뜻 위주로</span></>} />
-        <Row at={nuance} n={2} left={<><b style={{color: INK}}>뉘앙스</b> · 어떤 느낌인지 이해하고 넘어가기</>} />
-        <Row at={boxes} n={3} left={<><b style={{color: INK}}>체크칸 5개</b> · 한 번 볼 때마다 하나씩 체크</>} last />
+        <Row at={rep} n={1} left={<><b style={{color: INK}}><HL at={rep + 0.2}>대표뜻</HL></b> · <span style={{opacity: prog(t, repNote)}}><UL at={repNote + 0.4}>고3 시험에 나오는 뜻</UL> 위주로</span></>} />
+        <Row at={nuance} n={2} left={<><b style={{color: INK}}><HL at={nuance + 0.2} color={HL_BLUE}>뉘앙스</HL></b> · 어떤 느낌인지 이해하고 넘어가기</>} />
+        <Row at={boxes} n={3} left={<><b style={{color: INK}}><HL at={boxes + 0.2} color={HL_RED}>체크칸 5개</HL></b> · 한 번 볼 때마다 하나씩 체크</>} last />
       </div>
     </Card>);
 };
@@ -171,7 +192,7 @@ const Shift: React.FC<SP> = ({s, at: [next]}) => (
     <In at={next - 0.2}><div style={{fontSize: 60, color: MUTE, fontWeight: 700}}>→</div></In>
     <Card at={next} style={{width: 560, background: BLUE}}>
       <div style={{fontSize: 30, fontWeight: 600, color: 'rgba(255,255,255,0.75)', marginBottom: 18}}>이제부터</div>
-      <div style={{fontSize: 64, fontWeight: 800, color: '#fff'}}>체화 · 암기법</div></Card>
+      <div style={{fontSize: 64, fontWeight: 800, color: '#fff'}}><UL at={next + 0.5} color="#fff">체화 · 암기법</UL></div></Card>
   </div>);
 
 const Plan: React.FC<SP> = ({s, at: [r1, important, r2, r3, r4, r5, why, skip, total]}) => {
@@ -180,9 +201,9 @@ const Plan: React.FC<SP> = ({s, at: [r1, important, r2, r3, r4, r5, why, skip, t
   return (
     <Card at={s + 0.1} style={{padding: '50px 64px', width: 1200}}>
       <div style={{display: 'flex', alignItems: 'center', gap: 20}}>
-        <div style={{fontSize: 56, fontWeight: 800}}>한 단어장 5회독</div>
+        <div style={{fontSize: 56, fontWeight: 800}}>한 단어장 <HL at={s + 0.8}>5회독</HL></div>
         <Pill tone="gray">2,000단어 기준</Pill>
-        <In at={total} style={{marginLeft: 'auto'}}><Pill size={34}>6주면 5회독 끝</Pill></In>
+        <In at={total} style={{marginLeft: 'auto'}}><div style={{fontSize: 40, fontWeight: 800}}><HL at={total + 0.3}>6주면 5회독 끝</HL></div></In>
       </div>
       <div style={{height: 2, background: LINE, margin: '30px 0 14px'}} />
       {rows.map(([n, per, days, a]) => {
@@ -199,7 +220,7 @@ const Plan: React.FC<SP> = ({s, at: [r1, important, r2, r3, r4, r5, why, skip, t
       })}
       <div style={{display: 'flex', alignItems: 'center', gap: 18, marginTop: 20}}>
         <In at={why}><div style={{fontSize: 34, fontWeight: 600, color: SUB}}>뒤로 갈수록 많은 이유</div></In>
-        <In at={skip}><Pill size={30}>아는 단어는 넘기고, 모르는 단어만</Pill></In>
+        <In at={skip}><div style={{fontSize: 36, fontWeight: 700}}>아는 단어는 넘기고, <UL at={skip + 0.6}>모르는 단어만</UL></div></In>
       </div>
     </Card>);
 };
@@ -207,7 +228,7 @@ const Plan: React.FC<SP> = ({s, at: [r1, important, r2, r3, r4, r5, why, skip, t
 const Worry: React.FC<SP> = ({s}) => (
   <Card at={s + 0.3} style={{width: 980}}>
     <Label>이런 고민 있죠?</Label>
-    <div style={{fontSize: 72, fontWeight: 800, letterSpacing: -2, lineHeight: 1.3}}>“쌤, 제 단어장엔<br /><Em at={s + 1.4}>뉘앙스</Em>가 없는데요?”</div>
+    <div style={{fontSize: 72, fontWeight: 800, letterSpacing: -2, lineHeight: 1.3}}>“쌤, 제 단어장엔<br /><HL at={s + 1.4} color={HL_BLUE}>뉘앙스</HL>가 없는데요?”</div>
   </Card>);
 
 // stand-in screen for 누보 영단어 분석기 (swap for a real screen recording if provided)
@@ -225,7 +246,7 @@ const Analyzer: React.FC<SP> = ({s, at: [typeAt, result, ex, link]}) => {
         {typed || <span style={{color: MUTE, fontWeight: 500}}>단어를 입력하세요</span>}</div>
       <div style={{marginTop: 30}}>
         <In at={result}><div style={{display: 'flex', alignItems: 'center', gap: 18}}>
-          <Pill size={28}>핵심 뉘앙스</Pill><div style={{fontSize: 46, fontWeight: 800}}>어딘가를 향한다</div></div></In>
+          <Pill size={28}>핵심 뉘앙스</Pill><div style={{fontSize: 46, fontWeight: 800}}><HL at={result + 0.4}>어딘가를 향한다</HL></div></div></In>
         <div style={{display: 'flex', gap: 18, marginTop: 24}}>
           {[['편지가 향하는 곳', '주소'], ['사람들을 향해 말하다', '연설하다'], ['문제를 향해 손을 뻗다', '다루다']].map(([w, m], i) => (
             <In key={i} at={result + 0.6 + i * 0.3}><div style={{background: BG, borderRadius: 22, padding: '20px 26px', width: 340}}>
@@ -286,7 +307,7 @@ const Face: React.FC<{video: string; crop: Crop}> = ({video, crop}) => {
     </div>);
 };
 
-export const YTWord: React.FC<YTWordProps> = ({video, crops, scenes}) => {
+export const YTWord: React.FC<YTWordProps> = ({video, sfx, crops, scenes}) => {
   const {t} = useT();
   let idx = 0;
   scenes.forEach((s, i) => { if (t >= s.s) idx = i; });
@@ -301,5 +322,6 @@ export const YTWord: React.FC<YTWordProps> = ({video, crops, scenes}) => {
         {render(scenes[idx])}
       </div>
       <Face video={video} crop={crop} />
+      {sfx ? <Audio src={staticFile(sfx)} /> : null}
     </AbsoluteFill>);
 };
