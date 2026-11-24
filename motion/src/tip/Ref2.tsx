@@ -12,7 +12,7 @@ const grid: React.CSSProperties = {backgroundColor: '#fff', backgroundImage: 'li
 const HL: React.FC<{children: React.ReactNode; color?: string}> = ({children, color = YEL}) => (
   <span style={{background: `linear-gradient(transparent 52%, ${color} 52%, ${color} 92%, transparent 92%)`, padding: '0 6px'}}>{children}</span>);
 const Step: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <span style={{background: INK, color: '#fff', fontWeight: 900, fontSize: 30, padding: '6px 16px', borderRadius: 6, letterSpacing: 0.5}}>{children}</span>);
+  <span style={{background: INK, color: '#fff', fontWeight: 900, fontSize: 30, padding: '6px 16px', borderRadius: 6, letterSpacing: 0.5, whiteSpace: 'nowrap', flexShrink: 0}}>{children}</span>);
 const Pill: React.FC<{children: React.ReactNode; w?: number; fill?: boolean}> = ({children, w, fill}) => (
   <div style={{display: 'inline-flex', alignItems: 'center', gap: 12, border: `4px solid ${BLUE}`, borderRadius: 14, padding: '10px 22px', fontWeight: 800, fontSize: 36,
     color: fill ? '#fff' : INK, background: fill ? BLUE : '#fff', width: w, boxSizing: 'border-box'}}>
@@ -100,4 +100,100 @@ const C = () => (
     </div>
   </AbsoluteFill>);
 
-export const Ref2: React.FC<{v: 'A' | 'B' | 'C'}> = ({v}) => (v === 'A' ? <A /> : v === 'B' ? <B /> : <C />);
+// D — 5회독 플랜 (체크리스트형)
+const D = () => {
+  const plan: [number, string, number][] = [[1, '100개', 20], [2, '200개', 10], [3, '400개', 5], [4, '700개', 3], [5, '1,000개', 2]];
+  return (
+    <AbsoluteFill style={{...grid, fontFamily: FONT, color: INK}}>
+      <div style={{position: 'absolute', left: 110, top: 80, width: 1250}}>
+        <Tag>2,000단어 기준</Tag>
+        <div style={{fontSize: 100, fontWeight: 900, letterSpacing: -3, marginTop: 14}}>한 단어장 <HL>5회독</HL> 필수</div>
+        <div style={{marginTop: 40, display: 'flex', flexDirection: 'column', gap: 20}}>
+          {plan.map(([n, per, d]) => (
+            <div key={n} style={{display: 'flex', alignItems: 'center', gap: 22}}>
+              <Step>{n}회독</Step>
+              <Pill w={290} fill={n === 1}>하루 {per}</Pill>
+              <Arrow w={80} />
+              <div style={{display: 'flex', gap: 6}}>{Array.from({length: 20}).map((_, i) => (
+                <div key={i} style={{width: 15, height: 34, borderRadius: 4, background: i < d ? (n === 1 ? BLUE : '#9DB8FF') : '#EEF1F6'}} />))}</div>
+              <div style={{fontSize: 48, fontWeight: 900, width: 110, whiteSpace: 'nowrap', flexShrink: 0}}>{d}일</div>
+              {n === 1 ? <span style={{fontSize: 30, fontWeight: 900, color: RED, whiteSpace: 'nowrap'}}>← 제일 중요</span> : <Check />}
+            </div>))}
+        </div>
+        <div style={{marginTop: 40, display: 'flex', alignItems: 'center', gap: 20, fontSize: 42, fontWeight: 900}}>
+          <Mark plus />아는 단어는 넘기고 모르는 단어만 → <HL>6주면 5회독 끝</HL></div>
+      </div>
+      <Face />
+    </AbsoluteFill>);
+};
+
+// E — 쌤 단어장 구성 (실제 단어장 캡처 + 번호 콜아웃)
+const E = () => {
+  const W = 1240, k = W / 1992;
+  const box = (x: number, y: number, w: number, h: number, c: string) => (
+    <div style={{position: 'absolute', left: x * k - 6, top: y * k - 4, width: w * k + 12, height: h * k + 8, border: `5px solid ${c}`, borderRadius: 10}} />);
+  const num = (n: number, c: string) => (
+    <span style={{display: 'inline-flex', width: 50, height: 50, borderRadius: '50%', background: c, color: '#fff', fontSize: 30, fontWeight: 900, alignItems: 'center', justifyContent: 'center'}}>{n}</span>);
+  return (
+    <AbsoluteFill style={{...grid, fontFamily: FONT, color: INK}}>
+      <div style={{position: 'absolute', left: 110, top: 80, width: 1260}}>
+        <Tag>시중 단어장도 이 구성대로!</Tag>
+        <div style={{fontSize: 96, fontWeight: 900, letterSpacing: -3, marginTop: 14}}>쌤 단어장 <HL>구성</HL></div>
+        <div style={{position: 'relative', width: W, height: 280 * k, marginTop: 40, background: '#fff', border: `3px solid ${INK}`, borderRadius: 12, overflow: 'hidden'}}>
+          <Img src={staticFile('yt1/entry_perpetual.png')} style={{width: W}} />
+          {box(610, 36, 280, 42, '#F2B600')}{box(610, 96, 820, 44, BLUE)}{box(166, 12, 176, 38, RED)}
+        </div>
+        <div style={{display: 'flex', flexDirection: 'column', gap: 26, marginTop: 44}}>
+          {([[1, '#F2B600', '대표뜻', '고3 시험에 나오는 뜻 위주로'], [2, BLUE, '뉘앙스', '어떤 느낌인지 이해하고 넘어가기'], [3, RED, '체크칸 5개', '한 번 볼 때마다 하나씩 체크']] as [number, string, string, string][]).map(([n, c, t, d]) => (
+            <div key={n} style={{display: 'flex', alignItems: 'center', gap: 22}}>
+              {num(n, c)}<div style={{fontSize: 46, fontWeight: 900, width: 260}}>{t}</div><Arrow w={70} /><div style={{fontSize: 38, fontWeight: 700}}>{d}</div></div>))}
+        </div>
+      </div>
+      <Face />
+    </AbsoluteFill>);
+};
+
+// F — 시중 단어장 vs 쌤 단어장 (비교 도식형)
+const F = () => (
+  <AbsoluteFill style={{...grid, fontFamily: FONT, color: INK}}>
+    <div style={{position: 'absolute', left: 110, top: 90, width: 1250}}>
+      <div style={{fontSize: 92, fontWeight: 900, letterSpacing: -3}}>단어장, <HL>뭐가 다를까?</HL></div>
+      <div style={{display: 'flex', gap: 40, marginTop: 56}}>
+        {([[false, '시중 단어장', [['address', '주소, 연설하다, 다루다'], ['issue', '문제, 발행하다, 쟁점']], '한글 뜻만 쭉 나열'], [true, '쌤 단어장', [['address', '대표뜻 + 뉘앙스'], ['issue', '대표뜻 + 뉘앙스']], '뉘앙스로 이해 → 장기기억']] as [boolean, string, [string, string][], string][]).map(([good, t, rs, foot], i) => (
+          <div key={i} style={{flex: 1, background: '#fff', border: `4px solid ${good ? BLUE : '#C9CED8'}`, borderRadius: 20, padding: '30px 34px'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: 16}}><Mark plus={good} /><div style={{fontSize: 46, fontWeight: 900}}>{t}</div></div>
+            <div style={{marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16}}>
+              {rs.map(([en, ko], j) => (
+                <div key={j} style={{display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: '2px dashed #DDE2EA', paddingBottom: 12}}>
+                  <span style={{fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 700, fontSize: 40, width: 170}}>{en}</span>
+                  <span style={{fontSize: 34, fontWeight: 700, color: good ? BLUE : '#7A808A'}}>{ko}</span></div>))}
+            </div>
+            <div style={{marginTop: 24, fontSize: 36, fontWeight: 900, color: good ? INK : RED}}>{good ? <HL>{foot}</HL> : foot}</div>
+          </div>))}
+      </div>
+    </div>
+    <Face />
+  </AbsoluteFill>);
+
+// G — 누보 영단어 분석기 시연 (실제 화면 + 빨리감기 표시)
+const G = () => (
+  <AbsoluteFill style={{...grid, fontFamily: FONT, color: INK}}>
+    <div style={{position: 'absolute', left: 110, top: 70, width: 1250}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 20}}>
+        <Step>STEP 1</Step><div style={{fontSize: 44, fontWeight: 900}}>단어 입력</div><Arrow w={70} />
+        <Step>STEP 2</Step><div style={{fontSize: 44, fontWeight: 900}}><HL>뉘앙스 · 뜻 · 예문</HL> 정리</div>
+      </div>
+      <div style={{position: 'relative', marginTop: 30, width: 1100, border: `4px solid ${INK}`, borderRadius: 16, overflow: 'hidden', background: '#fff'}}>
+        <div style={{height: 46, background: '#F1F3F7', borderBottom: `3px solid ${INK}`, display: 'flex', alignItems: 'center', gap: 10, padding: '0 18px'}}>
+          {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => <span key={c} style={{width: 16, height: 16, borderRadius: '50%', background: c}} />)}
+          <span style={{marginLeft: 14, fontSize: 24, fontWeight: 800}}>누보 영단어 분석기</span></div>
+        <Img src={staticFile('yt1/demo_frame.jpg')} style={{width: 1100, height: 720, objectFit: 'cover', objectPosition: 'top'}} />
+        <div style={{position: 'absolute', right: 20, top: 66, background: INK, color: '#fff', fontWeight: 900, fontSize: 30, padding: '8px 18px', borderRadius: 8}}>▶▶ 빠르게</div>
+      </div>
+      <div style={{position: 'absolute', left: 820, top: 860, background: YEL, fontWeight: 900, fontSize: 32, padding: '8px 18px', borderRadius: 6, border: `3px solid ${INK}`}}>📌 링크는 고정 댓글</div>
+    </div>
+    <Face />
+  </AbsoluteFill>);
+
+const V = {A, B, C, D, E, F, G};
+export const Ref2: React.FC<{v: keyof typeof V}> = ({v}) => { const X = V[v]; return <X />; };
