@@ -20,8 +20,8 @@ def clean(t):
     t = t.strip()
     for a, b in FIX: t = t.replace(a, b)
     return re.sub(r'[.,]+(\s|$)', r'\1', t).strip()
-SRC = 'tr_out.json'   # whisper on the CUT audio: word times are already on the output timeline
-tro = json.load(open(SRC))
+# source word times mapped onto the (exact) cut timeline
+tro = [{'w': [[T(w[0]), T(w[1]), w[2]] for w in seg['w']]} for seg in tr]
 def fixspans(raw):
     sp = []
     for k, _ in FIX:
