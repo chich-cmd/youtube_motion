@@ -225,7 +225,7 @@ const Face: React.FC<{video: string; look: Look; crop: Crop}> = ({video, look, c
     <div style={{position: 'absolute', right: CIRCLE.right, bottom: CIRCLE.bottom, width: d, height: d}}>
       {look === 'C' ? <div style={{position: 'absolute', inset: -26, borderRadius: '50%', background: 'radial-gradient(circle, rgba(110,155,255,0.35) 55%, transparent 72%)'}} /> : null}
       <div style={{position: 'absolute', inset: 0, borderRadius: '50%', overflow: 'hidden', boxSizing: 'border-box', border: `${ring}px solid ${th.ring}`,
-        boxShadow: look === 'A' ? '0 20px 50px rgba(20,30,60,0.28)' : look === 'B' ? '10px 10px 0 #FFE266' : undefined, background: '#222'}}>
+        boxShadow: look === 'A' ? '0 20px 50px rgba(20,30,60,0.28)' : undefined, background: '#222'}}>
         <OffthreadVideo src={staticFile(video)} style={{position: 'absolute', width: SRC_W * k, height: SRC_H * k, left: -crop.x * k, top: -crop.y * k}} />
       </div>
     </div>);
