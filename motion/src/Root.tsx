@@ -26,6 +26,7 @@ import {Cover} from './tip/Cover';
 import {StudyCard} from './tip/StudyCard';
 import {SeriesCover} from './tip/SeriesCover';
 import {LongForm, LFMark} from './tip/LongForm';
+import {YT1, Scene as YT1Scene} from './tip/YT1';
 import {Listen} from './tip/Listen';
 import {Annot, Mark} from './tip/Annot';
 import annotSample from './tip/annot_sample.json';
@@ -136,6 +137,17 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{video: 'rp8bfx.mp4', look: 'C', title: '순서 {추상 구체}로\n1분컷 하는 법', titleSize: 104, marks: rp8.marks as Mark[], lines: rp8.lines, cards: rp8.cards, notes: [], cams: rp8.cams, chips: rp8.chips}} />
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
+    {(['A', 'B', 'C'] as const).map((k) => (
+      <Composition key={k} id={`Yt1${k}`} component={YT1} fps={30} width={1920} height={1080} durationInFrames={2072}
+        defaultProps={{video: 'yt1_a.mp4', look: k, crop: {x: 330, y: 100, size: 840}, scenes: [
+          {kind: 'hook', s: 0, chips: [[1.3, '예비 고3'], [2.6, 'N수 계획 중']], titleAt: 7.8, badgeAt: 10.5},
+          {kind: 'who', s: 14.6},
+          {kind: 'insta', s: 21.2, statAt: 24.0},
+          {kind: 'grade', s: 27.8, arrowAt: 38.0, oneAt: 42.0},
+          {kind: 'career', s: 47.8, gridAt: 53.4, resultAt: 59.2},
+          {kind: 'roadmap', s: 64.4, active: 0},
+        ] as YT1Scene[]}} />
+    ))}
     {(['A', 'B', 'C'] as const).map((k) => (
       <Composition key={k} id={`Lf${k}`} component={LongForm} fps={30} width={1920} height={1080} durationInFrames={14850}
         defaultProps={{video: 'rp9raw.mp4', look: k, step: 1, sub: 2,
