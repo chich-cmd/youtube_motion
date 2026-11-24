@@ -7,6 +7,15 @@ n = len(a) // H
 db = 20 * np.log10(np.sqrt((a[:n * H].reshape(n, H) ** 2).mean(1)) + 1e-9)
 db = np.convolve(db, np.ones(3) / 3, 'same')
 speech = db > -37
+# long quiet stretches over room noise (< -31 dB for 2 s+) also count as pauses
+q = db < -31; i = 0
+while i < n:
+    if q[i]:
+        j = i
+        while j < n and q[j]: j += 1
+        if (j - i) * H / SR >= 2.0: speech[i:j] = False
+        i = j
+    else: i += 1
 dur = n * H / SR
 PRE, POST, MIN_GAP, KEEP = 0.25, 0.35, 0.75, 0.50   # seconds
 # protected spans: (start, end, max pause allowed inside)

@@ -34,7 +34,7 @@ for i, sc in enumerate(out['scenes']):
     if k == 'mybook': ev += [('tick', at[4] + j * 0.5) for j in range(5)]
     if k == 'analyzer': ev += [('tick', at[0] + j * 0.17) for j in range(7)]
     if k == 'shift': ev.append(('plink', at[0]))
-dur = 247.9
+dur = 223.1
 n = int(dur * SR)
 trk = np.zeros(n + SR)
 for kk, a in ev:

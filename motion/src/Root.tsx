@@ -141,7 +141,7 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     {([1, 2, 3, 4, 5] as const).map((k) => <Composition key={k} id={`Ref${k}`} component={Ref} fps={30} width={1920} height={1080} durationInFrames={1} defaultProps={{style: k}} />)}
-    <Composition id="Yt1Word" component={YTWord} fps={30} width={1920} height={1080} durationInFrames={7435} defaultProps={yt1word as YTWordProps} />
+    <Composition id="Yt1Word" component={YTWord} fps={30} width={1920} height={1080} durationInFrames={6692} defaultProps={yt1word as YTWordProps} />
     {(['A', 'B', 'C'] as const).map((k) => (
       <Composition key={k} id={`Yt1${k}`} component={YT1} fps={30} width={1920} height={1080} durationInFrames={2072}
         defaultProps={{video: 'yt1_a.mp4', look: k, crop: {x: 330, y: 100, size: 840}, scenes: [
