@@ -13,7 +13,8 @@ export type Mark = {s: number; e?: number; kind: 'hl' | 'ul' | 'circle' | 'spot'
 export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
-export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]; titleSize?: number; chips?: {s: number; e: number; text: string}[]};
+export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]; titleSize?: number; chips?: {s: number; e: number; text: string}[];
+  intro?: {e: number; head: string; hs: number; hx: number; hy: number; items: {s: number; y: number; t: string; sub: string}[]}};
 const BLUE = '#2352E8', RED = '#E8352B';
 const K = 1080 / 2064, TOP = 330, CUT = 236, WIN = 1260;
 const P = (x: number, y: number) => [x * K, (y - CUT) * K + TOP];
@@ -94,7 +95,7 @@ const Caption: React.FC<{l: AnnotLine; look: AnnotProps['look']}> = ({l, look}) 
   );
 };
 
-export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams, titleSize, chips}) => {
+export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, cards, notes, cams, titleSize, chips, intro}) => {
   const f = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   // camera (source px centre + zoom), eased frame by frame toward the active shot
@@ -126,6 +127,26 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
           </div>
         </div>
       </div>
+      {intro && t < intro.e ? (() => {
+        // clean motion-graphic labels laid over the handwritten summary (handwriting stays visible underneath)
+        const out = interpolate(t, [intro.e - 0.25, intro.e], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+        const kh = spring({frame: f - Math.round(intro.hs * fps), fps, config: {damping: 14, stiffness: 160}});
+        return (<div style={{opacity: out}}>
+          <div style={{position: 'absolute', left: intro.hx, top: intro.hy, transform: `scale(${0.85 + 0.15 * kh})`, transformOrigin: '0 50%', opacity: Math.min(1, kh),
+            background: '#111', color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 64, padding: '10px 30px', borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.25)'}}>{rows(intro.head, '#FFD84D')}</div>
+          {intro.items.map((it, i) => {
+            const k = spring({frame: f - Math.round(it.s * fps), fps, config: {damping: 13, stiffness: 170}});
+            return (
+              <div key={i} style={{position: 'absolute', left: 40, top: it.y, width: 1000, display: 'flex', alignItems: 'center', gap: 24, background: 'rgba(255,255,255,0.86)', borderRadius: 24,
+                padding: '16px 28px', boxShadow: '0 10px 30px rgba(14,26,59,0.18)', borderLeft: `12px solid ${BLUE}`,
+                transform: `translateX(${(1 - k) * 140}px)`, opacity: Math.min(1, Math.max(0, k * 1.4))}}>
+                <div style={{width: 76, height: 76, borderRadius: '50%', background: BLUE, color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>{i + 1}</div>
+                <div style={{fontFamily: DISPLAY.heavy, fontSize: 56, color: '#111', whiteSpace: 'nowrap'}}>{it.t}</div>
+                <div style={{fontFamily: FONT, fontWeight: 800, fontSize: 34, color: '#4A5468', whiteSpace: 'nowrap'}}>{it.sub}</div>
+              </div>);
+          })}
+        </div>);
+      })() : null}
       <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: TOP, display: 'flex', alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: titleSize ?? 92, lineHeight: 1.12, color: '#111'}}><div>{rows(title, BLUE)}</div></div>
       {notes?.filter((n) => t >= n.s && (n.e === undefined || t < n.e)).map((n, i) => {
