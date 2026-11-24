@@ -29,6 +29,9 @@ for j, c in enumerate(lines):
         if k in t: t = t.replace(k, '{' + k + '}', 1); break
     nxt = lines[j + 1][0][0] if j + 1 < len(lines) else c[-1][1] + 0.5
     out.append({'s': round(c[0][0], 3), 'e': round(nxt if nxt - c[-1][1] < 0.6 else c[-1][1] + 0.3, 3), 'text': t})
+# manual caption override (teacher's wording)
+out = [l for l in out if not 63.9 < l['s'] < 69.7] + [{'s': 64.02, 'e': 65.94, 'text': '학교 선생님이 중요하다고 한'}, {'s': 65.94, 'e': 67.06, 'text': '단어, 문법이 담긴'}, {'s': 67.06, 'e': 69.74, 'text': '어구나 주제문을 암기하세요'}]
+out.sort(key=lambda l: l['s'])
 TOT = 2201 / 30
 W = [w for s in vt for w in s['w']]
 def at(word, k=0): return [w[0] for w in W if word in w[2]][k]
