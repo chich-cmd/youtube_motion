@@ -128,6 +128,8 @@ export const RemotionRoot: React.FC = () => (
     ))}
     <Composition id="Rp7Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp7.total * 30)}
       defaultProps={{video: 'rp7fx.mp4', look: 'C', title: '순서 1분컷 꿀팁\n{추상 → 구체} 전개도', titleSize: 104, marks: rp7.marks as Mark[], lines: rp7.lines, cards: rp7.cards, notes: [], cams: rp7.cams, chips: rp7.chips}} />
+    <Composition id="Rp7CoverDark2" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
+      defaultProps={{dark: true, lines: ['순서 {앞, 뒤}', '헷갈릴 때', '이 방법으로 1분컷'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     <Composition id="Rp7CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{추상 구체}로', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     {['해석', '문풀', '독해', '내신', '공부법'].map((t, i) => (
