@@ -96,3 +96,7 @@ rp9/src/
 rp9/pieces/
 motion/public/rp9*.mp4
 /rp9/db.npy
+/rp9r/pieces/
+/rp9r/*.wav
+/rp9r/*.mp4
+/rp9r/new/

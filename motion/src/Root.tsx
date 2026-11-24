@@ -29,6 +29,7 @@ import {LongForm, LFMark} from './tip/LongForm';
 import {Rp9Long} from './tip/Rp9Long';
 import {Thumb} from './tip/Thumb';
 import rp9 from './tip/rp9.json';
+import rp9r from './tip/rp9r.json';
 import {Listen} from './tip/Listen';
 import {Annot, Mark} from './tip/Annot';
 import annotSample from './tip/annot_sample.json';
@@ -142,6 +143,8 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     {(['A', 'B', 'C', 'D'] as const).map((k) => <Composition key={k} id={`Rp9Thumb${k}`} component={Thumb} fps={30} width={1280} height={720} durationInFrames={1} defaultProps={{v: k}} />)}
+    <Composition id="Rp9Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.floor(rp9r.total * 30)}
+      defaultProps={{video: 'rp9rfx.mp4', look: 'C', title: '내신 {벼락치기}\n3단계 공부법', titleSize: 104, marks: [] as Mark[], lines: rp9r.lines, cards: rp9r.cards, notes: [], cams: [], chips: rp9r.chips}} />
     <Composition id="Rp9Long" component={Rp9Long} fps={30} width={1920} height={1080} durationInFrames={Math.floor(rp9.dur * 30)}
       defaultProps={{video: 'rp9fx.mp4', lines: rp9.lines, states: rp9.states, cards: rp9.cards, chapters: rp9.chapters, patches: rp9.patches}} />
     {(['A', 'B', 'C'] as const).map((k) => (
