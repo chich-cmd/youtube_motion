@@ -4,6 +4,8 @@
 - 소개 영상(`SODA_817202508`, `SODA_817203006`)은 작업 대상 아님
 - 컷 편집: 08103 [0–169.40] + 08103 [179.30–298.50] (NG "…암기하여 컷" 제거, 끝 잡음 제거) + 08336 [0–46.20]
   → `motion/public/yt1_word.mp4` (loudnorm -14 LUFS)
-- 렌더: `cd motion && npx remotion render src/index.ts Yt1Word ../output/yt1_word_B.mp4`
+- 렌더: 3구간 나눠 렌더 후 이어붙임 → `output/yt1_word.mp4` (`npx remotion render src/index.ts Yt1Word … --frames=0-3399` 등)
 - 장면 타이밍: `motion/src/tip/yt1word.json`, 컴포넌트: `motion/src/tip/YTWord.tsx`
-- 스타일: B 노트형, 얼굴 원 오른쪽 아래 + 검은 테두리, 자막 없음
+- 스타일: 3번 소프트 카드(연회색 배경 + 흰 카드 + 파랑 포인트), 얼굴 원 오른쪽 아래 + 검은 테두리, 자막 없음
+- 단어장 예시: PDF 1903 perpetual (`motion/public/yt1/entry_perpetual.png`)
+- 분석기 시연 화면은 임시(address) — 실제 화면 녹화 받으면 교체
