@@ -14,7 +14,7 @@ export type WScene = {kind: string; s: number; at: number[]};
 export type YTWordProps = {video: string; crops: Crop[]; scenes: WScene[]};
 
 const SRC_W = 1440, SRC_H = 1080;
-const CIRCLE = {d: 430, right: 64, bottom: 56, ring: 7};
+const CIRCLE = {d: 320, right: 56, bottom: 48, ring: 6};
 const BOX = {x: 100, y: 110, w: 1260, h: 880};
 const BG = '#F2F4F7', INK = '#111827', SUB = '#667085', LINE = '#EEF0F3', BLUE = '#2B63D9', BLUE_SOFT = '#EAF0FD', RED = '#E0453A', RED_SOFT = '#FDECEA', MUTE = '#C3C8D0';
 const SHADOW = '0 30px 80px rgba(16,24,40,0.08)';
