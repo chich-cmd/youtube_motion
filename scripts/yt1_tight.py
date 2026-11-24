@@ -20,7 +20,7 @@ CUTS = json.load(open(sys.argv[1] if len(sys.argv) > 1 else 'yt1/cut2.json'))
 cuts = CUTS['cuts']
 def m(t):
     return round(t - sum(min(max(t - cs, 0), ce - cs) for cs, ce in cuts), 3)
-out = {'video': 'yt1_word_tight.mp4', 'sfx': 'yt1_sfx.wav',
+out = {'video': CUTS.get('video', 'yt1_word_tight.mp4'), 'sfx': 'yt1_sfx.wav',
        'crops': [{**c, 's': m(c['s'])} for c in src['crops']],
        'scenes': [{'kind': s['kind'], 's': m(s['s']), 'at': [m(a) for a in s['at']]} for s in src['scenes']]}
 json.dump(out, open('motion/src/tip/yt1word.json', 'w'), ensure_ascii=False, indent=1)
@@ -34,7 +34,7 @@ for i, sc in enumerate(out['scenes']):
     def tree(): return [s + 0.6] + [at[i] + 0.2 for i in (2, 4, 6) if i < len(at) and k == 'address' or (k == 'issue' and i in (2, 4))]
     H = {'chapter': lambda: [s + 0.8], 'pairs': lambda: [at[2], at[5] + 0.3], 'sentence': lambda: [at[0] + 0.6],
          'formula': lambda: [at[1] + 0.9], 'address': tree, 'issue': tree, 'market': lambda: [at[1]],
-         'mybook': lambda: [s + 0.7, at[1] + 0.4, at[2] + 0.6], 'shift': lambda: [at[0] + 0.4],
+         'mybook': lambda: [s + 0.7, at[1] + 0.4, at[2] + 0.6, at[6] + 0.4],
          'plan': lambda: [s + 0.8, at[8] + 0.3], 'worry': lambda: [s + 1.4], 'analyzer': lambda: [at[1] + 0.4], 'next': lambda: [s + 0.7]}
     hl = H[k]() if k in H else []
     ev += [('marker', a) for a in hl]
@@ -43,7 +43,7 @@ for i, sc in enumerate(out['scenes']):
     if k == 'address': ev.append(('ding', at[7]))
     if k == 'plan': ev.append(('ding', at[8]))
     if k == 'mybook': ev += [('tick', at[4] + j * 0.5) for j in range(5)]
-    if k == 'shift': ev.append(('plink', at[0]))
+    if k == 'mybook': ev += [('whoosh', at[5]), ('plink', at[6])]
 dur = CUTS.get('duration', 223.1)
 n = int(dur * SR)
 trk = np.zeros(n + SR)

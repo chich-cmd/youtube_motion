@@ -21,3 +21,8 @@
 - `scripts/yt1_cut2.py yt1/word.f32 yt1/gaze.json yt1/cut2.json` : 말소리는 절대 안 자름, 쉼은 최대 0.22초, 쉼 안의 눈 돌림 프레임 제거, 컷마다 6ms 오디오 페이드
 - 334.7초 → 203.0초. 말하면서 눈 돌린 2.2초는 말을 잘라야 해서 유지
 - `python3 scripts/yt1_tight.py yt1/cut2.json` 로 장면 타이밍/효과음 재계산
+
+## v6 (무음 컷 없음)
+- 무음 구간은 사용자가 직접 조절 → 원래 길이(334.7초) `yt1_word.mp4` 사용, NG 제거/말끝 복구만 유지
+- `python3 scripts/yt1_tight.py yt1/nocut.json` (cuts 없음)
+- '체화·암기법' 별도 장면 삭제 → 쌤 단어장 장면에서 체크칸 5개로 확대하며 이어짐

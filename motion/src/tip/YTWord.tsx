@@ -169,10 +169,13 @@ const Market: React.FC<SP> = ({s, at: [list, onlyKo, noNuance]}) => {
     </div>);
 };
 
-// layout E — real vocab-book crop + numbered callouts
-const MyBook: React.FC<SP> = ({s, at: [rep, repNote, nuance, boxes, check]}) => {
+// layout E — real vocab-book crop + numbered callouts; then zooms into the 5 check boxes ("이제부터 체화·암기법")
+const MyBook: React.FC<SP> = ({s, at: [rep, repNote, nuance, boxes, check, zoomAt, next]}) => {
   const {t} = useT();
   const W = 1240, k = W / 1992; // crop image is 1992x280
+  const z = zoomAt ? prog(t, zoomAt, 0.8) : 0;
+  const Z = 1 + 1.5 * z, H0 = 280 * k, H1 = 440;
+  const OX = 160 * k, OY = 0;     // zoom origin: left edge of the check boxes
   const box = (x: number, y: number, w: number, h: number, c: string, a: number) => {
     const p = prog(t, a, 0.3);
     return <div style={{position: 'absolute', left: x * k - 6, top: y * k - 4, width: w * k + 12, height: h * k + 8, border: `5px solid ${c}`, borderRadius: 10, opacity: p, transform: `scale(${0.9 + 0.1 * p})`}} />;
@@ -188,16 +191,26 @@ const MyBook: React.FC<SP> = ({s, at: [rep, repNote, nuance, boxes, check]}) => 
     <div>
       <In at={s + 0.1}><Tag>시중 단어장도 이 구성대로!</Tag></In>
       <Title at={s + 0.2} size={96}>쌤 단어장 <HL at={s + 0.7}>구성</HL></Title>
-      <In at={s + 0.5} style={{marginTop: 36}}><div style={{position: 'relative', width: W, height: 280 * k, background: '#fff', border: `3px solid ${INK}`, borderRadius: 12, overflow: 'hidden'}}>
-        <Img src={staticFile('yt1/entry_perpetual.png')} style={{width: W}} />
-        {box(610, 36, 280, 42, GOLD, rep)}{box(610, 96, 820, 44, BLUE, nuance)}{box(166, 12, 176, 38, RED, boxes)}
-        {Array.from({length: checks}).map((_, i) => (
-          <div key={i} style={{position: 'absolute', left: (171 + i * 34.4) * k, top: 15 * k, width: 26 * k, height: 26 * k, background: RED, borderRadius: 3}} />))}
+      <In at={s + 0.5} style={{marginTop: 36}}><div style={{position: 'relative', width: W, height: H0 + (H1 - H0) * z, background: '#fff', border: `3px solid ${INK}`, borderRadius: 12, overflow: 'hidden'}}>
+        <div style={{position: 'absolute', left: 0, top: 0, width: W, height: H0, transformOrigin: `${OX}px ${OY}px`, transform: `scale(${Z})`}}>
+          <Img src={staticFile('yt1/entry_perpetual.png')} style={{width: W}} />
+          {box(610, 36, 280, 42, GOLD, rep)}{box(610, 96, 820, 44, BLUE, nuance)}{box(166, 12, 176, 38, RED, boxes)}
+          {Array.from({length: checks}).map((_, i) => (
+            <div key={i} style={{position: 'absolute', left: (171 + i * 34.4) * k, top: 15 * k, width: 26 * k, height: 26 * k, background: RED, borderRadius: 3}} />))}
+        </div>
       </div></In>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 26, marginTop: 44}}>
-        {items.map(([n, c, ttl, d, a]) => (
-          <In key={n} at={a}><div style={{display: 'flex', alignItems: 'center', gap: 22}}>
-            {num(n, c)}<div style={{fontSize: 48, fontWeight: 900, width: 270}}>{ttl}</div><Arrow at={a + 0.2} w={70} /><div style={{fontSize: 40, fontWeight: 700}}>{d}</div></div></In>))}
+      <div style={{position: 'relative', marginTop: 44}}>
+        <div style={{display: 'flex', flexDirection: 'column', gap: 26, opacity: 1 - z}}>
+          {items.map(([n, c, ttl, d, a]) => (
+            <In key={n} at={a}><div style={{display: 'flex', alignItems: 'center', gap: 22}}>
+              {num(n, c)}<div style={{fontSize: 48, fontWeight: 900, width: 270}}>{ttl}</div><Arrow at={a + 0.2} w={70} /><div style={{fontSize: 40, fontWeight: 700}}>{d}</div></div></In>))}
+        </div>
+        {zoomAt ? <div style={{position: 'absolute', left: 0, top: -10, display: 'flex', flexDirection: 'column', gap: 26}}>
+          <In at={zoomAt + 0.6}><div style={{display: 'flex', alignItems: 'center', gap: 20}}><Step>지금까지</Step><div style={{fontSize: 50, fontWeight: 900}}>단어 이해법</div><Check at={zoomAt + 0.9} /></div></In>
+          <In at={next}><div style={{display: 'flex', alignItems: 'center', gap: 20}}><Step>이제부터</Step>
+            <div style={{fontSize: 64, fontWeight: 900}}><HL at={next + 0.4}>체화 · 암기법</HL></div><Arrow at={next + 0.6} w={80} />
+            <div style={{fontSize: 44, fontWeight: 900, color: RED}}>이 5칸으로!</div></div></In>
+        </div> : null}
       </div>
     </div>);
 };
