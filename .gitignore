@@ -98,3 +98,6 @@ motion/public/rp9*.mp4
 /yt1/src/
 /yt1/frames/
 /output/yt1_pron/
+/yt1/models/
+/yt1/*.m4a
+/yt1/*.f32
