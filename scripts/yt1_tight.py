@@ -16,7 +16,8 @@ def sha():  # short bright 'shak' highlighter swish
     return 0.32 * y / (np.abs(y).max() + 1e-9)
 
 src = json.load(open('yt1/yt1word_src.json'))
-cuts = json.load(open('yt1/silence_cuts.json'))['cuts']
+CUTS = json.load(open(sys.argv[1] if len(sys.argv) > 1 else 'yt1/cut2.json'))
+cuts = CUTS['cuts']
 def m(t):
     return round(t - sum(min(max(t - cs, 0), ce - cs) for cs, ce in cuts), 3)
 out = {'video': 'yt1_word_tight.mp4', 'sfx': 'yt1_sfx.wav',
@@ -43,7 +44,7 @@ for i, sc in enumerate(out['scenes']):
     if k == 'plan': ev.append(('ding', at[8]))
     if k == 'mybook': ev += [('tick', at[4] + j * 0.5) for j in range(5)]
     if k == 'shift': ev.append(('plink', at[0]))
-dur = 223.1
+dur = CUTS.get('duration', 223.1)
 n = int(dur * SR)
 trk = np.zeros(n + SR)
 for kk, a in ev:
