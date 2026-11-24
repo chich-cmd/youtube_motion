@@ -25,6 +25,7 @@ import {Tip} from './tip/Tip';
 import {Cover} from './tip/Cover';
 import {StudyCard} from './tip/StudyCard';
 import {SeriesCover} from './tip/SeriesCover';
+import {LongForm, LFMark} from './tip/LongForm';
 import {Listen} from './tip/Listen';
 import {Annot, Mark} from './tip/Annot';
 import annotSample from './tip/annot_sample.json';
@@ -135,6 +136,13 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{video: 'rp8bfx.mp4', look: 'C', title: '순서 {추상 구체}로\n1분컷 하는 법', titleSize: 104, marks: rp8.marks as Mark[], lines: rp8.lines, cards: rp8.cards, notes: [], cams: rp8.cams, chips: rp8.chips}} />
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
+    {(['A', 'B', 'C'] as const).map((k) => (
+      <Composition key={k} id={`Lf${k}`} component={LongForm} fps={30} width={1920} height={1080} durationInFrames={14850}
+        defaultProps={{video: 'rp9raw.mp4', look: k, step: 1, sub: 2,
+          lines: [{s: 150, e: 175, text: '한글 해석에서 {중요한 부분}을 영어에도 형광펜!'}],
+          marks: [{s: 150, e: 175, kind: 'hl', x: 216, y: 123, w: 548, h: 20}, {s: 150, e: 175, kind: 'hl', x: 216, y: 157, w: 548, h: 20}, {s: 150, e: 175, kind: 'box', x: 806, y: 90, w: 280, h: 100}] as LFMark[],
+          card: {s: 150, e: 175, label: '1단계 ③', text: '한글에서 중요 → \n영어에도 {형광펜}'}}} />
+    ))}
     <Composition id="EmoReel" component={Emo} fps={FPS} width={1080} height={1920} durationInFrames={568}
       defaultProps={{video: 'rp_base.mp4', cues: [
         // clip 1: 혹시 올해 수능봐..? / 그렇다면 이 릴스가 / 수능 전 최고의 기회
