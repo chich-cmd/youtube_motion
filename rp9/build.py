@@ -20,29 +20,43 @@ def clean(t):
     t = t.strip()
     for a, b in FIX: t = t.replace(a, b)
     return re.sub(r'[.,]+(\s|$)', r'\1', t).strip()
-lines = []
-for seg in tr:
-    txt = clean(seg['t']); ws = seg['w']
-    if not txt: continue
-    toks = txt.split(); chunks = [toks]
-    while any(len(' '.join(c)) > MAXC for c in chunks):
-        nc = []
-        for c in chunks:
-            if len(' '.join(c)) <= MAXC or len(c) < 2: nc.append(c); continue
-            L = len(' '.join(c)); best = min(range(1, len(c)), key=lambda i: abs(len(' '.join(c[:i])) - L / 2)); nc += [c[:best], c[best:]]
-        chunks = nc
-    tot = sum(len(c) for c in chunks); i0 = 0
-    for c in chunks:   # time by token fraction over source words
-        f0, f1 = i0 / tot, (i0 + len(c)) / tot; i0 += len(c)
-        a = ws[min(len(ws) - 1, int(round(f0 * len(ws))))][0]; b = ws[max(0, int(round(f1 * len(ws))) - 1)][1]
-        lines.append([a, b, ' '.join(c)])
+SRC = 'tr_out.json'   # whisper on the CUT audio: word times are already on the output timeline
+tro = json.load(open(SRC))
+def fixspans(raw):
+    sp = []
+    for k, _ in FIX:
+        i = raw.find(k)
+        while i >= 0: sp.append((i, i + len(k))); i = raw.find(k, i + 1)
+    return sp
 out = []
+for seg in tro:
+    ws = [w for w in seg['w'] if w[2].strip()]
+    if not ws: continue
+    toks = [w[2].strip() for w in ws]
+    raw = ' '.join(toks); bad = fixspans(raw)
+    pos = []; c = 0
+    for tk in toks: pos.append(c); c += len(tk) + 1
+    def ok(i): return not any(a < pos[i] - 1 < b for a, b in bad)
+    chunks = [(0, len(ws))]
+    while True:
+        nc, ch = [], False
+        for a0, b0 in chunks:
+            txt = clean(' '.join(toks[a0:b0]))
+            cand = [i for i in range(a0 + 1, b0) if ok(i)]
+            if len(txt) <= MAXC or not cand: nc.append((a0, b0)); continue
+            L = len(txt); i = min(cand, key=lambda i: abs(len(' '.join(toks[a0:i])) - L / 2)); nc += [(a0, i), (i, b0)]; ch = True
+        chunks = nc
+        if not ch: break
+    for a0, b0 in chunks:
+        t = clean(' '.join(toks[a0:b0]))
+        if t: out.append([ws[a0][0], ws[b0 - 1][1], t])
+lines = out; out = []
 for j, (a, b, t) in enumerate(lines):
     nxt = lines[j + 1][0] if j + 1 < len(lines) else b + 0.6
-    e = nxt if nxt - b < 1.0 else b + 0.4
+    e = nxt if nxt - b < 0.6 else b + 0.3
     for k in KEY:
         if k in t: t = t.replace(k, '{' + k + '}', 1); break
-    out.append({'s': round(T(a), 3), 'e': round(T(e), 3), 'text': t})
+    out.append({'s': round(a, 3), 'e': round(e, 3), 'text': t})
 for j in range(len(out) - 1): out[j]['e'] = min(out[j]['e'], out[j + 1]['s'])
 # sidebar state (source time): step 0 intro, recap>0 = summary
 ST = [(0, 0, 0, 0), (22.9, 1, 0, 0), (87.2, 1, 1, 0), (150.3, 1, 2, 0), (206.3, 1, 3, 0), (278.2, 2, 0, 0), (286.0, 2, 1, 0), (314.8, 2, 2, 0),
