@@ -139,7 +139,7 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{video: 'rp8bfx.mp4', look: 'C', title: '순서 {추상 구체}로\n1분컷 하는 법', titleSize: 104, marks: rp8.marks as Mark[], lines: rp8.lines, cards: rp8.cards, notes: [], cams: rp8.cams, chips: rp8.chips}} />
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
-    {(['A', 'B', 'C'] as const).map((k) => <Composition key={k} id={`Rp9Thumb${k}`} component={Thumb} fps={30} width={1280} height={720} durationInFrames={1} defaultProps={{v: k}} />)}
+    {(['A', 'B', 'C', 'D'] as const).map((k) => <Composition key={k} id={`Rp9Thumb${k}`} component={Thumb} fps={30} width={1280} height={720} durationInFrames={1} defaultProps={{v: k}} />)}
     <Composition id="Rp9Long" component={Rp9Long} fps={30} width={1920} height={1080} durationInFrames={Math.floor(rp9.dur * 30)}
       defaultProps={{video: 'rp9fx.mp4', lines: rp9.lines, states: rp9.states, cards: rp9.cards, chapters: rp9.chapters, patches: rp9.patches}} />
     {(['A', 'B', 'C'] as const).map((k) => (
