@@ -4,7 +4,16 @@ Out: motion/src/tip/yt1word.json, motion/public/yt1_sfx.wav"""
 import json, sys, wave
 import numpy as np
 sys.path.insert(0, 'scripts')
-from sfx import SR, whoosh, click, marker, plink, ding, tick
+from sfx import SR, whoosh, click, plink, ding, tick, lp
+
+def sha():  # short bright 'shak' highlighter swish
+    n = int(0.17 * SR); t = np.arange(n) / SR
+    x = np.random.default_rng(11).standard_normal(n)
+    y = x - lp(x, 2500)                       # keep the hiss, drop the body
+    e = np.minimum(t / 0.008, 1) * np.exp(-t / 0.045)
+    sweep = 0.6 + 0.4 * np.minimum(t / 0.05, 1)
+    y = y * e * sweep
+    return 0.32 * y / (np.abs(y).max() + 1e-9)
 
 src = json.load(open('yt1/yt1word_src.json'))
 cuts = json.load(open('yt1/silence_cuts.json'))['cuts']
@@ -15,16 +24,17 @@ out = {'video': 'yt1_word_tight.mp4', 'sfx': 'yt1_sfx.wav',
        'scenes': [{'kind': s['kind'], 's': m(s['s']), 'at': [m(a) for a in s['at']]} for s in src['scenes']]}
 json.dump(out, open('motion/src/tip/yt1word.json', 'w'), ensure_ascii=False, indent=1)
 
-S = dict(whoosh=0.45 * whoosh(), click=0.8 * click(), marker=0.9 * marker(), plink=0.55 * plink(), ding=0.45 * ding(), tick=0.6 * tick())
+S = dict(whoosh=0.45 * whoosh(), click=0.8 * click(), marker=sha(), plink=0.55 * plink(), ding=0.45 * ding(), tick=0.6 * tick())
 ev = []
 for i, sc in enumerate(out['scenes']):
     s, at, k = sc['s'], sc['at'], sc['kind']
     if i > 0: ev.append(('whoosh', s - 0.15))
     for a in at: ev.append(('click', a))
-    H = {'chapter': lambda: [s + 1.2], 'pairs': lambda: [at[5] + 0.3], 'sentence': lambda: [at[0] + 0.6, at[2]],
-         'address': lambda: [at[0] + 0.4], 'issue': lambda: [at[0] + 0.4], 'market': lambda: [at[1]],
-         'mybook': lambda: [at[0], at[0] + 0.2, at[2], at[3]], 'plan': lambda: [s + 0.8, at[8] + 0.3, at[7] + 0.6],
-         'worry': lambda: [s + 1.4], 'analyzer': lambda: [at[1] + 0.4], 'shift': lambda: [at[0] + 0.5]}
+    def tree(): return [s + 0.6] + [at[i] + 0.2 for i in (2, 4, 6) if i < len(at) and k == 'address' or (k == 'issue' and i in (2, 4))]
+    H = {'chapter': lambda: [s + 0.8], 'pairs': lambda: [at[2], at[5] + 0.3], 'sentence': lambda: [at[0] + 0.6],
+         'formula': lambda: [at[1] + 0.9], 'address': tree, 'issue': tree, 'market': lambda: [at[1]],
+         'mybook': lambda: [s + 0.7, at[1] + 0.4, at[2] + 0.6], 'shift': lambda: [at[0] + 0.4],
+         'plan': lambda: [s + 0.8, at[8] + 0.3], 'worry': lambda: [s + 1.4], 'analyzer': lambda: [at[1] + 0.4], 'next': lambda: [s + 0.7]}
     hl = H[k]() if k in H else []
     ev += [('marker', a) for a in hl]
     if k == 'formula': ev.append(('plink', at[1]))
@@ -32,7 +42,6 @@ for i, sc in enumerate(out['scenes']):
     if k == 'address': ev.append(('ding', at[7]))
     if k == 'plan': ev.append(('ding', at[8]))
     if k == 'mybook': ev += [('tick', at[4] + j * 0.5) for j in range(5)]
-    if k == 'analyzer': ev += [('tick', at[0] + j * 0.17) for j in range(7)]
     if k == 'shift': ev.append(('plink', at[0]))
 dur = 223.1
 n = int(dur * SR)
