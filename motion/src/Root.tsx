@@ -148,7 +148,7 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{dark: true, lines: ['내신 영어', '{벼락치기}', '필승법'], uniform: true, bg: 'cover_rp9_bg.jpg'}} />
     <Composition id="Rp9Vo" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp9vo.total * 30)}
       defaultProps={{video: 'rp9vofx.mp4', look: 'C', title: '내신 {벼락치기}\n필승법 3단계', titleSize: 104, marks: [] as Mark[], lines: rp9vo.lines, cards: rp9vo.cards, notes: [], cams: [], chips: rp9vo.chips,
-        intro: {e: rp9vo.chips[0].s - 0.05, head: '내신 {벼락치기}', hs: 0.2, hx: 60, hy: 430, items: [{s: 2.4, y: 580, t: '내용 숙지', sub: '좌지문 · 우해석'}, {s: 3.3, y: 715, t: '변형 문제', sub: '써먹기'}, {s: 4.2, y: 880, t: '서술형 공부', sub: '선생님 강조 · 문장 덩어리'}]}}} />
+        intro: {big: {e: 2.35, lines: ['내신 영어', '{벼락치기}', '필승법']}, e: rp9vo.chips[0].s - 0.05, head: '내신 {벼락치기}', hs: 2.35, hx: 60, hy: 430, items: [{s: 2.4, y: 580, t: '내용 숙지', sub: '좌지문 · 우해석'}, {s: 3.3, y: 715, t: '변형 문제', sub: '써먹기'}, {s: 4.2, y: 880, t: '서술형 공부', sub: '선생님 강조 · 문장 덩어리'}]}}} />
     <Composition id="Rp9Reel" component={Annot} fps={30} width={1080} height={1920} durationInFrames={Math.floor(rp9r.total * 30)}
       defaultProps={{video: 'rp9rfx.mp4', look: 'C', title: '내신 {벼락치기}\n3단계 공부법', titleSize: 104, marks: [] as Mark[], lines: rp9r.lines, cards: rp9r.cards, notes: [], cams: [], chips: rp9r.chips}} />
     <Composition id="Rp9Long" component={Rp9Long} fps={30} width={1920} height={1080} durationInFrames={Math.floor(rp9.dur * 30)}

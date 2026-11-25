@@ -14,7 +14,7 @@ export type AnnotLine = {s: number; e: number; text: string};
 export type Note = {s: number; e?: number; x: number; y: number; text: string; size: number};
 export type Card = {s: number; e: number; label: string; text: string};
 export type AnnotProps = {video: string; look: 'A' | 'B' | 'C'; marks: Mark[]; lines: AnnotLine[]; title: string; cards?: Card[]; notes?: Note[]; cams?: {s: number; e: number; cx: number; cy: number; z: number}[]; titleSize?: number; chips?: {s: number; e: number; text: string}[];
-  intro?: {e: number; head: string; hs: number; hx: number; hy: number; items: {s: number; y: number; t: string; sub: string}[]}};
+  intro?: {big?: {e: number; lines: string[]}; e: number; head: string; hs: number; hx: number; hy: number; items: {s: number; y: number; t: string; sub: string}[]}};
 const BLUE = '#2352E8', RED = '#E8352B';
 const K = 1080 / 2064, TOP = 330, CUT = 236, WIN = 1260;
 const P = (x: number, y: number) => [x * K, (y - CUT) * K + TOP];
@@ -132,6 +132,19 @@ export const Annot: React.FC<AnnotProps> = ({video, look, marks, lines, title, c
         const out = interpolate(t, [intro.e - 0.25, intro.e], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
         const kh = spring({frame: f - Math.round(intro.hs * fps), fps, config: {damping: 14, stiffness: 160}});
         return (<div style={{opacity: out}}>
+          {intro.big && t < intro.big.e ? (() => {
+            // opening title card centred on the video window
+            const kb = spring({frame: f, fps, config: {damping: 13, stiffness: 170}});
+            const ob = interpolate(t, [intro.big.e - 0.2, intro.big.e], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+            return (
+              <div style={{position: 'absolute', left: 0, top: TOP + 4, width: 1080, height: WIN - 8, background: 'rgba(10,14,30,0.82)', opacity: ob,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+                <div style={{fontFamily: DISPLAY.heavy, fontSize: 170, lineHeight: 1.15, color: '#fff', textAlign: 'center', letterSpacing: -2,
+                  transform: `scale(${0.8 + 0.2 * kb})`, opacity: Math.min(1, kb)}}>
+                  {intro.big.lines.map((x, i) => <div key={i}>{rows(x, '#E8352B')}</div>)}
+                </div>
+              </div>);
+          })() : null}
           <div style={{position: 'absolute', left: intro.hx, top: intro.hy, transform: `scale(${0.85 + 0.15 * kh})`, transformOrigin: '0 50%', opacity: Math.min(1, kh),
             background: '#111', color: '#fff', fontFamily: DISPLAY.heavy, fontSize: 64, padding: '10px 30px', borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.25)'}}>{rows(intro.head, '#FFD84D')}</div>
           {intro.items.map((it, i) => {

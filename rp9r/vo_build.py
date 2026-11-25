@@ -31,6 +31,7 @@ for j, c in enumerate(lines):
     out.append({'s': round(c[0][0], 3), 'e': round(nxt if nxt - c[-1][1] < 0.6 else c[-1][1] + 0.3, 3), 'text': t})
 # manual caption override (teacher's wording)
 out = [l for l in out if not 63.9 < l['s'] < 69.7] + [{'s': 64.02, 'e': 65.94, 'text': '학교 선생님이 중요하다고 한'}, {'s': 65.94, 'e': 67.06, 'text': '단어, 문법이 담긴'}, {'s': 67.06, 'e': 69.74, 'text': '어구나 주제문을 암기하세요'}]
+out = [l for l in out if l['s'] >= 2.0]   # opening title card replaces the first caption
 out.sort(key=lambda l: l['s'])
 TOT = 2201 / 30
 W = [w for s in vt for w in s['w']]
