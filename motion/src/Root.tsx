@@ -30,6 +30,7 @@ import {Rp9Long} from './tip/Rp9Long';
 import {Thumb} from './tip/Thumb';
 import {Mg, MgScene} from './tip/Mg';
 import {Mg2} from './tip/Mg2';
+import {Gr, GrEl} from './tip/Gr';
 import rp9 from './tip/rp9.json';
 import rp9r from './tip/rp9r.json';
 import rp9vo from './tip/rp9vo.json';
@@ -146,6 +147,20 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     {(['A', 'B', 'C', 'D'] as const).map((k) => <Composition key={k} id={`Rp9Thumb${k}`} component={Thumb} fps={30} width={1280} height={720} durationInFrames={1} defaultProps={{v: k}} />)}
+    <Composition id="Gr1" component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
+      defaultProps={{top: '{예비 고1 주목!}\n고등 영어 1등급 되는 공부법', head: '중학 영어 vs {고등} 영어', lines: [{s: 0, e: 5, text: '중학 영어 A여도 고등 가면 등급 {X}'}],
+        els: [{s: 0.2, k: 'circle', x: 290, y: 720, r: 170, text: '중학\nA', c: 'red'}, {s: 0.5, k: 'text', x: 0, y: 675, text: 'vs', size: 80, center: true},
+          {s: 0.8, k: 'circle', x: 790, y: 720, r: 170, text: '고등\n?등급', c: 'blue'}, {s: 1.4, k: 'text', x: 0, y: 1020, text: '시험 범위 기본 {5배}', size: 84, center: true}] as GrEl[]}} />
+    <Composition id="Gr2" component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
+      defaultProps={{top: '{예비 고1 주목!}\n고등 영어 1등급 되는 공부법', step: 'STEP 1', head: '문법 끝판왕 잡기', lines: [{s: 0, e: 5, text: '처음 보는 문장도 {구조}가 보이게'}],
+        els: [{s: 0.2, k: 'card', x: 70, y: 430, w: 940, size: 46, text: 'The policy [that we approved] [will affect] residents.',
+            marks: [{s: 0.7, text: '', label: '꾸밈 (관계절)', c: 'red'}, {s: 1.2, text: '', label: '진짜 동사', c: 'blue'}]},
+          {s: 1.8, k: 'img', x: 390, y: 900, w: 300, src: 'book_grammarholic.jpg', cap: 'EBS 로즈리 Grammar Holic'}] as GrEl[]}} />
+    <Composition id="Gr3" component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
+      defaultProps={{top: '{예비 고1 주목!}\n고등 영어 1등급 되는 공부법', step: 'STEP 3', head: '중학 단어 ≠ {고등} 단어', lines: [{s: 0, e: 5, text: '{address} 주소 아니고 다루다, 연설하다'}],
+        els: [{s: 0.2, k: 'card', x: 70, y: 450, w: 940, size: 50, text: 'The mayor will [address] the problem.', marks: [{s: 0.7, text: '', label: '다루다', c: 'blue'}]},
+          {s: 1.2, k: 'circle', x: 300, y: 1010, r: 150, text: '주소', c: 'red', sign: '-'}, {s: 1.5, k: 'text', x: 0, y: 965, text: 'vs', size: 72, center: true},
+          {s: 1.8, k: 'circle', x: 780, y: 1010, r: 150, text: '다루다\n연설하다', c: 'blue', sign: '+'}] as GrEl[]}} />
     {(['A', 'B', 'C'] as const).map((k) => <Composition key={k} id={`Mg2${k}`} component={Mg2} fps={30} width={1080} height={1920} durationInFrames={300}
       defaultProps={{look: k, title: '고등 영어 {1등급} 공부법', steps: [{s: 0, e: 10, n: 1, key: '문법'}],
         focus: [{s: 0.3, e: 4, img: 'book_grammarholic.jpg', label: 'EBS 로즈리쌤 그래머홀릭'}, {s: 4, e: 10, text: '강의 없이\n{설명}될 때까지 반복'}],
