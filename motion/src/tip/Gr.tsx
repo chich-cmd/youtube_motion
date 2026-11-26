@@ -17,6 +17,7 @@ export type GrEl =
   | {s: number; e?: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
   | {s: number; e?: number; k: 'arrow'; x: number; y: number; w: number}
   | {s: number; e?: number; k: 'follow'; y: number; tap: number; avatar: string; name: string; sub: string}
+  | {s: number; e?: number; k: 'point'; x: number; y: number; label?: string; v?: 'arrow' | 'curve' | 'ring' | 'tap' | 'line'}
   | {s: number; e?: number; k: 'tick'; x: number; y: number; size: number; type: 'x' | 'check'; c?: C};
 export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; heads?: {s: number; step?: string; head: string}[]; audio?: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
@@ -91,6 +92,56 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
           </div>
           </div>;
         }
+        if (e.k === 'point') {
+          const v = e.v ?? 'arrow', dt = t - e.s;
+          if (v === 'line') {
+            // simple black arrow drawn on from upper-right, tip at (x, y), gentle nudge toward the tip
+            const p = Math.min(1, dt / 0.3), n = dt > 0.3 ? Math.abs(Math.sin((dt - 0.3) * 6)) * 14 : 0;
+            const ux = -0.5, uy = 0.866, len = 260;           // direction toward the tip (down-left)
+            const tx = e.x + ux * n, ty = e.y + uy * n, sx = tx - ux * len, sy = ty - uy * len;
+            const hx = (a: number) => tx - 70 * (ux * Math.cos(a) - uy * Math.sin(a)), hy = (a: number) => ty - 70 * (uy * Math.cos(a) + ux * Math.sin(a));
+            return <svg key={i} width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
+              <path d={`M ${sx} ${sy} L ${sx + (tx - sx) * p} ${sy + (ty - sy) * p}`} stroke="#111" strokeWidth={22} strokeLinecap="round" fill="none" />
+              {p >= 1 ? <path d={`M ${hx(0.6)} ${hy(0.6)} L ${tx} ${ty} L ${hx(-0.6)} ${hy(-0.6)}`} stroke="#111" strokeWidth={22} strokeLinecap="round" strokeLinejoin="round" fill="none" /> : null}
+            </svg>;
+          }
+          if (v === 'curve') {
+            // thin hand-drawn curve drawn on from the caption toward the target, small label at its start
+            const p = Math.min(1, dt / 0.6), L = 700;
+            return <div key={i} style={{position: 'absolute', left: 0, top: 0}}>
+              <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
+                <path d={`M ${e.x + 330} ${e.y - 20} C ${e.x + 300} ${e.y + 90}, ${e.x + 140} ${e.y + 70}, ${e.x + 40} ${e.y + 10}`} fill="none" stroke={BLUE} strokeWidth={9} strokeLinecap="round" strokeDasharray={L} strokeDashoffset={L * (1 - p)} />
+                {p >= 1 ? <path d={`M ${e.x + 78} ${e.y - 8} L ${e.x + 40} ${e.y + 10} L ${e.x + 76} ${e.y + 36}`} fill="none" stroke={BLUE} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" /> : null}
+              </svg>
+              <div style={{position: 'absolute', left: e.x + 250, top: e.y - 96, fontWeight: 900, fontSize: 46, color: BLUE, opacity: Math.min(1, dt / 0.3), whiteSpace: 'nowrap'}}>{e.label ?? '여기서 팔로우!'}</div>
+            </div>;
+          }
+          if (v === 'ring') {
+            // pulsing rings on the spot + small pill label
+            const rings = [0, 0.5, 1].map((d) => ((dt + d) % 1.5) / 1.5);
+            return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, opacity: o}}>
+              {rings.map((r, j) => <div key={j} style={{position: 'absolute', left: -40 - 90 * r, top: -40 - 90 * r, width: 80 + 180 * r, height: 80 + 180 * r, borderRadius: '50%', border: `5px solid ${BLUE}`, opacity: 1 - r}} />)}
+              <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: '50%', background: BLUE}} />
+              <div style={{position: 'absolute', left: 110, top: -42, background: BLUE, color: '#fff', fontWeight: 900, fontSize: 44, padding: '10px 26px', borderRadius: 999, whiteSpace: 'nowrap', transform: `scale(${0.8 + 0.2 * k})`, transformOrigin: '0 50%'}}>{e.label ?? '팔로우는 여기!'}</div>
+            </div>;
+          }
+          if (v === 'tap') {
+            // hand cursor glides in and taps the spot (ripple on each tap)
+            const slide = Math.min(1, dt / 0.5), tp = Math.max(0, dt - 0.5) % 1.0, press = tp < 0.15 ? tp / 0.15 : tp < 0.3 ? 1 - (tp - 0.15) / 0.15 : 0;
+            const rip = dt > 0.5 ? Math.min(1, tp / 0.6) : 0;
+            return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, opacity: o}}>
+              {rip > 0 ? <div style={{position: 'absolute', left: -70 * rip - 20, top: -70 * rip - 20, width: 140 * rip + 40, height: 140 * rip + 40, borderRadius: '50%', background: 'rgba(35,82,232,0.25)', opacity: 1 - rip}} /> : null}
+              <svg viewBox="0 0 64 80" width={120} height={150} style={{position: 'absolute', left: -28 + (1 - slide) * 260, top: -8 + (1 - slide) * 120 + press * 10, transform: `scale(${1 - press * 0.08})`}}>
+                <path d="M22 4c4 0 7 3 7 7v22l3-1c3-1 6 1 7 3l1 3 3-1c3-1 6 1 7 4l1 2 2-1c3 0 6 2 6 5v14c0 9-7 17-17 17H34c-7 0-12-4-15-10L8 46c-2-3-1-6 2-8s6-1 8 1l3 4V11c0-4 3-7 7-7z" fill="#fff" stroke="#111" strokeWidth={4} strokeLinejoin="round" />
+              </svg>
+              <div style={{position: 'absolute', left: 120, top: -110, color: '#111', fontWeight: 900, fontSize: 44, whiteSpace: 'nowrap', opacity: Math.min(1, dt / 0.4)}}>{e.label ?? '팔로우 꾹!'}</div>
+            </div>;
+          }
+          const b = Math.abs(Math.sin(dt * 8)) * 26 * Math.min(1, k);
+          return <svg key={i} width={340} height={130} viewBox="0 0 340 130" style={{position: 'absolute', left: e.x + b + (1 - Math.min(1, k)) * 300, top: e.y - 65, opacity: o, overflow: 'visible'}}>
+            <path d="M4 65 L100 4 L100 40 L336 40 L336 90 L100 90 L100 126 Z" fill="#FFE600" stroke="#111" strokeWidth={9} strokeLinejoin="round" />
+          </svg>;
+        }
         if (e.k === 'tick') {
           // hand-drawn check / cross, stroke drawn on at its timing
           const p = Math.min(1, Math.max(0, (t - e.s) / 0.35));
@@ -123,11 +174,9 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
           })}
         </div>;
       })}</div>
-      {/* bottom gradient so Instagram's own overlay (account name, follow button) stays readable */}
-      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 640, background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 30%, rgba(0,0,0,0.78) 70%, rgba(0,0,0,0.88) 100%)'}} />
       {l ? <div style={{position: 'absolute', left: 0, right: 0, top: 1470, display: 'flex', justifyContent: 'center'}}>
         <div style={{background: '#111', color: '#fff', fontWeight: 800, fontSize: Math.min(62, 930 / em(l.text)), padding: '14px 34px', whiteSpace: 'nowrap', letterSpacing: -1}}>{rows(l.text, '#FFD84D')}</div></div> : null}
-      <div style={{position: 'absolute', bottom: 150, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 52, color: '#fff'}}>누보영어</div>
+      <div style={{position: 'absolute', bottom: 150, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 52, color: BLUE}}>누보영어</div>
     </AbsoluteFill>
   );
 };

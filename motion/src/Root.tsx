@@ -158,6 +158,10 @@ export const RemotionRoot: React.FC = () => (
             {s: 1.8, k: 'circle', x: 780, y: 1030, r: 150, text: '다루다\n연설하다', c: 'blue'}] as GrEl[]}} />))}
     <Composition id="Rp10CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['예비고1', '고등 {1등급} 받는', '영어 공부법'], uniform: true, bg: 'cover_rp10_bg.jpg'}} />
+    {(['curve', 'ring', 'tap'] as const).map((v) => <Composition key={v} id={`Fol${v}`} component={Gr} fps={30} width={1080} height={1920} durationInFrames={90}
+      defaultProps={{top: '예비고1 고등학생 때\n{1등급 맞는 영어 공부법}', head: '앞으로 올라올 {꿀팁}', lines: [{s: 0, e: 3, text: '준비하고 싶으면 쌤 {팔로우해!}'}],
+        els: [{s: 0, k: 'text', x: 0, y: 520, text: '고등영어 준비는', size: 72, center: true}, {s: 0, k: 'follow', y: 660, tap: 9, avatar: 'nouve_avatar.png', name: 'nou.ve', sub: '누보영어 · 고등영어 꿀팁'},
+          {s: 0.2, k: 'point', x: 560, y: 1560, v}] as GrEl[]}} />)}
     <Composition id="Rp10Reel" component={Gr} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp10.total * 30)}
       defaultProps={{top: '예비고1 고등학생 때\n{1등급 맞는 영어 공부법}', head: '', heads: rp10.heads, audio: 'rp10_voice.m4a', els: rp10.els as GrEl[], lines: rp10.lines}} />
     <Composition id="Gr1" component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
