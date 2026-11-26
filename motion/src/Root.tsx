@@ -168,7 +168,7 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{top: '예비고1들 고등학교 때\n{1등급} 맞는 영어 공부법', step: 'STEP 3', head: '중학 단어 ≠ {고등} 단어', lines: [{s: 0, e: 5, text: '{address} 주소 아니고 다루다, 연설하다'}],
         els: [{s: 0.2, k: 'card', x: 70, y: 450, w: 940, size: 50, text: 'The mayor will [address] the problem.', marks: [{s: 0.7, text: '', label: '다루다', c: 'blue'}]},
           {s: 1.2, k: 'circle', x: 300, y: 1010, r: 150, text: '주소', c: 'red'}, {s: 1.5, k: 'text', x: 0, y: 965, text: 'vs', size: 72, center: true},
-          {s: 1.8, k: 'circle', x: 780, y: 1010, r: 150, text: '다루다\n연설하다', c: 'blue'}] as GrEl[]}} />
+          {s: 1.8, k: 'circle', x: 780, y: 1010, r: 150, text: '다루다\n연설하다', c: 'blue'}, {s: 2.4, k: 'tick', x: 300, y: 1010, size: 230, type: 'x'}, {s: 3.0, k: 'tick', x: 925, y: 860, size: 130, type: 'check'}] as GrEl[]}} />
     {(['A', 'B', 'C'] as const).map((k) => <Composition key={k} id={`Mg2${k}`} component={Mg2} fps={30} width={1080} height={1920} durationInFrames={300}
       defaultProps={{look: k, title: '고등 영어 {1등급} 공부법', steps: [{s: 0, e: 10, n: 1, key: '문법'}],
         focus: [{s: 0.3, e: 4, img: 'book_grammarholic.jpg', label: 'EBS 로즈리쌤 그래머홀릭'}, {s: 4, e: 10, text: '강의 없이\n{설명}될 때까지 반복'}],

@@ -5,7 +5,7 @@ import {DISPLAY} from '../fonts';
 import '../fonts';
 
 /** Explainer-board reel: plain light background, STEP header, flat diagrams (circles / vs), serif example cards with labelled boxes, book photos, black caption box. */
-export type GrTheme = {main: string; mainBg: string; sub: string; subBg: string; paper: string; grid?: boolean};
+export type GrTheme = {main: string; mainBg: string; sub: string; subBg: string; paper: string; grid?: boolean};  // grid on unless false
 const DEF: GrTheme = {main: '#2352E8', mainBg: '#E3EBFF', sub: '#E0473E', subBg: '#FDE7E5', paper: '#F6F7FA'};
 type C = 'red' | 'blue' | 'gray';
 // paper grain: fractal noise tile
@@ -15,7 +15,8 @@ export type GrEl =
   | {s: number; k: 'text'; x: number; y: number; text: string; size?: number; color?: string; center?: boolean}
   | {s: number; k: 'card'; x: number; y: number; w: number; text: string; size?: number; marks?: {s: number; text: string; label: string; c: C}[]}
   | {s: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
-  | {s: number; k: 'arrow'; x: number; y: number; w: number};
+  | {s: number; k: 'arrow'; x: number; y: number; w: number}
+  | {s: number; k: 'tick'; x: number; y: number; size: number; type: 'x' | 'check'; c?: C};
 export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
   <div key={i}>{r.split(/(\{[^}]+\})/).filter(Boolean).map((p, j) => p.startsWith('{') ? <span key={j} style={{color: key}}>{p.slice(1, -1)}</span> : <React.Fragment key={j}>{p}</React.Fragment>)}</div>));
@@ -33,7 +34,7 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
     <AbsoluteFill style={{background: theme.paper, fontFamily: FONT}}>
       <AbsoluteFill style={{backgroundImage: GRAIN, backgroundSize: '400px 400px'}} />
       <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0) 55%, rgba(90,70,40,0.10) 100%)'}} />
-      {theme.grid ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(120,110,90,0.10) 2px, transparent 2px), linear-gradient(90deg, rgba(120,110,90,0.10) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
+      {theme.grid !== false ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(120,110,90,0.10) 2px, transparent 2px), linear-gradient(90deg, rgba(120,110,90,0.10) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
       {/* top band: black with mint title, yellow key word */}
       <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 330, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
         textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 100, fontWeight: 800, lineHeight: 1.2, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
@@ -53,6 +54,17 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
           </div>;
         }
         if (e.k === 'text') return <div key={i} style={{position: 'absolute', left: e.center ? 0 : e.x, right: e.center ? 0 : undefined, top: e.y, textAlign: e.center ? 'center' : 'left', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: e.size ?? 64, color: e.color ?? '#111', opacity: o, lineHeight: 1.2}}>{rows(e.text, BLUE)}</div>;
+        if (e.k === 'tick') {
+          // hand-drawn check / cross, stroke drawn on at its timing
+          const p = Math.min(1, Math.max(0, (t - e.s) / 0.35));
+          const col = e.c ? PAL[e.c].bd : (e.type === 'check' ? BLUE : PAL.red.bd);
+          const L = 300;
+          const paths = e.type === 'check' ? ['M10 55 L40 85 L95 15'] : ['M15 15 L85 85', 'M85 15 L15 85'];
+          return <svg key={i} viewBox="0 0 100 100" style={{position: 'absolute', left: e.x - e.size / 2, top: e.y - e.size / 2, width: e.size, height: e.size, overflow: 'visible'}}>
+            {paths.map((d, j) => { const q = Math.min(1, Math.max(0, p * paths.length - j));
+              return <path key={j} d={d} fill="none" stroke={col} strokeWidth={e.type === 'x' ? 9 : 13} strokeOpacity={e.type === 'x' ? 0.75 : 1} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={L} strokeDashoffset={L * (1 - q)} />; })}
+          </svg>;
+        }
         if (e.k === 'arrow') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w * Math.min(1, k), height: 8, background: '#111', borderRadius: 4}}>
           <div style={{position: 'absolute', right: -6, top: -14, width: 0, height: 0, borderTop: '18px solid transparent', borderBottom: '18px solid transparent', borderLeft: '28px solid #111'}} /></div>;
         if (e.k === 'img') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w, opacity: o, transform: `translateY(${(1 - k) * 30}px)`}}>
