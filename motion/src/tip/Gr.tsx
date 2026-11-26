@@ -6,7 +6,7 @@ import '../fonts';
 
 /** Explainer-board reel: plain light background, STEP header, flat diagrams (circles / vs), serif example cards with labelled boxes, book photos, black caption box. */
 export type GrTheme = {main: string; mainBg: string; sub: string; subBg: string; paper: string; grid?: boolean};  // grid on unless false
-const DEF: GrTheme = {main: '#2352E8', mainBg: '#E3EBFF', sub: '#E0473E', subBg: '#FDE7E5', paper: '#F6F7FA'};
+const DEF: GrTheme = {main: '#2352E8', mainBg: '#E3EBFF', sub: '#E0473E', subBg: '#FDE7E5', paper: '#FFFFFF'};
 type C = 'red' | 'blue' | 'gray';
 // paper grain: fractal noise tile
 const GRAIN = `url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.25  0 0 0 0.09 0"/></filter><rect width="400" height="400" filter="url(#n)"/></svg>')}")`;
@@ -32,13 +32,11 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
   const l = lines.find((x) => t >= x.s && t < x.e);
   return (
     <AbsoluteFill style={{background: theme.paper, fontFamily: FONT}}>
-      <AbsoluteFill style={{backgroundImage: GRAIN, backgroundSize: '400px 400px'}} />
-      <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0) 55%, rgba(90,70,40,0.10) 100%)'}} />
-      {theme.grid !== false ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(120,110,90,0.10) 2px, transparent 2px), linear-gradient(90deg, rgba(120,110,90,0.10) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
+      {theme.grid !== false ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(40,60,100,0.055) 2px, transparent 2px), linear-gradient(90deg, rgba(40,60,100,0.055) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
       {/* top band: black with mint title, yellow key word */}
-      <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 330, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
-        textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 100, fontWeight: 800, lineHeight: 1.2, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
-      <div style={{position: 'absolute', top: 370, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
+      <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 300, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
+        textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 86, fontWeight: 800, lineHeight: 1.2, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
+      <div style={{position: 'absolute', top: 345, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
         {step ? <div style={{background: BLUE, color: '#fff', fontWeight: 900, fontSize: 52, padding: '6px 22px', borderRadius: 10, whiteSpace: 'nowrap'}}>{step}</div> : null}
         <div style={{fontWeight: 900, fontSize: Math.min(68, (step ? 700 : 940) / em(head)), color: '#111', letterSpacing: -1.5, whiteSpace: 'nowrap'}}>{rows(head, BLUE)}</div>
       </div>
@@ -48,7 +46,7 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
         if (e.k === 'circle') {
           const p = PAL[e.c];
           return <div key={i} style={{position: 'absolute', left: e.x - e.r, top: e.y - e.r, width: e.r * 2, height: e.r * 2, transform: `scale(${0.6 + 0.4 * k})`, opacity: o}}>
-            <div style={{width: '100%', height: '100%', borderRadius: '50%', background: p.bg, border: `6px solid ${p.bd}`, boxShadow: '0 8px 22px rgba(0,0,0,0.12)',
+            <div style={{width: '100%', height: '100%', borderRadius: '50%', background: p.bg, border: `6px solid ${p.bd}`,
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: Math.min(64, (e.r * 1.6) / Math.max(...e.text.split('\n').map(em))), color: p.ink, lineHeight: 1.15}}>{rows(e.text, '#111')}</div>
             {e.sign ? <div style={{position: 'absolute', left: e.r - 32, top: e.r * 2 + 16, width: 64, height: 64, borderRadius: '50%', background: p.bg, border: `4px solid #111`, fontWeight: 900, fontSize: 52, lineHeight: '56px', textAlign: 'center', color: '#111'}}>{e.sign === '+' ? '+' : '−'}</div> : null}
           </div>;
@@ -68,12 +66,12 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
         if (e.k === 'arrow') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w * Math.min(1, k), height: 8, background: '#111', borderRadius: 4}}>
           <div style={{position: 'absolute', right: -6, top: -14, width: 0, height: 0, borderTop: '18px solid transparent', borderBottom: '18px solid transparent', borderLeft: '28px solid #111'}} /></div>;
         if (e.k === 'img') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w, opacity: o, transform: `translateY(${(1 - k) * 30}px)`}}>
-          <Img src={staticFile(e.src)} style={{width: '100%', display: 'block', boxShadow: '0 16px 36px rgba(0,0,0,0.22)'}} />
+          <Img src={staticFile(e.src)} style={{width: '100%', display: 'block', border: '2px solid #DDE2EC'}} />
           {e.cap ? <div style={{marginTop: 14, marginLeft: -200, marginRight: -200, textAlign: 'center', fontWeight: 800, fontSize: 32, color: '#111'}}>{e.cap}</div> : null}</div>;
         // serif example card with labelled boxes over phrases
         const parts = e.text.split(/(\[[^\]]+\])/).filter(Boolean);
         let mi = 0;
-        return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w, background: '#fff', borderRadius: 18, padding: '70px 36px 34px', boxShadow: '0 12px 34px rgba(14,26,59,0.14)', opacity: o,
+        return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w, background: '#fff', border: '3px solid #DDE2EC', borderRadius: 18, padding: '70px 36px 34px', opacity: o,
           fontFamily: 'Georgia, "Times New Roman", serif', fontSize: e.size ?? 48, lineHeight: 2.1, color: '#222'}}>
           {parts.map((p, j) => {
             if (!p.startsWith('[')) return <React.Fragment key={j}>{p}</React.Fragment>;
