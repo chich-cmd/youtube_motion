@@ -146,9 +146,9 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
             // pulsing rings on the spot + small pill label
             const rings = [0, 0.5, 1].map((d) => ((dt + d) % 1.5) / 1.5);
             return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, opacity: o}}>
-              {rings.map((r, j) => <div key={j} style={{position: 'absolute', left: -40 - 90 * r, top: -40 - 90 * r, width: 80 + 180 * r, height: 80 + 180 * r, borderRadius: '50%', border: `5px solid ${BLUE}`, opacity: 1 - r}} />)}
+              {rings.map((r, j) => <div key={j} style={{position: 'absolute', left: -34 - 56 * r, top: -34 - 56 * r, width: 68 + 112 * r, height: 68 + 112 * r, borderRadius: '50%', border: `5px solid ${BLUE}`, opacity: 1 - r}} />)}
               <div style={{position: 'absolute', left: -16, top: -16, width: 32, height: 32, borderRadius: '50%', background: BLUE}} />
-              <div style={{position: 'absolute', left: 110, top: -42, background: BLUE, color: '#fff', fontWeight: 900, fontSize: 44, padding: '10px 26px', borderRadius: 999, whiteSpace: 'nowrap', transform: `scale(${0.8 + 0.2 * k})`, transformOrigin: '0 50%'}}>{e.label ?? '팔로우는 여기!'}</div>
+              <div style={{position: 'absolute', left: 100, top: -38, background: BLUE, color: '#fff', fontWeight: 900, fontSize: 44, padding: '10px 26px', borderRadius: 999, whiteSpace: 'nowrap', transform: `scale(${0.8 + 0.2 * k})`, transformOrigin: '0 50%'}}>{e.label ?? '팔로우는 여기!'}</div>
             </div>;
           }
           if (v === 'tap') {
