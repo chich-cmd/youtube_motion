@@ -5,29 +5,36 @@ import {DISPLAY} from '../fonts';
 import '../fonts';
 
 /** Explainer-board reel: plain light background, STEP header, flat diagrams (circles / vs), serif example cards with labelled boxes, book photos, black caption box. */
-const BLUE = '#2352E8', RED = '#E0473E';
-const PAL = {red: {bd: RED, bg: '#FDE7E5', ink: '#C9302C'}, blue: {bd: BLUE, bg: '#E3EBFF', ink: BLUE}, gray: {bd: '#9AA3B5', bg: '#F1F3F7', ink: '#4A5468'}};
-type C = keyof typeof PAL;
+export type GrTheme = {main: string; mainBg: string; sub: string; subBg: string; paper: string; grid?: boolean};
+const DEF: GrTheme = {main: '#2352E8', mainBg: '#E3EBFF', sub: '#E0473E', subBg: '#FDE7E5', paper: '#F6F7FA'};
+type C = 'red' | 'blue' | 'gray';
+// paper grain: fractal noise tile
+const GRAIN = `url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.25  0 0 0 0.09 0"/></filter><rect width="400" height="400" filter="url(#n)"/></svg>')}")`;
 export type GrEl =
   | {s: number; k: 'circle'; x: number; y: number; r: number; text: string; c: C; sign?: '+' | '-'}
   | {s: number; k: 'text'; x: number; y: number; text: string; size?: number; color?: string; center?: boolean}
   | {s: number; k: 'card'; x: number; y: number; w: number; text: string; size?: number; marks?: {s: number; text: string; label: string; c: C}[]}
   | {s: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
   | {s: number; k: 'arrow'; x: number; y: number; w: number};
-export type GrProps = {top: string; step?: string; head: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
+export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
   <div key={i}>{r.split(/(\{[^}]+\})/).filter(Boolean).map((p, j) => p.startsWith('{') ? <span key={j} style={{color: key}}>{p.slice(1, -1)}</span> : <React.Fragment key={j}>{p}</React.Fragment>)}</div>));
 const em = (s: string) => [...s.replace(/[{}]/g, '')].reduce((a, c) => a + (/[ -~]/.test(c) ? 0.55 : 1), 0);
 
-export const Gr: React.FC<GrProps> = ({top, step, head, els, lines}) => {
+export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}) => {
+  const BLUE = theme.main;
+  const PAL = {red: {bd: theme.sub, bg: theme.subBg, ink: theme.sub}, blue: {bd: theme.main, bg: theme.mainBg, ink: theme.main}, gray: {bd: '#9AA3B5', bg: '#F1F3F7', ink: '#4A5468'}};
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = f / fps;
   const pop = (s: number) => spring({frame: f - Math.round(s * fps), fps, config: {damping: 15, stiffness: 170}});
   const l = lines.find((x) => t >= x.s && t < x.e);
   return (
-    <AbsoluteFill style={{background: '#F6F7FA', fontFamily: FONT}}>
-      <div style={{position: 'absolute', top: 70, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 84, lineHeight: 1.2, color: '#111', letterSpacing: -1}}>{rows(top, '#E0473E')}</div>
+    <AbsoluteFill style={{background: theme.paper, fontFamily: FONT}}>
+      <AbsoluteFill style={{backgroundImage: GRAIN, backgroundSize: '400px 400px'}} />
+      <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0) 55%, rgba(90,70,40,0.10) 100%)'}} />
+      {theme.grid ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(120,110,90,0.10) 2px, transparent 2px), linear-gradient(90deg, rgba(120,110,90,0.10) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
+      <div style={{position: 'absolute', top: 70, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 84, lineHeight: 1.2, color: '#111', letterSpacing: -1}}>{rows(top, theme.sub)}</div>
       <div style={{position: 'absolute', top: 330, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
         {step ? <div style={{background: BLUE, color: '#fff', fontWeight: 900, fontSize: 52, padding: '6px 22px', borderRadius: 10, whiteSpace: 'nowrap'}}>{step}</div> : null}
         <div style={{fontWeight: 900, fontSize: Math.min(68, (step ? 700 : 940) / em(head)), color: '#111', letterSpacing: -1.5, whiteSpace: 'nowrap'}}>{rows(head, BLUE)}</div>

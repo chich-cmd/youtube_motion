@@ -30,7 +30,7 @@ import {Rp9Long} from './tip/Rp9Long';
 import {Thumb} from './tip/Thumb';
 import {Mg, MgScene} from './tip/Mg';
 import {Mg2} from './tip/Mg2';
-import {Gr, GrEl} from './tip/Gr';
+import {Gr, GrEl, GrTheme} from './tip/Gr';
 import rp9 from './tip/rp9.json';
 import rp9r from './tip/rp9r.json';
 import rp9vo from './tip/rp9vo.json';
@@ -147,6 +147,14 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     {(['A', 'B', 'C', 'D'] as const).map((k) => <Composition key={k} id={`Rp9Thumb${k}`} component={Thumb} fps={30} width={1280} height={720} durationInFrames={1} defaultProps={{v: k}} />)}
+    {([['P1', {main: '#1F3A68', mainBg: '#E4EAF4', sub: '#E39B2D', subBg: '#FBEFD9', paper: '#F5F0E6'}],
+       ['P2', {main: '#2352E8', mainBg: '#E3EBFF', sub: '#FF7A1A', subBg: '#FFEBDC', paper: '#F3F1EC', grid: true}],
+       ['P3', {main: '#1E6B52', mainBg: '#E1F0EA', sub: '#EE6A55', subBg: '#FCE6E1', paper: '#F7F3EA'}]] as [string, GrTheme][]).map(([id, th]) => (
+      <Composition key={id} id={`Gr3${id}`} component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
+        defaultProps={{theme: th, top: '{예비 고1 주목!}\n고등 영어 1등급 되는 공부법', step: 'STEP 3', head: '중학 단어 ≠ {고등} 단어', lines: [{s: 0, e: 5, text: '{address} 주소 아니고 다루다, 연설하다'}],
+          els: [{s: 0.2, k: 'card', x: 70, y: 470, w: 940, size: 50, text: 'The mayor will [address] the problem.', marks: [{s: 0.7, text: '', label: '다루다', c: 'blue'}]},
+            {s: 1.2, k: 'circle', x: 300, y: 1030, r: 150, text: '주소', c: 'red', sign: '-'}, {s: 1.5, k: 'text', x: 0, y: 985, text: 'vs', size: 72, center: true},
+            {s: 1.8, k: 'circle', x: 780, y: 1030, r: 150, text: '다루다\n연설하다', c: 'blue', sign: '+'}] as GrEl[]}} />))}
     <Composition id="Gr1" component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
       defaultProps={{top: '{예비 고1 주목!}\n고등 영어 1등급 되는 공부법', head: '중학 영어 vs {고등} 영어', lines: [{s: 0, e: 5, text: '중학 영어 A여도 고등 가면 등급 {X}'}],
         els: [{s: 0.2, k: 'circle', x: 290, y: 720, r: 170, text: '중학\nA', c: 'red'}, {s: 0.5, k: 'text', x: 0, y: 675, text: 'vs', size: 80, center: true},
