@@ -40,6 +40,9 @@ for j, c in enumerate(mg):
         if k in t: t = t.replace(k, '{' + k + '}', 1); break
     nxt = mg[j + 1][0][0] if j + 1 < len(mg) else TOT
     out.append({'s': round(c[0][0], 3), 'e': round(nxt if nxt - c[-1][1] < 0.6 else c[-1][1] + 0.35, 3), 'text': t})
+# opening: both hook lines at once
+out = [l for l in out if l['s'] >= 4.0]
+out.insert(0, {'s': 0.0, 'e': 4.18, 'text': '얘들아 중학 영어 A여도\n고등영어 {1등급} 안 나오는거 알아?'})
 # ---- headers
 v2, v3, v4, v5, v6 = st('v2'), st('v3'), st('v4'), st('v5'), st('v6')
 heads = [{'s': 0, 'head': '중학 영어 vs {고등} 영어'}, {'s': v2, 'head': '중학 공부 vs {고등} 공부'}, {'s': v3, 'step': '1', 'head': ''},
@@ -50,6 +53,7 @@ def add(**k): E.append(k)
 add(s=at('중학', 'v1'), e=v2, k='circle', x=290, y=720, r=170, text='중학\nA', c='red')
 add(s=at('A여도', 'v1'), e=v2, k='text', x=0, y=675, text='vs', size=80, center=True)
 add(s=at('고등', 'v1'), e=v2, k='circle', x=790, y=720, r=170, text='고등\n?등급', c='blue')
+add(s=at('안', 'v1'), e=v2, k='text', x=820, y=470, text='ㅠㅠ', size=90, color='#2352E8')
 add(s=at('1등급', 'v1'), e=v2, k='text', x=0, y=1010, text='{1등급} 공부법 딱 정리!', size=80, center=True)
 # v2
 add(s=at('교과서', 'v2'), e=v3, k='circle', x=290, y=700, r=170, text='교과서\n+ 문제집', c='red')
