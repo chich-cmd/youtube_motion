@@ -2,10 +2,10 @@
 import json, subprocess, numpy as np
 SR = 48000; tr = json.load(open('tr.json'))
 out, words, t0 = [], [], 0.0
-for i in range(1, 7):
-    k = f'v{i}'
+ORDER = [('v1', 4.0), ('v7', 99), ('v8', 99), ('v3', 99), ('v4', 99), ('v5', 99), ('v6', 99)]   # v1: hook sentence only; v2 replaced by v7+v8
+for k, tmax in ORDER:
     x = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-i', f'src/{k}.m4a', '-ac', '1', '-ar', str(SR), '-f', 'f32le', '-'], capture_output=True).stdout, np.float32)
-    ws = [w for s in tr[k] for w in s['w']]
+    ws = [w for s in tr[k] for w in s['w'] if w[0] < tmax]
     segs = []
     for w in ws:
         if segs and w[0] - segs[-1][1] < 0.4: segs[-1][1] = w[1]

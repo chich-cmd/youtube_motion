@@ -1,7 +1,8 @@
 """Timeline for the rp10 motion-graphic reel: captions + header/elements timed to the voice words."""
 import json, re
 W = json.load(open('words.json'))
-TOT = 103.04
+import wave
+_w = wave.open('voice_raw.wav'); TOT = round(_w.getnframes() / _w.getframerate(), 3)
 FIX = {'문제제': '문제집', '끄는': '끊은', '복화': 'VOCA', '팔로우에': '팔로우해!'}
 for w in W: w[2] = FIX.get(w[2], w[2])
 def at(sub, clip, k=0):
@@ -43,7 +44,7 @@ for j, c in enumerate(mg):
 # captions: teacher's own line breaks (user_lines.txt) aligned to word times by character matching
 import difflib
 norm = lambda x: re.sub(r'[^0-9A-Za-z가-힣]', '', x)
-W2 = [w for w in W if w[0] >= 4.0]
+W2 = [w for w in W if w[3] != 'v1']
 cs, ci = '', []
 for j, w in enumerate(W2):
     n = norm(w[2]); cs += n; ci += [j] * len(n)
@@ -58,7 +59,7 @@ for l in UL:
     k = pos
     while k not in m and k < len(us): k += 1
     starts.append(W2[ci[m[k]]][0] if k in m else None); pos += len(norm(l))
-out = [{'s': 0.0, 'e': 4.18, 'text': '얘들아 중학 영어 A여도\n고등영어 {1등급} 안 나오는거 알아?'}]
+out = [{'s': 0.0, 'e': st('v7'), 'text': '얘들아 중학 영어 A여도\n고등영어 {1등급} 안 나오는거 알아?'}]
 for j, l in enumerate(UL):
     s0 = starts[j]; nxt = starts[j + 1] if j + 1 < len(UL) else TOT
     # end: last word of this line
@@ -69,7 +70,7 @@ for j, l in enumerate(UL):
         if k in t: t = t.replace(k, '{' + k + '}', 1); break
     out.append({'s': round(s0, 3), 'e': round(e, 3), 'text': t})
 # ---- headers
-v2, v3, v4, v5, v6 = st('v2'), st('v3'), st('v4'), st('v5'), st('v6')
+v2, v8, v3, v4, v5, v6 = st('v7'), st('v8'), st('v3'), st('v4'), st('v5'), st('v6')
 heads = [{'s': 0, 'head': '중학 영어 vs {고등} 영어'}, {'s': v2, 'head': '중학 공부 vs {고등} 공부'}, {'s': v3, 'step': '1', 'head': ''},
          {'s': v4, 'step': '2', 'head': ''}, {'s': v5, 'step': '3', 'head': ''}, {'s': v6, 'head': '앞으로 올라올 {꿀팁}'}]
 E = []
@@ -79,14 +80,13 @@ add(s=at('중학', 'v1'), e=v2, k='circle', x=290, y=720, r=170, text='중학\nA
 add(s=at('A여도', 'v1'), e=v2, k='text', x=0, y=675, text='vs', size=80, center=True)
 add(s=at('고등', 'v1'), e=v2, k='circle', x=790, y=720, r=170, text='고등\n?등급', c='blue')
 add(s=at('안', 'v1'), e=v2, k='text', x=820, y=470, text='ㅠㅠ', size=90, color='#2352E8')
-add(s=at('1등급', 'v1'), e=v2, k='text', x=0, y=1010, text='{1등급} 공부법 딱 정리!', size=80, center=True)
-# v2
-add(s=at('교과서', 'v2'), e=v3, k='circle', x=290, y=700, r=170, text='교과서\n+ 문제집', c='red')
-add(s=at('고등학생은', 'v2'), e=v3, k='text', x=0, y=655, text='vs', size=80, center=True)
-add(s=at('시험', 'v2'), e=v3, k='circle', x=790, y=700, r=170, text='시험 범위\nx5', c='blue')
-add(s=at('불가능하거든', 'v2'), e=v3, k='tick', x=290, y=700, size=240, type='x')
-add(s=at('겨울방학', 'v2'), e=v3, k='text', x=0, y=980, text='{겨울방학}에 3가지 잡기', size=76, center=True)
-add(s=at('세', 'v2'), e=v3, k='text', x=0, y=1110, text='문법 · 해석 · 단어', size=64, center=True, color='#2352E8')
+# v7: middle vs high school study
+add(s=at('교과서', 'v7'), e=v8, k='circle', x=290, y=700, r=170, text='교과서\n+ 문제집', c='red')
+add(s=at('고등학생은', 'v7'), e=v8, k='text', x=0, y=655, text='vs', size=80, center=True)
+add(s=at('시험', 'v7'), e=v8, k='circle', x=790, y=700, r=170, text='시험 범위\nx5', c='blue')
+add(s=at('힘들거든', 'v7'), e=v8, k='tick', x=290, y=700, size=240, type='x')
+# v8: promise
+add(s=at('쌤이', 'v8'), e=v3, k='text', x=0, y=640, text='고등 {1등급}\n공부법 딱 정리!', size=96, center=True)
 # v3 grammar
 add(s=at('변형돼서', 'v3'), e=at('처음', 'v3'), k='text', x=0, y=560, text='내신 문법 = {지문 변형}', size=76, center=True)
 add(s=at('처음', 'v3'), e=v4, k='card', x=70, y=430, w=940, size=46, text='The policy [that we approved] [will affect] residents.',
