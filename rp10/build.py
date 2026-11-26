@@ -63,7 +63,7 @@ add(s=at('변형돼서', 'v3'), e=at('처음', 'v3'), k='text', x=0, y=560, text
 add(s=at('처음', 'v3'), e=v4, k='card', x=70, y=430, w=940, size=46, text='The policy [that we approved] [will affect] residents.',
     marks=[{'s': at('구조를', 'v3'), 'text': '', 'label': '꾸밈 (관계절)', 'c': 'red'}, {'s': at('따질', 'v3'), 'text': '', 'label': '진짜 동사', 'c': 'blue'}])
 add(s=at('로즈리쌤', 'v3'), e=v4, k='img', x=120, y=780, w=300, src='book_grammarholic.jpg', cap='EBS 로즈리 Grammar Holic')
-add(s=at('설명할', 'v3'), e=v4, k='text', x=480, y=880, text='강의 없이\n{설명}될 때까지\n반복!', size=64)
+add(s=at('설명할', 'v3'), e=v4, k='text', x=480, y=880, text='강의 없이\n{스스로 설명}할 수\n있을 때까지 반복', size=58)
 add(s=at('마스터야', 'v3'), e=v4, k='tick', x=930, y=830, size=120, type='check')
 # v4 reading
 add(s=at('느리면', 'v4'), e=at('문장을', 'v4'), k='text', x=0, y=560, text='해석 느리면\n시간 {부족}', size=84, center=True)
