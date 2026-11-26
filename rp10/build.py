@@ -101,7 +101,7 @@ add(s=at('문장을', 'v4'), e=at('또', 'v4'), k='card', x=70, y=430, w=940, si
 add(s=at('주혜연쌤', 'v4'), e=at('또', 'v4'), k='img', x=120, y=780, w=300, src='book_haeseok.jpg', cap='EBS 주혜연 해석공식')
 add(s=at('패턴', 'v4'), e=at('또', 'v4'), k='text', x=480, y=900, text='패턴 익히고\n{혼자} 해석 체크', size=62)
 add(s=at('또', 'v4'), e=v5, k='text', x=0, y=480, text='누보쌤 {해석 연습법} 업로드!', size=66, center=True)
-add(s=at('또', 'v4'), e=v5, k='follow', y=620, tap=999, avatar='nouve_avatar.png', name='nou.ve', sub='누보영어 · 인스타 · 유튜브')
+add(s=at('또', 'v4'), e=v5, k='img', x=70, y=580, w=940, src='nouve_profile.jpg', rad=28)
 # v5 vocab
 add(s=at('address', 'v5'), e=at('영단어장으로', 'v5'), k='card', x=70, y=430, w=940, size=50, text='The mayor will [address] the problem.', marks=[{'s': at('다루다', 'v5'), 'text': '', 'label': '다루다', 'c': 'blue'}])
 add(s=at('주소', 'v5'), e=at('영단어장으로', 'v5'), k='circle', x=300, y=1000, r=150, text='주소', c='red')
@@ -121,7 +121,7 @@ add(s=at('수능', 'v6'), e=FOL, k='text', x=0, y=690, text='수능 독해', siz
 add(s=at('문풀', 'v6'), e=FOL, k='text', x=0, y=820, text='문풀 꿀팁', size=80, center=True)
 add(s=FOL, k='text', x=0, y=520, text='고등영어 준비는', size=72, center=True)
 add(s=at('쌤', 'v6'), k='point', x=270, y=1600, v='line', label='여기서 팔로우!')
-add(s=FOL, k='follow', y=660, tap=at('싶으면', 'v6'), avatar='nouve_avatar.png', name='nou.ve', sub='누보영어 · 고등영어 꿀팁')
+add(s=FOL, k='follow', y=660, tap=at('싶으면', 'v6'), avatar='nouve_avatar.png', name='nou.ve', sub='누보 영어 과외 · 수능·고등영어')
 json.dump({'total': TOT, 'lines': out, 'heads': heads, 'els': E}, open('../motion/src/tip/rp10.json', 'w'), ensure_ascii=False)
 ev = [['whoosh', h['s'] - 0.15] for h in heads[1:]] + [x for e in E if e['k'] == 'point' for x in (['whoosh', e['s'] - 0.1], ['ding', e['s'] + 0.35])] + [['pop' if e['k'] in ('circle', 'img', 'card') else ('tick' if e['k'] == 'tick' else 'pop'), e['s']] for e in E]
 json.dump(sorted(ev, key=lambda x: x[1]), open('sfx.json', 'w'))

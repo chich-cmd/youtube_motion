@@ -14,7 +14,7 @@ export type GrEl =
   | {s: number; e?: number; k: 'circle'; x: number; y: number; r: number; text: string; c: C; sign?: '+' | '-'}
   | {s: number; e?: number; k: 'text'; x: number; y: number; text: string; size?: number; color?: string; center?: boolean}
   | {s: number; e?: number; k: 'card'; x: number; y: number; w: number; text: string; size?: number; marks?: {s: number; text: string; label: string; c: C}[]}
-  | {s: number; e?: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
+  | {s: number; e?: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string; rad?: number}
   | {s: number; e?: number; k: 'arrow'; x: number; y: number; w: number}
   | {s: number; e?: number; k: 'follow'; y: number; tap: number; avatar: string; name: string; sub: string}
   | {s: number; e?: number; k: 'point'; x: number; y: number; label?: string; v?: 'arrow' | 'curve' | 'ring' | 'tap' | 'line'}
@@ -163,7 +163,7 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
         if (e.k === 'arrow') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w * Math.min(1, k), height: 8, background: '#111', borderRadius: 4}}>
           <div style={{position: 'absolute', right: -6, top: -14, width: 0, height: 0, borderTop: '18px solid transparent', borderBottom: '18px solid transparent', borderLeft: '28px solid #111'}} /></div>;
         if (e.k === 'img') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w, opacity: o, transform: `translateY(${(1 - k) * 30}px)`}}>
-          <Img src={staticFile(e.src)} style={{width: '100%', display: 'block', border: '2px solid #DDE2EC'}} />
+          <Img src={staticFile(e.src)} style={{width: '100%', display: 'block', border: '2px solid #DDE2EC', borderRadius: e.rad ?? 0}} />
           {e.cap ? <div style={{marginTop: 14, marginLeft: -200, marginRight: -200, textAlign: 'center', fontWeight: 800, fontSize: 32, color: '#111'}}>{e.cap}</div> : null}</div>;
         // serif example card with labelled boxes over phrases
         const parts = e.text.split(/(\[[^\]]+\])/).filter(Boolean);
