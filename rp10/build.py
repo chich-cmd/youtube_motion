@@ -96,8 +96,8 @@ add(s=at('설명할', 'v3'), e=v4, k='text', x=480, y=880, text='강의 없이\n
 add(s=at('마스터야', 'v3'), e=v4, k='tick', x=930, y=830, size=120, type='check')
 # v4 reading
 add(s=at('느리면', 'v4'), e=at('문장을', 'v4'), k='text', x=0, y=560, text='해석 느리면\n시간 {부족}', size=84, center=True)
-add(s=at('문장을', 'v4'), e=at('또', 'v4'), k='card', x=70, y=430, w=940, size=46, text='[The policy] [that we approved] [will affect residents.]',
-    marks=[{'s': at('끊고', 'v4'), 'text': '', 'label': '①', 'c': 'blue'}, {'s': at('덩어리마다', 'v4'), 'text': '', 'label': '②', 'c': 'red'}, {'s': at('앞에서부터', 'v4'), 'text': '', 'label': '③', 'c': 'blue'}])
+add(s=at('문장을', 'v4'), e=at('또', 'v4'), k='card', x=70, y=430, w=940, size=46, text='[The policy] [that we approved] [will affect] residents.',
+    marks=[{'s': at('끊고', 'v4'), 'text': '', 'label': '주어', 'c': 'blue'}, {'s': at('덩어리마다', 'v4'), 'text': '', 'label': '수식어절', 'c': 'red'}, {'s': at('앞에서부터', 'v4'), 'text': '', 'label': '진짜 동사', 'c': 'blue'}])
 add(s=at('주혜연쌤', 'v4'), e=at('또', 'v4'), k='img', x=120, y=780, w=300, src='book_haeseok.jpg', cap='EBS 주혜연 해석공식')
 add(s=at('패턴', 'v4'), e=at('또', 'v4'), k='text', x=480, y=900, text='패턴 익히고\n{혼자} 해석 체크', size=62)
 add(s=at('또', 'v4'), e=v5, k='text', x=0, y=480, text='누보쌤 {해석 연습법} 업로드!', size=66, center=True)
