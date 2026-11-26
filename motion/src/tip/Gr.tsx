@@ -27,9 +27,8 @@ export const Gr: React.FC<GrProps> = ({top, step, head, els, lines}) => {
   const l = lines.find((x) => t >= x.s && t < x.e);
   return (
     <AbsoluteFill style={{background: '#F6F7FA', fontFamily: FONT}}>
-      <div style={{position: 'absolute', top: 130, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
-        <div style={{background: '#111', color: '#fff', fontWeight: 800, fontSize: 46, lineHeight: 1.3, padding: '10px 30px', borderRadius: 8, textAlign: 'center'}}>{rows(top, '#FFD84D')}</div></div>
-      <div style={{position: 'absolute', top: 310, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
+      <div style={{position: 'absolute', top: 70, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 84, lineHeight: 1.2, color: '#111', letterSpacing: -1}}>{rows(top, '#E0473E')}</div>
+      <div style={{position: 'absolute', top: 330, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
         {step ? <div style={{background: BLUE, color: '#fff', fontWeight: 900, fontSize: 52, padding: '6px 22px', borderRadius: 10, whiteSpace: 'nowrap'}}>{step}</div> : null}
         <div style={{fontWeight: 900, fontSize: Math.min(68, (step ? 700 : 940) / em(head)), color: '#111', letterSpacing: -1.5, whiteSpace: 'nowrap'}}>{rows(head, BLUE)}</div>
       </div>
