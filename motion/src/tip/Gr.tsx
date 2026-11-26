@@ -100,10 +100,17 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
             const ux = -0.5, uy = 0.866, len = 260;           // direction toward the tip (down-left)
             const tx = e.x + ux * n, ty = e.y + uy * n, sx = tx - ux * len, sy = ty - uy * len;
             const hx = (a: number) => tx - 70 * (ux * Math.cos(a) - uy * Math.sin(a)), hy = (a: number) => ty - 70 * (uy * Math.cos(a) + ux * Math.sin(a));
-            return <svg key={i} width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
-              <path d={`M ${sx} ${sy} L ${sx + (tx - sx) * p} ${sy + (ty - sy) * p}`} stroke="#111" strokeWidth={22} strokeLinecap="round" fill="none" />
-              {p >= 1 ? <path d={`M ${hx(0.6)} ${hy(0.6)} L ${tx} ${ty} L ${hx(-0.6)} ${hy(-0.6)}`} stroke="#111" strokeWidth={22} strokeLinecap="round" strokeLinejoin="round" fill="none" /> : null}
-            </svg>;
+            const line = `M ${sx} ${sy} L ${sx + (tx - sx) * p} ${sy + (ty - sy) * p}`, head = `M ${hx(0.6)} ${hy(0.6)} L ${tx} ${ty} L ${hx(-0.6)} ${hy(-0.6)}`;
+            return <div key={i} style={{position: 'absolute', left: 0, top: 0}}>
+              <svg width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
+                <path d={line} stroke="#fff" strokeWidth={30} strokeLinecap="round" fill="none" />
+                {p >= 1 ? <path d={head} stroke="#fff" strokeWidth={30} strokeLinecap="round" strokeLinejoin="round" fill="none" /> : null}
+                <path d={line} stroke={BLUE} strokeWidth={16} strokeLinecap="round" fill="none" />
+                {p >= 1 ? <path d={head} stroke={BLUE} strokeWidth={16} strokeLinecap="round" strokeLinejoin="round" fill="none" /> : null}
+              </svg>
+              {e.label ? <div style={{position: 'absolute', left: sx + 20, top: sy - 70, background: BLUE, color: '#fff', fontWeight: 900, fontSize: 40, padding: '8px 24px', borderRadius: 999,
+                whiteSpace: 'nowrap', opacity: Math.min(1, dt / 0.25), transform: `scale(${0.8 + 0.2 * k})`, transformOrigin: '0 100%'}}>{e.label}</div> : null}
+            </div>;
           }
           if (v === 'curve') {
             // thin hand-drawn curve drawn on from the caption toward the target, small label at its start

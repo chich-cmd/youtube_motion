@@ -90,7 +90,7 @@ add(s=at('내신', 'v6'), e=FOL, k='text', x=0, y=560, text='내신 대비법', 
 add(s=at('수능', 'v6'), e=FOL, k='text', x=0, y=690, text='수능 독해', size=80, center=True)
 add(s=at('문풀', 'v6'), e=FOL, k='text', x=0, y=820, text='문풀 꿀팁', size=80, center=True)
 add(s=FOL, k='text', x=0, y=520, text='고등영어 준비는', size=72, center=True)
-add(s=at('쌤', 'v6'), k='point', x=270, y=1600, v='line')
+add(s=at('쌤', 'v6'), k='point', x=270, y=1600, v='line', label='여기서 팔로우!')
 add(s=FOL, k='follow', y=660, tap=at('싶으면', 'v6'), avatar='nouve_avatar.png', name='nou.ve', sub='누보영어 · 고등영어 꿀팁')
 json.dump({'total': TOT, 'lines': out, 'heads': heads, 'els': E}, open('../motion/src/tip/rp10.json', 'w'), ensure_ascii=False)
 ev = [['whoosh', h['s'] - 0.15] for h in heads[1:]] + [x for e in E if e['k'] == 'point' for x in (['whoosh', e['s'] - 0.1], ['ding', e['s'] + 0.35])] + [['pop' if e['k'] in ('circle', 'img', 'card') else ('tick' if e['k'] == 'tick' else 'pop'), e['s']] for e in E]
