@@ -40,9 +40,34 @@ for j, c in enumerate(mg):
         if k in t: t = t.replace(k, '{' + k + '}', 1); break
     nxt = mg[j + 1][0][0] if j + 1 < len(mg) else TOT
     out.append({'s': round(c[0][0], 3), 'e': round(nxt if nxt - c[-1][1] < 0.6 else c[-1][1] + 0.35, 3), 'text': t})
-# opening: both hook lines at once
-out = [l for l in out if l['s'] >= 4.0]
-out.insert(0, {'s': 0.0, 'e': 4.18, 'text': '얘들아 중학 영어 A여도\n고등영어 {1등급} 안 나오는거 알아?'})
+# captions: teacher's own line breaks (user_lines.txt) aligned to word times by character matching
+import difflib
+norm = lambda x: re.sub(r'[^0-9A-Za-z가-힣]', '', x)
+W2 = [w for w in W if w[0] >= 4.0]
+cs, ci = '', []
+for j, w in enumerate(W2):
+    n = norm(w[2]); cs += n; ci += [j] * len(n)
+UL = [l.strip() for l in open('user_lines.txt') if l.strip()]
+us = ''.join(norm(l) for l in UL)
+sm = difflib.SequenceMatcher(None, us, cs, autojunk=False)
+m = {}
+for blk in sm.get_matching_blocks():
+    for k in range(blk.size): m[blk.a + k] = blk.b + k
+starts, pos = [], 0
+for l in UL:
+    k = pos
+    while k not in m and k < len(us): k += 1
+    starts.append(W2[ci[m[k]]][0] if k in m else None); pos += len(norm(l))
+out = [{'s': 0.0, 'e': 4.18, 'text': '얘들아 중학 영어 A여도\n고등영어 {1등급} 안 나오는거 알아?'}]
+for j, l in enumerate(UL):
+    s0 = starts[j]; nxt = starts[j + 1] if j + 1 < len(UL) else TOT
+    # end: last word of this line
+    last = [w for w in W2 if s0 <= w[0] < nxt]
+    e = nxt if last and nxt - last[-1][1] < 0.6 else (last[-1][1] + 0.35 if last else nxt)
+    t = l
+    for k in KEY:
+        if k in t: t = t.replace(k, '{' + k + '}', 1); break
+    out.append({'s': round(s0, 3), 'e': round(e, 3), 'text': t})
 # ---- headers
 v2, v3, v4, v5, v6 = st('v2'), st('v3'), st('v4'), st('v5'), st('v6')
 heads = [{'s': 0, 'head': '중학 영어 vs {고등} 영어'}, {'s': v2, 'head': '중학 공부 vs {고등} 공부'}, {'s': v3, 'step': '1', 'head': ''},
@@ -75,7 +100,8 @@ add(s=at('문장을', 'v4'), e=at('또', 'v4'), k='card', x=70, y=430, w=940, si
     marks=[{'s': at('끊고', 'v4'), 'text': '', 'label': '①', 'c': 'blue'}, {'s': at('덩어리마다', 'v4'), 'text': '', 'label': '②', 'c': 'red'}, {'s': at('앞에서부터', 'v4'), 'text': '', 'label': '③', 'c': 'blue'}])
 add(s=at('주혜연쌤', 'v4'), e=at('또', 'v4'), k='img', x=120, y=780, w=300, src='book_haeseok.jpg', cap='EBS 주혜연 해석공식')
 add(s=at('패턴', 'v4'), e=at('또', 'v4'), k='text', x=480, y=900, text='패턴 익히고\n{혼자} 해석 체크', size=62)
-add(s=at('해석', 'v4', 4), e=v5, k='text', x=0, y=700, text='누보쌤 {해석 연습법}\n인스타 · 유튜브 업로드!', size=70, center=True)
+add(s=at('또', 'v4'), e=v5, k='text', x=0, y=480, text='누보쌤 {해석 연습법} 업로드!', size=66, center=True)
+add(s=at('또', 'v4'), e=v5, k='follow', y=620, tap=999, avatar='nouve_avatar.png', name='nou.ve', sub='누보영어 · 인스타 · 유튜브')
 # v5 vocab
 add(s=at('address', 'v5'), e=at('영단어장으로', 'v5'), k='card', x=70, y=430, w=940, size=50, text='The mayor will [address] the problem.', marks=[{'s': at('다루다', 'v5'), 'text': '', 'label': '다루다', 'c': 'blue'}])
 add(s=at('주소', 'v5'), e=at('영단어장으로', 'v5'), k='circle', x=300, y=1000, r=150, text='주소', c='red')
