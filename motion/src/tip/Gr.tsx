@@ -41,10 +41,10 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
       <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 300, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
         textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 86, fontWeight: 800, lineHeight: 1.2, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
       {step && /^[1-3]$/.test(step) ? (
-        // progress box: 1. 문법  2. 해석  3. 단어 (current one highlighted)
-        <div style={{position: 'absolute', top: 345, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: Math.min(1, kh * 1.5)}}>
+        // chapter box: only the current chapter (next ones stay a surprise)
+        <div style={{position: 'absolute', top: 345, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: Math.min(1, kh * 1.5), transform: `scale(${0.8 + 0.2 * kh})`}}>
           <div style={{display: 'flex', gap: 54, background: '#fff', border: '3px solid #DDE2EC', borderRadius: 18, padding: '14px 46px'}}>
-            {['문법', '해석', '단어'].map((x, i) => <div key={i} style={{fontWeight: 900, fontSize: 56, letterSpacing: -1, color: String(i + 1) === step ? BLUE : '#B4BBC8'}}>{i + 1}. {x}</div>)}
+            <div style={{fontWeight: 900, fontSize: 60, letterSpacing: -1, color: BLUE}}>{step}. {['문법', '해석', '단어'][Number(step) - 1]}</div>
           </div>
         </div>
       ) : (
