@@ -34,7 +34,9 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
       <AbsoluteFill style={{backgroundImage: GRAIN, backgroundSize: '400px 400px'}} />
       <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0) 55%, rgba(90,70,40,0.10) 100%)'}} />
       {theme.grid ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(120,110,90,0.10) 2px, transparent 2px), linear-gradient(90deg, rgba(120,110,90,0.10) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
-      <div style={{position: 'absolute', top: 70, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 84, lineHeight: 1.2, color: '#111', letterSpacing: -1}}>{rows(top, theme.sub)}</div>
+      {/* top band: black with mint title, yellow key word */}
+      <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 300, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
+        textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 86, lineHeight: 1.18, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
       <div style={{position: 'absolute', top: 330, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
         {step ? <div style={{background: BLUE, color: '#fff', fontWeight: 900, fontSize: 52, padding: '6px 22px', borderRadius: 10, whiteSpace: 'nowrap'}}>{step}</div> : null}
         <div style={{fontWeight: 900, fontSize: Math.min(68, (step ? 700 : 940) / em(head)), color: '#111', letterSpacing: -1.5, whiteSpace: 'nowrap'}}>{rows(head, BLUE)}</div>
