@@ -29,6 +29,7 @@ import {LongForm, LFMark} from './tip/LongForm';
 import {Rp9Long} from './tip/Rp9Long';
 import {Thumb} from './tip/Thumb';
 import {Mg, MgScene} from './tip/Mg';
+import {Mg2} from './tip/Mg2';
 import rp9 from './tip/rp9.json';
 import rp9r from './tip/rp9r.json';
 import rp9vo from './tip/rp9vo.json';
@@ -145,6 +146,10 @@ export const RemotionRoot: React.FC = () => (
     <Composition id="Rp8CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
       defaultProps={{dark: true, lines: ['순서 문제', '{내용 비슷할 때}', '1분컷 하는 법'], uniform: true, bg: 'cover_rp7_bg.jpg'}} />
     {(['A', 'B', 'C', 'D'] as const).map((k) => <Composition key={k} id={`Rp9Thumb${k}`} component={Thumb} fps={30} width={1280} height={720} durationInFrames={1} defaultProps={{v: k}} />)}
+    {(['A', 'B', 'C'] as const).map((k) => <Composition key={k} id={`Mg2${k}`} component={Mg2} fps={30} width={1080} height={1920} durationInFrames={300}
+      defaultProps={{look: k, title: '고등 영어 {1등급} 공부법', steps: [{s: 0, e: 10, n: 1, key: '문법'}],
+        focus: [{s: 0.3, e: 4, img: 'book_grammarholic.jpg', label: 'EBS 로즈리쌤 그래머홀릭'}, {s: 4, e: 10, text: '강의 없이\n{설명}될 때까지 반복'}],
+        lines: [{s: 0, e: 4, text: '{로즈리쌤} 그래머홀릭 듣고'}, {s: 4, e: 10, text: '강의 안 보고 설명할 수 있을 때까지'}]}} />)}
     {(['A', 'B', 'C'] as const).map((k) => <Composition key={k} id={`Mg${k}`} component={Mg} fps={30} width={1080} height={1920} durationInFrames={300}
       defaultProps={{look: k, title: '고등 영어 {1등급}\n겨울방학 3가지', lines: [{s: 0, e: 10, text: '{EBS 로즈리쌤} 그래머홀릭 듣고'}],
         scenes: [{s: 0, e: 10, n: 1, key: '문법', sub: '지문 변형돼도 구조가 보이게', img: 'book_grammarholic.jpg', imgLabel: 'EBS 로즈리 Grammar Holic',
