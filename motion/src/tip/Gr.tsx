@@ -16,6 +16,7 @@ export type GrEl =
   | {s: number; e?: number; k: 'card'; x: number; y: number; w: number; text: string; size?: number; marks?: {s: number; text: string; label: string; c: C}[]}
   | {s: number; e?: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
   | {s: number; e?: number; k: 'arrow'; x: number; y: number; w: number}
+  | {s: number; e?: number; k: 'follow'; y: number; tap: number; avatar: string; name: string; sub: string}
   | {s: number; e?: number; k: 'tick'; x: number; y: number; size: number; type: 'x' | 'check'; c?: C};
 export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; heads?: {s: number; step?: string; head: string}[]; audio?: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
@@ -65,6 +66,31 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
           </div>;
         }
         if (e.k === 'text') return <div key={i} style={{position: 'absolute', left: e.center ? 0 : e.x, right: e.center ? 0 : undefined, top: e.y, textAlign: e.center ? 'center' : 'left', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: e.size ?? 64, color: e.color ?? '#111', opacity: o, lineHeight: 1.2}}>{rows(e.text, BLUE)}</div>;
+        if (e.k === 'follow') {
+          // follow prompt: profile card pops in, a tap ripple hits the button, button flips to following
+          const done = t >= e.tap, kt = pop(e.tap);
+          const rip = Math.max(0, Math.min(1, (t - e.tap + 0.25) / 0.5));
+          return <div key={i} style={{position: 'absolute', left: 70, right: 70, top: e.y, opacity: o, transform: `scale(${0.85 + 0.15 * k})`}}>
+            <div style={{background: '#fff', border: '3px solid #DDE2EC', borderRadius: 36, padding: '46px 44px'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: 34}}>
+              <div style={{width: 196, height: 196, borderRadius: '50%', padding: 8, background: 'conic-gradient(from 200deg, #FEDA75, #FA7E1E, #D62976, #962FBF, #4F5BD5, #FEDA75)', flexShrink: 0}}>
+                <Img src={staticFile(e.avatar)} style={{width: '100%', height: '100%', borderRadius: '50%', border: '6px solid #fff', boxSizing: 'border-box'}} /></div>
+              <div style={{flex: 1}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 14, fontWeight: 800, fontSize: 64, color: '#111'}}>{e.name}
+                  <svg viewBox="0 0 40 40" width={50} height={50}><path d="M20 2 l5 4 6-1 2 6 5 3-2 6 2 6-5 3-2 6-6-1-5 4-5-4-6 1-2-6-5-3 2-6-2-6 5-3 2-6 6 1z" fill="#3897F0" /><path d="M13 20 l5 5 9-10" stroke="#fff" strokeWidth={4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
+                <div style={{fontWeight: 700, fontSize: 36, color: '#6B7280', marginTop: 6}}>{e.sub}</div>
+              </div>
+            </div>
+            <div style={{position: 'relative', marginTop: 40}}>
+              <div style={{background: done ? '#EFEFEF' : '#0095F6', color: done ? '#111' : '#fff', fontWeight: 900, fontSize: 76, textAlign: 'center', padding: '28px 0', borderRadius: 24,
+                border: done ? '4px solid #DBDBDB' : '4px solid #0095F6',
+                transform: `scale(${done ? 0.96 + 0.04 * kt : 1 + 0.045 * Math.sin((t - e.s) * 7)})`}}>{done ? '팔로잉 ✓' : '+ 팔로우'}</div>
+              {rip > 0 && rip < 1 ? <div style={{position: 'absolute', left: '50%', top: '50%', width: 420 * rip, height: 420 * rip, marginLeft: -210 * rip, marginTop: -210 * rip,
+                borderRadius: '50%', background: 'rgba(0,149,246,0.25)', opacity: 1 - rip}} /> : null}
+            </div>
+          </div>
+          </div>;
+        }
         if (e.k === 'tick') {
           // hand-drawn check / cross, stroke drawn on at its timing
           const p = Math.min(1, Math.max(0, (t - e.s) / 0.35));

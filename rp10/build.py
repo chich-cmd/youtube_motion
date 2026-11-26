@@ -84,11 +84,13 @@ add(s=at('한글', 'v5'), e=at('그리고', 'v5'), k='tick', x=850, y=700, size=
 add(s=at('여러', 'v5'), e=at('쌤은', 'v5'), k='text', x=0, y=700, text='단어장은 {한 권}만\n1년 내내!', size=84, center=True)
 add(s=at('쌤은', 'v5'), e=v6, k='img', x=390, y=560, w=300, src='book_ilman.jpg', cap='영일만 VOCA SUMMIT 2000')
 add(s=at('강추할게', 'v5'), e=v6, k='tick', x=720, y=560, size=130, type='check')
-# v6 outro
-add(s=at('내신', 'v6'), k='text', x=0, y=520, text='내신 대비법', size=80, center=True)
-add(s=at('수능', 'v6'), k='text', x=0, y=650, text='수능 독해', size=80, center=True)
-add(s=at('문풀', 'v6'), k='text', x=0, y=780, text='문풀 꿀팁', size=80, center=True)
-add(s=at('팔로우해!', 'v6'), k='text', x=0, y=980, text='누보쌤 {팔로우}!', size=110, center=True)
+# v6 outro: topics list, then follow-prompt card (earlier than the spoken '팔로우해')
+FOL = at('누보쌤이', 'v6')
+add(s=at('내신', 'v6'), e=FOL, k='text', x=0, y=560, text='내신 대비법', size=80, center=True)
+add(s=at('수능', 'v6'), e=FOL, k='text', x=0, y=690, text='수능 독해', size=80, center=True)
+add(s=at('문풀', 'v6'), e=FOL, k='text', x=0, y=820, text='문풀 꿀팁', size=80, center=True)
+add(s=FOL, k='text', x=0, y=520, text='고등영어 준비는', size=72, center=True)
+add(s=FOL, k='follow', y=660, tap=at('싶으면', 'v6'), avatar='nouve_avatar.png', name='nou.ve', sub='누보영어 · 고등영어 꿀팁')
 json.dump({'total': TOT, 'lines': out, 'heads': heads, 'els': E}, open('../motion/src/tip/rp10.json', 'w'), ensure_ascii=False)
 ev = [['whoosh', h['s'] - 0.15] for h in heads[1:]] + [['pop' if e['k'] in ('circle', 'img', 'card') else ('tick' if e['k'] == 'tick' else 'pop'), e['s']] for e in E]
 json.dump(sorted(ev, key=lambda x: x[1]), open('sfx.json', 'w'))
