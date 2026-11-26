@@ -157,7 +157,7 @@ export const RemotionRoot: React.FC = () => (
             {s: 1.2, k: 'circle', x: 300, y: 1030, r: 150, text: '주소', c: 'red'}, {s: 1.5, k: 'text', x: 0, y: 985, text: 'vs', size: 72, center: true},
             {s: 1.8, k: 'circle', x: 780, y: 1030, r: 150, text: '다루다\n연설하다', c: 'blue'}] as GrEl[]}} />))}
     <Composition id="Rp10CoverDark" component={Cover} fps={30} width={1080} height={1920} durationInFrames={1}
-      defaultProps={{dark: true, lines: ['예비고1', '{1등급} 맞는', '영어 공부법'], uniform: true, bg: 'cover_rp10_bg.jpg'}} />
+      defaultProps={{dark: true, lines: ['예비고1', '고등 {1등급} 받는', '영어 공부법'], uniform: true, bg: 'cover_rp10_bg.jpg'}} />
     <Composition id="Rp10Reel" component={Gr} fps={30} width={1080} height={1920} durationInFrames={Math.round(rp10.total * 30)}
       defaultProps={{top: '예비고1 고등학생 때\n{1등급 맞는 영어 공부법}', head: '', heads: rp10.heads, audio: 'rp10_voice.m4a', els: rp10.els as GrEl[], lines: rp10.lines}} />
     <Composition id="Gr1" component={Gr} fps={30} width={1080} height={1920} durationInFrames={150}
