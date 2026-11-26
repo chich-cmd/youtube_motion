@@ -35,24 +35,24 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
       <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0) 55%, rgba(90,70,40,0.10) 100%)'}} />
       {theme.grid ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(120,110,90,0.10) 2px, transparent 2px), linear-gradient(90deg, rgba(120,110,90,0.10) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
       {/* top band: black with mint title, yellow key word */}
-      <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 300, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
-        textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 86, lineHeight: 1.18, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
-      <div style={{position: 'absolute', top: 330, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
+      <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 330, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
+        textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 100, fontWeight: 800, lineHeight: 1.2, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
+      <div style={{position: 'absolute', top: 370, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
         {step ? <div style={{background: BLUE, color: '#fff', fontWeight: 900, fontSize: 52, padding: '6px 22px', borderRadius: 10, whiteSpace: 'nowrap'}}>{step}</div> : null}
         <div style={{fontWeight: 900, fontSize: Math.min(68, (step ? 700 : 940) / em(head)), color: '#111', letterSpacing: -1.5, whiteSpace: 'nowrap'}}>{rows(head, BLUE)}</div>
       </div>
-      {els.filter((e) => t >= e.s).map((e, i) => {
+      <div style={{position: 'absolute', inset: 0, transform: 'translateY(60px)'}}>{els.filter((e) => t >= e.s).map((e, i) => {
         const k = pop(e.s);
         const o = Math.min(1, k * 1.4);
         if (e.k === 'circle') {
           const p = PAL[e.c];
           return <div key={i} style={{position: 'absolute', left: e.x - e.r, top: e.y - e.r, width: e.r * 2, height: e.r * 2, transform: `scale(${0.6 + 0.4 * k})`, opacity: o}}>
             <div style={{width: '100%', height: '100%', borderRadius: '50%', background: p.bg, border: `6px solid ${p.bd}`, boxShadow: '0 8px 22px rgba(0,0,0,0.12)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: Math.min(64, (e.r * 1.6) / Math.max(...e.text.split('\n').map(em))), color: p.ink, lineHeight: 1.15}}>{rows(e.text, '#111')}</div>
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: Math.min(64, (e.r * 1.6) / Math.max(...e.text.split('\n').map(em))), color: p.ink, lineHeight: 1.15}}>{rows(e.text, '#111')}</div>
             {e.sign ? <div style={{position: 'absolute', left: e.r - 32, top: e.r * 2 + 16, width: 64, height: 64, borderRadius: '50%', background: p.bg, border: `4px solid #111`, fontWeight: 900, fontSize: 52, lineHeight: '56px', textAlign: 'center', color: '#111'}}>{e.sign === '+' ? '+' : '−'}</div> : null}
           </div>;
         }
-        if (e.k === 'text') return <div key={i} style={{position: 'absolute', left: e.center ? 0 : e.x, right: e.center ? 0 : undefined, top: e.y, textAlign: e.center ? 'center' : 'left', fontFamily: DISPLAY.heavy, fontSize: e.size ?? 64, color: e.color ?? '#111', opacity: o, lineHeight: 1.2}}>{rows(e.text, BLUE)}</div>;
+        if (e.k === 'text') return <div key={i} style={{position: 'absolute', left: e.center ? 0 : e.x, right: e.center ? 0 : undefined, top: e.y, textAlign: e.center ? 'center' : 'left', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: e.size ?? 64, color: e.color ?? '#111', opacity: o, lineHeight: 1.2}}>{rows(e.text, BLUE)}</div>;
         if (e.k === 'arrow') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w * Math.min(1, k), height: 8, background: '#111', borderRadius: 4}}>
           <div style={{position: 'absolute', right: -6, top: -14, width: 0, height: 0, borderTop: '18px solid transparent', borderBottom: '18px solid transparent', borderLeft: '28px solid #111'}} /></div>;
         if (e.k === 'img') return <div key={i} style={{position: 'absolute', left: e.x, top: e.y, width: e.w, opacity: o, transform: `translateY(${(1 - k) * 30}px)`}}>
@@ -73,10 +73,10 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
                 color: '#fff', background: pp.bd, padding: '4px 14px', borderRadius: 8}}>{m.label}</span></span>;
           })}
         </div>;
-      })}
+      })}</div>
       {l ? <div style={{position: 'absolute', left: 0, right: 0, top: 1470, display: 'flex', justifyContent: 'center'}}>
         <div style={{background: '#111', color: '#fff', fontWeight: 800, fontSize: Math.min(62, 930 / em(l.text)), padding: '14px 34px', whiteSpace: 'nowrap', letterSpacing: -1}}>{rows(l.text, '#FFD84D')}</div></div> : null}
-      <div style={{position: 'absolute', bottom: 150, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.heavy, fontSize: 52, color: BLUE}}>누보영어</div>
+      <div style={{position: 'absolute', bottom: 150, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 52, color: BLUE}}>누보영어</div>
     </AbsoluteFill>
   );
 };

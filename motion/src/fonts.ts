@@ -17,8 +17,8 @@ if (typeof document !== 'undefined') {
 }
 
 // Korean display faces (Fontsource unicode-range subsets) used by on-screen effect captions.
-export const DISPLAY = {serif: 'Nanum Myeongjo', hand: 'Nanum Pen Script', round: 'Jua', heavy: 'Black Han Sans'};
-const DISPLAY_CSS: [string, string][] = [['nanum-myeongjo', '800.css'], ['nanum-pen-script', '400.css'], ['jua', '400.css'], ['black-han-sans', '400.css']];
+export const DISPLAY = {serif: 'Nanum Myeongjo', hand: 'Nanum Pen Script', round: 'Jua', heavy: 'Black Han Sans', gothic: 'Nanum Gothic'};
+const DISPLAY_CSS: [string, string][] = [['nanum-myeongjo', '800.css'], ['nanum-pen-script', '400.css'], ['jua', '400.css'], ['black-han-sans', '400.css'], ['nanum-gothic', '800.css']];
 if (typeof document !== 'undefined') {
   const handle = delayRender('display-fonts-css');
   Promise.all(DISPLAY_CSS.map(([dir, css]) => fetch(staticFile(`kfonts/${dir}/${css}`)).then((r) => r.text())
