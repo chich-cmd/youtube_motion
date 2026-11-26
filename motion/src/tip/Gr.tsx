@@ -18,6 +18,7 @@ export type GrEl =
   | {s: number; e?: number; k: 'arrow'; x: number; y: number; w: number}
   | {s: number; e?: number; k: 'follow'; y: number; tap: number; avatar: string; name: string; sub: string}
   | {s: number; e?: number; k: 'point'; x: number; y: number; label?: string; v?: 'arrow' | 'curve' | 'ring' | 'tap' | 'line'}
+  | {s: number; e?: number; k: 'igcard'; y: number; avatar: string; name: string; bio: string; stats: [string, string][]}
   | {s: number; e?: number; k: 'tick'; x: number; y: number; size: number; type: 'x' | 'check'; c?: C};
 export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; heads?: {s: number; step?: string; head: string}[]; audio?: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
@@ -67,6 +68,24 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
           </div>;
         }
         if (e.k === 'text') return <div key={i} style={{position: 'absolute', left: e.center ? 0 : e.x, right: e.center ? 0 : undefined, top: e.y, textAlign: e.center ? 'center' : 'left', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: e.size ?? 64, color: e.color ?? '#111', opacity: o, lineHeight: 1.2}}>{rows(e.text, BLUE)}</div>;
+        if (e.k === 'igcard') {
+          // Instagram profile header replica (name, avatar ring, bio, stats)
+          return <div key={i} style={{position: 'absolute', left: 70, right: 70, top: e.y, opacity: o, transform: `translateY(${(1 - k) * 30}px)`,
+            background: '#fff', border: '3px solid #DDE2EC', borderRadius: 28, padding: '34px 40px 40px', color: '#111'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: 12, fontWeight: 800, fontSize: 50}}>{e.name}
+              <svg viewBox="0 0 40 40" width={44} height={44}><path d="M20 2 l5 4 6-1 2 6 5 3-2 6 2 6-5 3-2 6-6-1-5 4-5-4-6 1-2-6-5-3 2-6-2-6 5-3 2-6 6 1z" fill="#3897F0" /><path d="M13 20 l5 5 9-10" stroke="#fff" strokeWidth={4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
+            <div style={{display: 'flex', alignItems: 'center', gap: 36, marginTop: 30}}>
+              <div style={{width: 220, height: 220, borderRadius: '50%', padding: 8, background: 'conic-gradient(from 200deg, #FEDA75, #FA7E1E, #D62976, #962FBF, #D62976, #FA7E1E, #FEDA75)', flexShrink: 0}}>
+                <Img src={staticFile(e.avatar)} style={{width: '100%', height: '100%', borderRadius: '50%', border: '6px solid #fff', boxSizing: 'border-box'}} /></div>
+              <div style={{flex: 1}}>
+                <div style={{fontWeight: 600, fontSize: 34, lineHeight: 1.35, whiteSpace: 'pre-line'}}>{e.bio}</div>
+                <div style={{display: 'flex', gap: 80, marginTop: 22}}>
+                  {e.stats.map(([n, l], j) => <div key={j}><div style={{fontWeight: 800, fontSize: 42}}>{n}</div><div style={{fontWeight: 500, fontSize: 30}}>{l}</div></div>)}
+                </div>
+              </div>
+            </div>
+          </div>;
+        }
         if (e.k === 'follow') {
           // follow prompt: profile card pops in, a tap ripple hits the button, button flips to following
           const done = t >= e.tap, kt = pop(e.tap);
