@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Img, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Audio, Img, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {FONT} from '../theme';
 import {DISPLAY} from '../fonts';
 import '../fonts';
@@ -11,18 +11,18 @@ type C = 'red' | 'blue' | 'gray';
 // paper grain: fractal noise tile
 const GRAIN = `url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.25  0 0 0 0.09 0"/></filter><rect width="400" height="400" filter="url(#n)"/></svg>')}")`;
 export type GrEl =
-  | {s: number; k: 'circle'; x: number; y: number; r: number; text: string; c: C; sign?: '+' | '-'}
-  | {s: number; k: 'text'; x: number; y: number; text: string; size?: number; color?: string; center?: boolean}
-  | {s: number; k: 'card'; x: number; y: number; w: number; text: string; size?: number; marks?: {s: number; text: string; label: string; c: C}[]}
-  | {s: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
-  | {s: number; k: 'arrow'; x: number; y: number; w: number}
-  | {s: number; k: 'tick'; x: number; y: number; size: number; type: 'x' | 'check'; c?: C};
-export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
+  | {s: number; e?: number; k: 'circle'; x: number; y: number; r: number; text: string; c: C; sign?: '+' | '-'}
+  | {s: number; e?: number; k: 'text'; x: number; y: number; text: string; size?: number; color?: string; center?: boolean}
+  | {s: number; e?: number; k: 'card'; x: number; y: number; w: number; text: string; size?: number; marks?: {s: number; text: string; label: string; c: C}[]}
+  | {s: number; e?: number; k: 'img'; x: number; y: number; w: number; src: string; cap?: string}
+  | {s: number; e?: number; k: 'arrow'; x: number; y: number; w: number}
+  | {s: number; e?: number; k: 'tick'; x: number; y: number; size: number; type: 'x' | 'check'; c?: C};
+export type GrProps = {theme?: GrTheme; top: string; step?: string; head: string; heads?: {s: number; step?: string; head: string}[]; audio?: string; els: GrEl[]; lines: {s: number; e: number; text: string}[]};
 const rows = (t: string, key: string) => t.split('\n').map((r, i) => (
   <div key={i}>{r.split(/(\{[^}]+\})/).filter(Boolean).map((p, j) => p.startsWith('{') ? <span key={j} style={{color: key}}>{p.slice(1, -1)}</span> : <React.Fragment key={j}>{p}</React.Fragment>)}</div>));
 const em = (s: string) => [...s.replace(/[{}]/g, '')].reduce((a, c) => a + (/[ -~]/.test(c) ? 0.55 : 1), 0);
 
-export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}) => {
+export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head0, heads, audio, els, lines}) => {
   const BLUE = theme.main;
   const PAL = {red: {bd: theme.sub, bg: theme.subBg, ink: theme.sub}, blue: {bd: theme.main, bg: theme.mainBg, ink: theme.main}, gray: {bd: '#9AA3B5', bg: '#F1F3F7', ink: '#4A5468'}};
   const f = useCurrentFrame();
@@ -30,17 +30,30 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step, head, els, lines}
   const t = f / fps;
   const pop = (s: number) => spring({frame: f - Math.round(s * fps), fps, config: {damping: 15, stiffness: 170}});
   const l = lines.find((x) => t >= x.s && t < x.e);
+  const hd = heads ? [...heads].reverse().find((x) => t >= x.s) : undefined;
+  const step = hd ? hd.step : step0, head = hd ? hd.head : head0;
+  const kh = hd ? pop(hd.s) : 1;
   return (
     <AbsoluteFill style={{background: theme.paper, fontFamily: FONT}}>
+      {audio ? <Audio src={staticFile(audio)} /> : null}
       {theme.grid !== false ? <AbsoluteFill style={{backgroundImage: 'linear-gradient(rgba(40,60,100,0.055) 2px, transparent 2px), linear-gradient(90deg, rgba(40,60,100,0.055) 2px, transparent 2px)', backgroundSize: '60px 60px'}} /> : null}
       {/* top band: black with mint title, yellow key word */}
       <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 300, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 30,
         textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 86, fontWeight: 800, lineHeight: 1.2, color: '#16FEE8', letterSpacing: -1}}><div>{rows(top, '#EBFF0D')}</div></div>
-      <div style={{position: 'absolute', top: 345, left: 70, right: 70, display: 'flex', alignItems: 'center', gap: 22}}>
+      {step && /^[1-3]$/.test(step) ? (
+        // progress box: 1. 문법  2. 해석  3. 단어 (current one highlighted)
+        <div style={{position: 'absolute', top: 345, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: Math.min(1, kh * 1.5)}}>
+          <div style={{display: 'flex', gap: 54, background: '#fff', border: '3px solid #DDE2EC', borderRadius: 18, padding: '14px 46px'}}>
+            {['문법', '해석', '단어'].map((x, i) => <div key={i} style={{fontWeight: 900, fontSize: 56, letterSpacing: -1, color: String(i + 1) === step ? BLUE : '#B4BBC8'}}>{i + 1}. {x}</div>)}
+          </div>
+        </div>
+      ) : (
+        <div style={{position: 'absolute', top: 345, left: 70, right: 70, opacity: Math.min(1, kh * 1.5), translate: `${(1 - kh) * -40}px 0`, display: 'flex', alignItems: 'center', gap: 22}}>
         {step ? <div style={{background: BLUE, color: '#fff', fontWeight: 900, fontSize: 52, padding: '6px 22px', borderRadius: 10, whiteSpace: 'nowrap'}}>{step}</div> : null}
         <div style={{fontWeight: 900, fontSize: Math.min(68, (step ? 700 : 940) / em(head)), color: '#111', letterSpacing: -1.5, whiteSpace: 'nowrap'}}>{rows(head, BLUE)}</div>
       </div>
-      <div style={{position: 'absolute', inset: 0, transform: 'translateY(60px)'}}>{els.filter((e) => t >= e.s).map((e, i) => {
+      )}
+      <div style={{position: 'absolute', inset: 0, transform: 'translateY(60px)'}}>{els.filter((e) => t >= e.s && (e.e === undefined || t < e.e)).map((e, i) => {
         const k = pop(e.s);
         const o = Math.min(1, k * 1.4);
         if (e.k === 'circle') {
