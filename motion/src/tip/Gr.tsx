@@ -123,9 +123,11 @@ export const Gr: React.FC<GrProps> = ({theme = DEF, top, step: step0, head: head
           })}
         </div>;
       })}</div>
+      {/* bottom gradient so Instagram's own overlay (account name, follow button) stays readable */}
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 640, background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 30%, rgba(0,0,0,0.78) 70%, rgba(0,0,0,0.88) 100%)'}} />
       {l ? <div style={{position: 'absolute', left: 0, right: 0, top: 1470, display: 'flex', justifyContent: 'center'}}>
         <div style={{background: '#111', color: '#fff', fontWeight: 800, fontSize: Math.min(62, 930 / em(l.text)), padding: '14px 34px', whiteSpace: 'nowrap', letterSpacing: -1}}>{rows(l.text, '#FFD84D')}</div></div> : null}
-      <div style={{position: 'absolute', bottom: 150, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 52, color: BLUE}}>누보영어</div>
+      <div style={{position: 'absolute', bottom: 150, left: 0, right: 0, textAlign: 'center', fontFamily: DISPLAY.gothic, fontWeight: 800, fontSize: 52, color: '#fff'}}>누보영어</div>
     </AbsoluteFill>
   );
 };
